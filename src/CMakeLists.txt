@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(project_1_fys4411)
+project(VMC_bachelor_thesis)
 
 # Set CXX standard to C++17
 set(CMAKE_CXX_STANDARD 17)

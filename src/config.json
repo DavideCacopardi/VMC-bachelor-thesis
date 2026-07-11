@@ -1,8 +1,8 @@
 {
     "system": {
-        "hamiltonianType": "CoulombHO",
+        "hamiltonianType": "RepulsiveHO",
         "waveFunctionTrainType": "EllipticGaussian",
-        "waveFunctionType": "NN_envelope",
+        "waveFunctionType": "EllipticGaussian",
         "solverType": "MetropolisHastings",
         "preferAnalytic": false,
         "useCache": false
@@ -15,7 +15,7 @@
         "repulsive_a_factor": 0.0043,
         "repulsive_strength": "inf",
         "maxStrength": 1,
-        "initialParams": [0.50, 2.8243]
+        "initialParams": [0.6, 2.9]
     },
     "monte_carlo": {
         "timeStep": 0.15,
