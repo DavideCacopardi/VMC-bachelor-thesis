@@ -5,7 +5,8 @@
         "waveFunctionType": "EllipticGaussian",
         "solverType": "MetropolisHastings",
         "preferAnalytic": false,
-        "useCache": false
+        "useCache": false,
+        "numberOfThreads": 4
     },
     "physics": {
         "dimensions": 3,
@@ -20,7 +21,7 @@
     "monte_carlo": {
         "timeStep": 0.15,
         "equilibrationSteps": 10000,
-        "metropolisSteps": 10000,
+        "metropolisSteps": 1e6,
         "finalMClog2steps": 16,
         "BFGS_tol": 1e-5
     },

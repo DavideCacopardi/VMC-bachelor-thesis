@@ -37,7 +37,7 @@ NNsampler::NNsampler(
     m_B2OW.assign(m_numberOfParameters, 0);
 }
 
-void NNsampler::sample(bool acceptedStep, System* system, std::ofstream*) {
+void NNsampler::sample(bool acceptedStep, System* system, std::vector<double>*) {
     auto* ptr = dynamic_cast<NN_envelope*>(&system->getWaveFunction());
     if (ptr == nullptr) {
         throw std::logic_error("NNsampler requires a NN_envelope wave function.");

@@ -26,13 +26,7 @@ public:
         unsigned int numberOfMetropolisSteps);
     virtual ~Sampler() = default;
 
-    /**
-     * @brief Samples the system's properties at the current Metropolis step.
-     * @param acceptedStep True if the proposed Metropolis move was accepted.
-     * @param system Pointer to the quantum system to extract properties from.
-     * @param outfile Optional output stream to log raw step-by-step data.
-     */
-    virtual void sample(bool acceptedStep, class System* system, std::ofstream* outfile = nullptr) = 0;
+    virtual void sample(bool acceptedStep, class System* system, std::vector<double>* outputRaw = nullptr) = 0;
 
     /**
      * @brief Computes final statistical averages (e.g., means, variances, errors).

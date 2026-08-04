@@ -111,6 +111,7 @@ int main(int argc, char* argv[]) {
     }
 
     // --- Global Log file setup ---
+    string toLogStr = "";
     auto now = chrono::system_clock::now();
     time_t now_time = chrono::system_clock::to_time_t(now);
     tm* now_tm = localtime(&now_time);
@@ -212,7 +213,7 @@ int main(int argc, char* argv[]) {
         vector<double> optimalParams = optimizer.optimize(wfFacTrain(cfg.initialParams));
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
-
+    
         cout << "Optimal parameters: " << setprecision(9);
         globalLog << "Optimal parameters: " << setprecision(9);
         for (unsigned int i = 0; i < optimalParams.size(); i++) {
@@ -265,9 +266,9 @@ int main(int argc, char* argv[]) {
         // --- 2a: Final MC ---
         watch_start = chrono::high_resolution_clock::now();
         vector<double> params = readVector("./iofiles/params.dat");
-        ofstream energiesfile("./iofiles/finalMCenergies.dat");
+        std::vector<std::vector<double>> rawEnergiesData;   // later analyzed by blocking algorithm
         unique_ptr<EnergySampler> sampler =
-            engine.run(params, (unsigned int)pow(2, cfg.finalMClog2steps), &energiesfile);
+            engine.run(params, (unsigned int)pow(2, cfg.finalMClog2steps), &rawEnergiesData);
         cout << scientific << setprecision(9) << "FinalMC energy: " << sampler->getEnergy()
             << " +- " << sampler->getError() << endl << defaultfloat;
         globalLog << scientific << setprecision(9) << "FinalMC energy: " << sampler->getEnergy()
@@ -280,21 +281,40 @@ int main(int argc, char* argv[]) {
         elapsedTime = watch_end - watch_start;
         cout << "FinalMC done (in " << elapsedTime.count() << " s).\n\n";
         globalLog << "FinalMC done (in " << elapsedTime.count() << " s).\n\n";
-        energiesfile.close();
 
         // --- 2b: Blocking ---
-        watch_start = chrono::high_resolution_clock::now();
-        vector<double> finalEnergies = readVector("./iofiles/finalMCenergies.dat");
-        Blocker block(finalEnergies);
-        block.printResults("./iofiles/blocking_results.csv");
-        cout << scientific << setprecision(9) << "Blocking energy: " << block.mean
-            << " +- " << block.stdErr << endl << defaultfloat;
-        globalLog << scientific << setprecision(9) << "Blocking energy: " << block.mean
-            << " +- " << block.stdErr << endl << defaultfloat;
-        watch_end = chrono::high_resolution_clock::now();
-        elapsedTime = watch_end - watch_start;
-        cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
-        globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+        if (rawEnergiesData[0].size() % 2 != 0) {   // check viability of the blocking estimate
+            toLogStr = "WRN: size of data fed into the blocking algorithm must be a power of 2."
+                "\n    This may be caused by the number of threads not being a power of 2 itself."
+                "\n    The blocking estimate will not be evaluated.\n\n";
+            cout << toLogStr;
+            globalLog << toLogStr;
+        }
+        else {  // The number of MC cycles is a power of 2. Blocking can be calculated.
+            watch_start = chrono::high_resolution_clock::now();
+            double cumulative_E = 0;
+            double cumulative_var = 0;
+            for (unsigned int i = 0; i < rawEnergiesData.size(); i++) {
+                Blocker block(rawEnergiesData[i]);
+                block.printResults("./iofiles/blocking_results.csv");
+                cout << "Blocking_" << i << scientific << setprecision(9) << " energy: " << block.mean
+                    << " +- " << block.stdErr << endl << defaultfloat;
+                globalLog << "Blocking_" << i << scientific << setprecision(9) << " energy: " << block.mean
+                    << " +- " << block.stdErr << endl << defaultfloat;
+                cumulative_E += block.mean;
+                cumulative_var += sq(block.stdErr);
+            }
+            cout << scientific << setprecision(9) << "Final blocking energy: "
+                << cumulative_E / (double) rawEnergiesData.size()
+                << " +- " << sqrt(cumulative_var) / (double) rawEnergiesData.size() << endl << defaultfloat;
+            globalLog << scientific << setprecision(9) << "Final blocking energy: "
+                << cumulative_E / (double) rawEnergiesData.size()
+                << " +- " << sqrt(cumulative_var) / (double) rawEnergiesData.size() << endl << defaultfloat;
+            watch_end = chrono::high_resolution_clock::now();
+            elapsedTime = watch_end - watch_start;
+            cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+            globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+        }
     }
 
     if (toggles[2]) {

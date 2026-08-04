@@ -38,7 +38,7 @@ m_rMax(rMax), m_nBins(nBins) {
     }
 }
 
-void DensitySampler::sample(bool acceptedStep, System* system, std::ofstream*) {
+void DensitySampler::sample(bool acceptedStep, System* system, std::vector<double>*) {
     const std::vector<std::unique_ptr<Particle>>& particles = system->getParticles();
 
     // radial distance and fill histogram

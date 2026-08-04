@@ -46,13 +46,12 @@ public:
      * @brief Executes the Metropolis simulation to sample the system's energy.
      * @param stepParameter Step length (\f$\Delta t\f$).
      * @param numberOfMetropolisSteps Total number of steps to execute.
-     * @param energiesOut Optional pointer to a file to log individual local energies.
      * @return An EnergySampler containing final statistics (mean energy, variance).
      */
     std::unique_ptr<class EnergySampler> runMetropolisSteps(
         double stepParameter,
         unsigned int numberOfMetropolisSteps,
-        std::ofstream* energiesOut = nullptr);
+        std::vector<double>* energiesOut = nullptr);
 
     // std::unique_ptr<class NNsampler> runMetropolisSteps_NN(double stepParameter,
     //     unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);

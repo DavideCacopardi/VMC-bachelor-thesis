@@ -17,7 +17,7 @@ public:
         WaveFunction& wf_train
     );
 
-    void sample(bool acceptedStep, class System* system, std::ofstream* outfile = nullptr) override;
+    void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
     void printOutputToTerminal();
 

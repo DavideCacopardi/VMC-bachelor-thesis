@@ -1,0 +1,63 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-04 17:21:26
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : RepulsiveHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : EllipticGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : false
+useCache         : false
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 3
+particles (N)    : 2
+omega            : 1
+omega_z          : 2.8243
+rep_a_factor     : 0.0043
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^16 (65536)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 12
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 1000
+Energy Steps     : 3000
+Adiab Steps      : 1000
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 5000000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 0.6, 	2.9, 	
+Optimal parameters: 0.498219835, 	2.82879337, 	
+VMC Optimization done (in 9.87272594 s).
+
+FinalMC energy: 4.824276391e+00 +- 2.893935140e-05
+Acceptance ratio: 9.329518578e-01
+FinalMC done (in 0.021311245 s).
+
+WRN: size of data fed into the blocking algorithm must be a power of 2.
+    This may be caused by the number of threads not being a power of 2 itself.
+    The blocking estimate will not be evaluated.
+
+One-body density done (in 1.9264358 s).
+
+=========================================

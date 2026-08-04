@@ -33,23 +33,44 @@ EnergySampler::EnergySampler(
     m_error = 0;
     m_cumulativeEnergy = 0;
     m_cumulativeEnergySQ = 0;
+    m_cumulativeOpO.resize(m_numberOfParameters, 0);
+    m_cumulativeOpOE.resize(m_numberOfParameters, 0);
+}
+
+EnergySampler::EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others)
+    : EnergySampler(others[0]->m_numberOfParticles,
+        others[0]->m_numberOfDimensions,
+        others[0]->m_numberOfParameters,
+        others[0]->m_stepLength,
+        0)
+{
+    for (unsigned int i = 0; i < others.size(); i++) {
+        if (others[i]->m_elapsedTime > m_elapsedTime)
+            m_elapsedTime = others[i]->m_elapsedTime;
+        m_cumulativeEnergy += others[i]->m_cumulativeEnergy;
+        m_cumulativeEnergySQ += others[i]->m_cumulativeEnergySQ;
+        m_numberOfMetropolisSteps += others[i]->m_numberOfMetropolisSteps;
+        m_numberOfAcceptedSteps += others[i]->m_numberOfAcceptedSteps;
+        for (unsigned int j = 0; j < m_numberOfParameters; j++) {
+            m_cumulativeOpO[j] += others[i]->m_cumulativeOpO[j];
+            m_cumulativeOpOE[j] += others[i]->m_cumulativeOpOE[j];
+        }
+    }
+    computeAverages();
 }
 
 
-void EnergySampler::sample(bool acceptedStep, System* system, std::ofstream* energiesOut) {
-    /* Here you should sample all the interesting things you want to measure.
-     * Note that there are (way) more than the single one here currently.
-     */
+void EnergySampler::sample(bool acceptedStep, System* system, std::vector<double>* energiesOut) {
     double localEnergy = system->computeLocalEnergy();
     if (energiesOut != nullptr) {
-        *energiesOut << localEnergy << '\n';
+        energiesOut->push_back(localEnergy);
     }
     m_cumulativeEnergy += localEnergy;
     m_cumulativeEnergySQ += sq(localEnergy);
     std::vector<double> OW = system->computeLogParDer_vect();
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
-        m_opO[i] += OW[i];
-        m_covariance[i] += OW[i] * localEnergy;
+        m_cumulativeOpO[i] += OW[i];
+        m_cumulativeOpOE[i] += OW[i] * localEnergy;
     }
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
@@ -103,7 +124,7 @@ void EnergySampler::printOutputToFile(System& system, std::ofstream& outs) {
 }
 
 void EnergySampler::logOutput(const std::vector<double>& params, std::ofstream& outs) {
-    const unsigned int prec = 7, width = 16;
+    const unsigned int prec = 12, width = 19;
     outs << std::scientific << std::setprecision(prec);
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         outs << std::setw(width) << params[i] << ",";
@@ -118,7 +139,7 @@ void EnergySampler::logOutput(const std::vector<double>& params, std::ofstream& 
 }
 
 void EnergySampler::logOutput(std::ofstream& outs, std::vector<double> additional_log) {
-    const unsigned int prec = 10, width = 19;
+    const unsigned int prec = 12, width = 19;
     outs << std::scientific << std::setprecision(prec)
         << std::setw(width) << m_energy << ","
         << std::setw(width) << m_variance << ","
@@ -131,17 +152,12 @@ void EnergySampler::logOutput(std::ofstream& outs, std::vector<double> additiona
 }
 
 void EnergySampler::computeAverages() {
-    /* Compute the averages of the sampled quantities.
-     */
     m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
     m_energySQ = m_cumulativeEnergySQ / m_numberOfMetropolisSteps;
     m_variance = m_energySQ - sq(m_energy);
     m_error = sqrt(m_variance / m_numberOfMetropolisSteps);
-    m_elapsedTime = m_watch_end - m_watch_start;
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
-        m_covariance[i] /= m_numberOfMetropolisSteps;   // calculate  <O E>
-        m_opO[i] /= m_numberOfMetropolisSteps;          // calculate  <O>
-        m_covariance[i] -= m_opO[i] * m_energy;         // subtract  <O> <E>
+        m_covariance[i] = (m_cumulativeOpOE[i] - m_cumulativeOpO[i] * m_energy) / (double)m_numberOfMetropolisSteps;
     }
 }
 
@@ -151,4 +167,8 @@ std::vector<double> EnergySampler::get_dEdW() const {
         dEdW[i] = 2 * m_covariance[i];
     }
     return dEdW;
+}
+
+void EnergySampler::setElapsedTime(std::chrono::duration<double> time) {
+    m_elapsedTime = time;
 }

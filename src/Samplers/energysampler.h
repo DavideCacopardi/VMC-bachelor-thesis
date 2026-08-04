@@ -19,8 +19,10 @@ public:
         double stepLength,
         unsigned int numberOfMetropolisSteps);
 
+    // Construct merged sampler
+    EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others);
 
-    void sample(bool acceptedStep, class System* system, std::ofstream* energiesOut = nullptr);
+    void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr);
     void printOutputToTerminal(class System& system);
     void printOutputToFile(class System& system, std::ofstream& outs);
     void logOutput(const std::vector<double>& params, std::ofstream& outs);
@@ -31,6 +33,7 @@ public:
     double getAcceptanceRatio() { return (double)m_numberOfAcceptedSteps / (double)m_numberOfMetropolisSteps; }
     double getCovariance(unsigned int param_idx) { return m_covariance[param_idx]; }
     std::vector<double> get_dEdW() const;
+    void setElapsedTime(std::chrono::duration<double> time);
 
 private:
     double m_energy = 0;
@@ -41,4 +44,6 @@ private:
     double m_error = 0;
     double m_cumulativeEnergy = 0;
     double m_cumulativeEnergySQ = 0;
+    std::vector<double> m_cumulativeOpOE;
+    std::vector<double> m_cumulativeOpO;
 };

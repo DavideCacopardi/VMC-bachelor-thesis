@@ -13,6 +13,7 @@ struct runConfig {
     string solverType = "MetropolisHastings";
     bool preferAnalytic = false;
     bool useCache = false;
+    unsigned int numberOfThreads = 4;
 
     // [ PHYSICAL PARAMETERS ]
     unsigned int numberOfDimensions = 2;

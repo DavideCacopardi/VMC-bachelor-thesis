@@ -29,4 +29,5 @@ Sampler::Sampler(
     m_stepLength = stepLength;
     m_numberOfAcceptedSteps = 0;
     m_watch_start = std::chrono::high_resolution_clock::now();
+    m_elapsedTime = std::chrono::high_resolution_clock::duration(0);
 }

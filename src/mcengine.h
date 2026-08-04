@@ -34,17 +34,10 @@ public:
         SolverFactory solverFactory
     );
 
-    /**
-     * @brief Executes a full VMC simulation to evaluate the energy.
-     * @param params Variational parameters (e.g., alpha) to use in this run.
-     * @param numberOfMetropolisSteps How many Metropolis steps to generate.
-     * @param energiesOut Optional stream to save raw energy data.
-     * @return An EnergySampler object containing all calculated averages (energy, variance).
-     */
     std::unique_ptr<class EnergySampler> run(
         const std::vector<double>& params,
         unsigned int numberOfMetropolisSteps,
-        std::ofstream* energiesOut = nullptr
+        std::vector<std::vector<double>>* energiesOut = nullptr
     );
 
     /**

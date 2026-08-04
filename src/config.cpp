@@ -32,6 +32,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.solverType            = j["system"].value("solverType", cfg.solverType);
         cfg.preferAnalytic        = j["system"].value("preferAnalytic", cfg.preferAnalytic);
         cfg.useCache              = j["system"].value("useCache", cfg.useCache);
+        cfg.numberOfThreads       = j["system"].value("numberOfThreads", cfg.numberOfThreads);
     }
 
     // --- [ PHYSICAL PARAMETERS ] ---

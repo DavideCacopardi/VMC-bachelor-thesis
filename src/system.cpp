@@ -53,7 +53,7 @@ unsigned int System::runEquilibrationSteps(double stepParameter,
 }
 
 std::unique_ptr<class EnergySampler> System::runMetropolisSteps(double stepParameter,
-    unsigned int numberOfMetropolisSteps, std::ofstream* energiesOut) {
+    unsigned int numberOfMetropolisSteps, std::vector<double>* energiesOut) {
     auto sampler = std::make_unique<EnergySampler>(
         m_numberOfParticles,
         m_numberOfDimensions,
@@ -61,16 +61,17 @@ std::unique_ptr<class EnergySampler> System::runMetropolisSteps(double stepParam
         stepParameter,
         numberOfMetropolisSteps);
 
+    auto watch_start = std::chrono::high_resolution_clock::now();
     for (unsigned int i = 0; i < numberOfMetropolisSteps; i++) {
-        /* Call solver method to do a single Monte-Carlo step.
-         */
+        // Call solver method to do a single Monte-Carlo step
         bool acceptedStep = m_solver->step(stepParameter, *m_waveFunction, m_particles);
 
-        // Sample energy
         sampler->sample(acceptedStep, this, energiesOut);
     }
+    auto watch_end = std::chrono::high_resolution_clock::now();
 
     sampler->computeAverages();
+    sampler->setElapsedTime(watch_end - watch_start);
 
     return sampler;
 }

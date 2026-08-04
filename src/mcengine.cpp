@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <chrono>
+#include <omp.h>
 
 #include "mcengine.h"
 #include "system.h"
@@ -35,21 +36,48 @@ m_solverFactory(std::move(solverFactory))
 std::unique_ptr<EnergySampler> MCEngine::run(
     const std::vector<double>& params,
     unsigned int numberOfMetropolisSteps,
-    std::ofstream* energiesOut) {
-    auto rng = std::make_unique<Random>(m_cfg.seed == 0
-        ? std::chrono::system_clock::now().time_since_epoch().count()
-        : m_cfg.seed);
-    auto particles = setupRandomUniformInitialState(
-        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
-    auto solver = m_solverFactory(std::move(rng));
-    auto system = std::make_unique<System>(
-        m_hamiltonianFactory(),
-        m_waveFunctionFactory(params),
-        std::move(solver),
-        std::move(particles));
+    std::vector<std::vector<double>>* energiesOut) 
+{
+    omp_set_num_threads(m_cfg.numberOfThreads);
+    unsigned int localSteps = numberOfMetropolisSteps / m_cfg.numberOfThreads;
 
-    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    return system->runMetropolisSteps(m_cfg.timeStep, numberOfMetropolisSteps, energiesOut);
+    // Vectors to hold the results from each thread
+    std::vector<std::unique_ptr<EnergySampler>> local_samplers(m_cfg.numberOfThreads);
+    std::vector<std::vector<double>> local_energies(m_cfg.numberOfThreads);
+    if (energiesOut != nullptr) {
+        energiesOut->resize(m_cfg.numberOfThreads);
+        for (unsigned int i = 0; i < m_cfg.numberOfThreads; ++i) {
+            (*energiesOut)[i].reserve(localSteps);
+        }
+    }
+
+    #pragma omp parallel
+    {
+        int thread_id = omp_get_thread_num();
+        // thread-safe RNG
+        unsigned long base_seed = (m_cfg.seed == 0) 
+            ? std::chrono::system_clock::now().time_since_epoch().count() 
+            : m_cfg.seed;
+        auto rng = std::make_unique<Random>(base_seed + thread_id);
+        // thread-local physical system
+        auto particles = setupRandomUniformInitialState(
+            m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
+        auto solver = m_solverFactory(std::move(rng));
+        auto system = std::make_unique<System>(
+            m_hamiltonianFactory(),
+            m_waveFunctionFactory(params),
+            std::move(solver),
+            std::move(particles));
+
+        system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+        local_samplers[thread_id] = system->runMetropolisSteps(
+            m_cfg.timeStep, 
+            localSteps, 
+            energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr
+        );
+    }
+    auto global_sampler = std::make_unique<EnergySampler>(local_samplers);
+    return global_sampler;
 }
 
 std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
