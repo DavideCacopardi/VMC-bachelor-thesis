@@ -2,7 +2,7 @@
 /*******************************************************************************
 * Copyright 2016 Intel Corporation
 * Copyright 2024-2025 FUJITSU LIMITED
-* Copyright 2025 Arm Ltd. and affiliates
+* Copyright 2025-2026 Arm Ltd. and affiliates
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -78,6 +78,14 @@ typedef enum {
     dnnl_packed,
     /// Coordinate Sparse Encoding (COO).
     dnnl_coo,
+#if DNNL_EXPERIMENTAL_GROUPED_MEMORY
+    /// Grouped Encoding represents a tensor where one dimension has variable
+    /// size per group.
+    /// Stored as concatenated blocks with an offsets specifying the size
+    /// of each group along the variable dimension.
+    /// Some of the blocks could be empty.
+    dnnl_grouped,
+#endif
 } dnnl_sparse_encoding_t;
 
 #ifdef DNNL_EXPERIMENTAL_PROFILING
@@ -1068,6 +1076,12 @@ typedef enum {
     dnnl_BAc4a4b,
     dnnl_BAcd4a4b,
     dnnl_BAcde4a4b,
+    dnnl_BA12b8a,
+    dnnl_aCB12c8b,
+    dnnl_abDC12d8c,
+    dnnl_BA4b8a,
+    dnnl_aCB4c8b,
+    dnnl_abDC4d8c,
 
     /// Just a sentinel, not real memory format tag. Must be changed after new
     /// format tag is added.
@@ -2699,6 +2713,11 @@ typedef const struct dnnl_primitive *const_dnnl_primitive_t;
 /// A special mnemonic for shift argument of normalization primitives.
 #define DNNL_ARG_DIFF_SHIFT 256
 
+/// Optional upper bound on max per group size for grouped matmul dispatch.
+#if DNNL_EXPERIMENTAL_GROUPED_MEMORY
+#define DNNL_ARG_HINT_MAX_GROUP_SIZE 384
+#endif
+
 /// Dropout offset value passed via a buffer
 #define DNNL_ARG_ATTR_DROPOUT_OFFSET 507
 
@@ -2973,14 +2992,18 @@ typedef enum {
     /// @copydoc dnnl_cpu_isa_avx10_1_512_amx_fp16
     dnnl_cpu_isa_avx512_core_amx_fp16 = dnnl_cpu_isa_avx10_1_512_amx_fp16,
 
-    /// Intel AVX10.2/512 with float16, Intel DL Boost and bfloat16 support
+    /// Intel AVX10.2
     /// for Intel Xeon Scalable processor family
     /// and Intel Core processor family
-    dnnl_cpu_isa_avx10_2_512 = 0x201ff,
+    dnnl_cpu_isa_avx10_2 = 0x201ff,
+    /// @copydoc dnnl_cpu_isa_avx10_2
+    dnnl_cpu_isa_avx10_2_512 = dnnl_cpu_isa_avx10_2,
 
-    /// Intel AVX10.2/512 with float16, Intel DL Boost and bfloat16 support and
+    /// Intel AVX10.2
     /// Intel AMX with 8-bit integer, bfloat16, float16, float8 support
-    dnnl_cpu_isa_avx10_2_512_amx_2 = 0x22fff,
+    dnnl_cpu_isa_avx10_2_amx_2 = 0x22fff,
+    /// @copydoc dnnl_cpu_isa_avx10_2_amx_2
+    dnnl_cpu_isa_avx10_2_512_amx_2 = dnnl_cpu_isa_avx10_2_amx_2,
 } dnnl_cpu_isa_t;
 
 /// CPU ISA hints flags

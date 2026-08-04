@@ -24,10 +24,10 @@
 #define DNNL_VERSION_MAJOR 3
 
 /// Minor version
-#define DNNL_VERSION_MINOR 11
+#define DNNL_VERSION_MINOR 12
 
 /// Patch version
-#define DNNL_VERSION_PATCH 2
+#define DNNL_VERSION_PATCH 0
 
 // clang-format on
 

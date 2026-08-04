@@ -1,4 +1,3 @@
-// config.h
 #pragma once
 #include <string>
 #include <limits>

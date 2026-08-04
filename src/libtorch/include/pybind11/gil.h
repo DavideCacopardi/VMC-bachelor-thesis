@@ -1,4 +1,3 @@
-#if !defined(TORCH_STABLE_ONLY) && !defined(TORCH_TARGET_VERSION)
 /*
     pybind11/gil.h: RAII helpers for managing the GIL
 
@@ -202,7 +201,3 @@ private:
 PYBIND11_NAMESPACE_END(PYBIND11_NAMESPACE)
 
 #endif // !PYBIND11_SIMPLE_GIL_MANAGEMENT
-
-#else
-#error "This file should not be included when either TORCH_STABLE_ONLY or TORCH_TARGET_VERSION is defined."
-#endif  // !defined(TORCH_STABLE_ONLY) && !defined(TORCH_TARGET_VERSION)

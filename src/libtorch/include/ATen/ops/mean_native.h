@@ -24,8 +24,6 @@ void impl(const at::Tensor & self, at::OptionalIntArrayRef dim, bool keepdim, ::
 };
 TORCH_API at::Tensor mean_quantized_cpu(const at::Tensor & self, at::OptionalIntArrayRef dim, bool keepdim=false, ::std::optional<at::ScalarType> dtype=::std::nullopt);
 TORCH_API at::Tensor & mean_out_quantized_cpu(const at::Tensor & self, at::OptionalIntArrayRef dim, bool keepdim, ::std::optional<at::ScalarType> dtype, at::Tensor & out);
-TORCH_API at::Tensor mean(const at::Tensor & self, at::DimnameList dim, bool keepdim=false, ::std::optional<at::ScalarType> dtype=::std::nullopt);
-TORCH_API at::Tensor & mean_out(const at::Tensor & self, at::DimnameList dim, bool keepdim, ::std::optional<at::ScalarType> dtype, at::Tensor & out);
 } // namespace native
 } // namespace at
 

@@ -29,8 +29,6 @@ void impl(const at::Tensor & self, int64_t dim, const at::Tensor & index, const 
 struct TORCH_API structured_scatter_value_reduce_out : public at::meta::structured_scatter_value_reduce {
 void impl(const at::Tensor & self, int64_t dim, const at::Tensor & index, const at::Scalar & value, c10::string_view reduce, const at::Tensor & out);
 };
-TORCH_API at::Tensor scatter(const at::Tensor & self, at::Dimname dim, const at::Tensor & index, const at::Tensor & src);
-TORCH_API at::Tensor scatter(const at::Tensor & self, at::Dimname dim, const at::Tensor & index, const at::Scalar & value);
 } // namespace native
 } // namespace at
 

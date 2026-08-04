@@ -5,6 +5,7 @@
 #include <fstream>
 #include <functional>
 #include <chrono>
+#include "config.h"
 
 /**
  * @brief Main engine for Variational Monte Carlo simulations.
@@ -22,24 +23,15 @@ public:
 
     /**
      * @brief Initializes the VMC engine, configuring physical parameters and Factories.
-     * @param numberOfDimensions Spatial dimensions of the system.
-     * @param numberOfParticles Total number of particles.
-     * @param numberOfEquilibrationSteps Thermalization steps prior to actual sampling.
-     * @param timeStep Time step parameter (\f$\Delta t\f$) for the solver.
      * @param hamiltonianFactory Function dynamically generating the chosen Hamiltonian.
      * @param waveFunctionFactory Function dynamically generating the WaveFunction.
      * @param solverFactory Function dynamically generating the solver (e.g., Metropolis-Hastings).
-     * @param seed Random seed (0 = random via system clock).
      */
     MCEngine(
-        unsigned int numberOfDimensions,
-        unsigned int numberOfParticles,
-        unsigned int numberOfEquilibrationSteps,
-        double timeStep,
+        const runConfig& cfg,
         HamiltonianFactory hamiltonianFactory,
         WaveFunctionFactory waveFunctionFactory,
-        SolverFactory solverFactory,
-        int seed = 0
+        SolverFactory solverFactory
     );
 
     /**
@@ -83,13 +75,10 @@ public:
     std::unique_ptr<class WaveFunction> makeWaveFunction(const std::vector<double>& params) const;
 
 private:
-    unsigned int m_numberOfDimensions;
-    unsigned int m_numberOfParticles;
-    unsigned int m_numberOfEquilibrationSteps;
-    double m_timeStep;
+    runConfig m_cfg;
+
     HamiltonianFactory m_hamiltonianFactory;
     WaveFunctionFactory m_waveFunctionFactory;
     SolverFactory m_solverFactory;
-    int m_seed;
     double m_rep_a;
 };

@@ -14,22 +14,16 @@
 #include "Hamiltonians/hamiltonian.h"
 
 MCEngine::MCEngine(
-    unsigned int numberOfDimensions,
-    unsigned int numberOfParticles,
-    unsigned int numberOfEquilibrationSteps,
-    double timeStep,
+    const runConfig& cfg,
     HamiltonianFactory hamiltonianFactory,
     WaveFunctionFactory waveFunctionFactory,
-    SolverFactory solverFactory,
-    int seed
-) : m_numberOfDimensions(numberOfDimensions)
-, m_numberOfParticles(numberOfParticles)
-, m_numberOfEquilibrationSteps(numberOfEquilibrationSteps)
-, m_timeStep(timeStep)
-, m_hamiltonianFactory(std::move(hamiltonianFactory))
-, m_waveFunctionFactory(std::move(waveFunctionFactory))
-, m_solverFactory(std::move(solverFactory))
-, m_seed(seed) {
+    SolverFactory solverFactory
+) :
+m_cfg(cfg),
+m_hamiltonianFactory(std::move(hamiltonianFactory)),
+m_waveFunctionFactory(std::move(waveFunctionFactory)),
+m_solverFactory(std::move(solverFactory)) 
+{
     if (m_hamiltonianFactory()->has_hardcore()) {
         m_rep_a = m_hamiltonianFactory()->getRepulsiveFactor();
     }
@@ -42,11 +36,11 @@ std::unique_ptr<EnergySampler> MCEngine::run(
     const std::vector<double>& params,
     unsigned int numberOfMetropolisSteps,
     std::ofstream* energiesOut) {
-    auto rng = std::make_unique<Random>(m_seed == 0
+    auto rng = std::make_unique<Random>(m_cfg.seed == 0
         ? std::chrono::system_clock::now().time_since_epoch().count()
-        : m_seed);
+        : m_cfg.seed);
     auto particles = setupRandomUniformInitialState(
-        m_numberOfDimensions, m_numberOfParticles, *rng, m_rep_a);
+        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
     auto solver = m_solverFactory(std::move(rng));
     auto system = std::make_unique<System>(
         m_hamiltonianFactory(),
@@ -54,10 +48,8 @@ std::unique_ptr<EnergySampler> MCEngine::run(
         std::move(solver),
         std::move(particles));
 
-    std::cout << "DEBUG: Ready for equilibration" << std::endl;
-    system->runEquilibrationSteps(m_timeStep, m_numberOfEquilibrationSteps);
-    std::cout << "DEBUG: equilibration done" << std::endl;
-    return system->runMetropolisSteps(m_timeStep, numberOfMetropolisSteps, energiesOut);
+    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+    return system->runMetropolisSteps(m_cfg.timeStep, numberOfMetropolisSteps, energiesOut);
 }
 
 std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
@@ -65,11 +57,11 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
     unsigned int numberOfMetropolisSteps,
     double rMax,
     unsigned int nBins) {
-    auto rng = std::make_unique<Random>(m_seed == 0
+    auto rng = std::make_unique<Random>(m_cfg.seed == 0
         ? std::chrono::system_clock::now().time_since_epoch().count()
-        : m_seed);
+        : m_cfg.seed);
     auto particles = setupRandomUniformInitialState(
-        m_numberOfDimensions, m_numberOfParticles, *rng, m_rep_a);
+        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
     auto solver = m_solverFactory(std::move(rng));
     auto system = std::make_unique<System>(
         m_hamiltonianFactory(),
@@ -77,8 +69,8 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
         std::move(solver),
         std::move(particles));
 
-    system->runEquilibrationSteps(m_timeStep, m_numberOfEquilibrationSteps);
-    return system->runMetropolisStepsOnebodyDensity(m_timeStep, numberOfMetropolisSteps, rMax, nBins);
+    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+    return system->runMetropolisStepsOnebodyDensity(m_cfg.timeStep, numberOfMetropolisSteps, rMax, nBins);
 }
 
 double MCEngine::getRepulsiveFactor() const {

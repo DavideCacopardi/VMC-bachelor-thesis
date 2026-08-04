@@ -17,8 +17,6 @@
 
 namespace at {
 namespace native {
-TORCH_API at::Tensor empty_names(at::IntArrayRef size, ::std::optional<at::DimnameList> names, ::std::optional<at::ScalarType> dtype={}, ::std::optional<at::Layout> layout={}, ::std::optional<at::Device> device={}, ::std::optional<bool> pin_memory={}, ::std::optional<at::MemoryFormat> memory_format=::std::nullopt);
-TORCH_API at::Tensor & empty_names_out(at::IntArrayRef size, ::std::optional<at::DimnameList> names, ::std::optional<at::MemoryFormat> memory_format, at::Tensor & out);
 TORCH_API at::Tensor & empty_out(at::IntArrayRef size, ::std::optional<at::MemoryFormat> memory_format, at::Tensor & out);
 TORCH_API at::Tensor empty_cpu(at::IntArrayRef size, ::std::optional<at::ScalarType> dtype={}, ::std::optional<at::Layout> layout={}, ::std::optional<at::Device> device={}, ::std::optional<bool> pin_memory={}, ::std::optional<at::MemoryFormat> memory_format=::std::nullopt);
 TORCH_API at::Tensor empty_cuda(at::IntArrayRef size, ::std::optional<at::ScalarType> dtype={}, ::std::optional<at::Layout> layout={}, ::std::optional<at::Device> device={}, ::std::optional<bool> pin_memory={}, ::std::optional<at::MemoryFormat> memory_format=::std::nullopt);

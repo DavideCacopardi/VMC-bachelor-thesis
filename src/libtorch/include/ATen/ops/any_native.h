@@ -25,8 +25,6 @@ TORCH_API at::Tensor & any_dims_out_default(const at::Tensor & self, at::Optiona
 struct TORCH_API structured_any_dims_out : public at::meta::structured_any_dims {
 void impl(const at::Tensor & self, at::OptionalIntArrayRef dim, bool keepdim, const at::Tensor & out);
 };
-TORCH_API at::Tensor any(const at::Tensor & self, at::Dimname dim, bool keepdim=false);
-TORCH_API at::Tensor & any_out(const at::Tensor & self, at::Dimname dim, bool keepdim, at::Tensor & out);
 struct TORCH_API structured_any_all_out : public at::meta::structured_any {
 void impl(const at::Tensor & self, const at::Tensor & out);
 };

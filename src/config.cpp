@@ -1,11 +1,3 @@
-#include <fstream>
-#include <iostream>
-#include "config.h"
-#include "json.hpp" // The single-header library
-
-using json = nlohmann::json;
-
-// A function that returns a fully populated Config struct
 #include "config.h"
 #include "json.hpp" // The nlohmann/json header
 #include <fstream>

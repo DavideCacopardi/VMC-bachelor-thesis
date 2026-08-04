@@ -83,6 +83,9 @@
 /// DPC++ runtime
 #define DNNL_RUNTIME_DPCPP DNNL_RUNTIME_SYCL
 
+/// ZE runtime
+#define DNNL_RUNTIME_ZE 1024u
+
 /// No vendor (corresponding runtime is disabled)
 #define DNNL_VENDOR_NONE 0u
 
@@ -120,7 +123,8 @@
 #endif
 #if (DNNL_GPU_RUNTIME != DNNL_RUNTIME_NONE) \
         && (DNNL_GPU_RUNTIME != DNNL_RUNTIME_OCL) \
-        && (DNNL_GPU_RUNTIME != DNNL_RUNTIME_SYCL)
+        && (DNNL_GPU_RUNTIME != DNNL_RUNTIME_SYCL) \
+        && (DNNL_GPU_RUNTIME != DNNL_RUNTIME_ZE)
 #error "Unexpected DNNL_GPU_RUNTIME"
 #endif
 #if (DNNL_CPU_RUNTIME == DNNL_RUNTIME_NONE \
@@ -145,9 +149,6 @@
 
 // When defined, DPCPP is supported.
 /* #undef DNNL_WITH_SYCL */
-
-// When defined, Level Zero is supported.
-/* #undef DNNL_WITH_LEVEL_ZERO */
 
 // When defined, SYCL CUDA backend is used.
 /* #undef DNNL_SYCL_CUDA */
@@ -183,6 +184,10 @@
 // When defined, experimental SYCL capabilities are enabled.
 /* #undef DNNL_EXPERIMENTAL_SYCL_KERNEL_COMPILER */
 
+// When defined, experimental grouped memory and matmul grouped GEMM codepath
+// is enabled.
+#define DNNL_EXPERIMENTAL_GROUPED_MEMORY 0
+
 // When defined, it disables GPU compute reference kernels.
 /* #undef DNNL_DISABLE_GPU_REF_KERNELS */
 
@@ -198,6 +203,7 @@
 #define BUILD_CONVOLUTION 0
 #define BUILD_DECONVOLUTION 0
 #define BUILD_ELTWISE 0
+#define BUILD_GATED_MLP 0
 #define BUILD_GROUP_NORMALIZATION 0
 #define BUILD_INNER_PRODUCT 0
 #define BUILD_LAYER_NORMALIZATION 0
@@ -227,6 +233,7 @@
 #define BUILD_XEHPC 0
 #define BUILD_XE2 0
 #define BUILD_XE3 0
+#define BUILD_XE3P 0
 // GeMM kernels ISA controls
 #define BUILD_GEMM_KERNELS_ALL 1
 #define BUILD_GEMM_KERNELS_NONE 0

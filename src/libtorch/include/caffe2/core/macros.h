@@ -15,7 +15,7 @@
 /* #undef CAFFE2_THREADPOOL_MAIN_IMBALANCE */
 /* #undef CAFFE2_THREADPOOL_STATS */
 /* #undef CAFFE2_USE_ACCELERATE */
-/* #undef CAFFE2_USE_CUDNN */
+#define CAFFE2_USE_CUDNN
 /* #undef CAFFE2_USE_EIGEN_FOR_BLAS */
 /* #undef CAFFE2_USE_FBCODE */
 /* #undef CAFFE2_USE_GOOGLE_GLOG */
@@ -33,20 +33,20 @@
 // torch.__config__.show()
 #define CAFFE2_BUILD_STRINGS { \
   {"TORCH_VERSION", "2.13.0"}, \
-  {"CXX_COMPILER", "/opt/rh/gcc-toolset-13/root/usr/bin/c++"}, \
-  {"CXX_FLAGS", " -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DLIBKINETO_NOXPUPTI=ON -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-dangling-reference -Wno-error=dangling-reference -Wno-stringop-overflow"}, \
-  {"CUDA_FLAGS", " -DLIBCUDACXX_ENABLE_SIMPLIFIED_COMPLEX_OPERATIONS -Xfatbin -compress-all  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DDISABLE_CUSPARSE_DEPRECATED -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -DC10_NODEPRECATED"}, \
+  {"CXX_COMPILER", R"PYT(/opt/rh/gcc-toolset-13/root/usr/bin/c++)PYT"}, \
+  {"CXX_FLAGS", R"PYT( -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DHAS_CUPTI -DUSE_FBGEMM -DUSE_PYTORCH_QNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -DC10_NODEPRECATED -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-unused-parameter -Wno-strict-overflow -Wno-strict-aliasing -Wno-stringop-overflow -Wsuggest-override -Wno-psabi -Wno-error=old-style-cast -faligned-new -Wno-maybe-uninitialized -fno-math-errno -fno-trapping-math -Werror=format -Wno-dangling-reference -Wno-error=dangling-reference -Wno-stringop-overflow)PYT"}, \
+  {"CUDA_FLAGS", R"PYT( -DLIBCUDACXX_ENABLE_SIMPLIFIED_COMPLEX_OPERATIONS -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_50,code=sm_50 -gencode arch=compute_60,code=sm_60 -gencode arch=compute_70,code=sm_70 -gencode arch=compute_75,code=sm_75 -gencode arch=compute_80,code=sm_80 -gencode arch=compute_86,code=sm_86 -gencode arch=compute_90,code=sm_90 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda -Xfatbin -compress-all --threads 2 -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DDISABLE_CUSPARSE_DEPRECATED -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -DC10_NODEPRECATED)PYT"}, \
   {"BUILD_TYPE", "Release"}, \
   {"BLAS_INFO", "mkl"}, \
   {"LAPACK_INFO", "mkl"}, \
-  {"USE_CUDA", "0"}, \
+  {"USE_CUDA", "1"}, \
   {"USE_ROCM", "OFF"}, \
-  {"CUDA_VERSION", ""}, \
+  {"CUDA_VERSION", "12.6"}, \
   {"ROCM_VERSION", ""}, \
-  {"USE_CUDNN", "OFF"}, \
-  {"COMMIT_SHA", "267d84373f11047e8dd0991cd1b0dd78ddee6fb0"}, \
-  {"CUDNN_VERSION", ""}, \
-  {"USE_NCCL", "OFF"}, \
+  {"USE_CUDNN", "ON"}, \
+  {"COMMIT_SHA", "cf30153c4c131c8164ee7798e5022d810682e2cb"}, \
+  {"CUDNN_VERSION", "9.10.2"}, \
+  {"USE_NCCL", "ON"}, \
   {"USE_MPI", "OFF"}, \
   {"USE_GFLAGS", "OFF"}, \
   {"USE_GLOG", "OFF"}, \
@@ -66,7 +66,7 @@
   {"USE_NVTX", ""}, \
   {"USE_ITT", ""}, \
   {"USE_ROCM_KERNEL_ASSERT", "OFF"}, \
-  {"USE_CUSPARSELT", "OFF"}, \
+  {"USE_CUSPARSELT", "1"}, \
   {"USE_XPU", "OFF"}, \
   {"USE_XCCL", "OFF"}, \
   {"SYCL_COMPILER_VERSION", ""}, \

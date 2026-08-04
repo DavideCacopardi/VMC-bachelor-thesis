@@ -182,6 +182,7 @@ int main(int argc, char* argv[]) {
         }
         };
 
+    // --- Actual Code Execution ---
     if (toggles[0] && cfg.waveFunctionType == "NN_envelope") {
         // --- 1a: Neural-Network optimization ---
         globalLog << "Initial parameters for psi_train: " << setprecision(9);
@@ -225,14 +226,10 @@ int main(int argc, char* argv[]) {
 
     // --- Build MC engine ---
     MCEngine engine(
-        cfg.numberOfDimensions,
-        cfg.numberOfParticles,
-        cfg.equilibrationSteps,
-        cfg.timeStep,
+        cfg,
         hFac,
         wfFac,
-        solverFac,
-        cfg.seed
+        solverFac
     );
 
     if (toggles[0] && cfg.waveFunctionType != "NN_envelope") {
