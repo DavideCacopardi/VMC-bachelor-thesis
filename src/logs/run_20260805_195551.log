@@ -1,0 +1,65 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-05 19:55:51
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : RepulsiveHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : RepEllipticGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 3
+particles (N)    : 10
+omega            : 1
+omega_z          : 2.824
+rep_a_factor     : 0.0043
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 100000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^20 (1.04858e+06)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 0.5, 	2.82, 	
+Optimal parameters: 0.499536117, 	2.82001353, 	
+VMC Optimization done (in 51.5641487 s).
+
+FinalMC energy: 2.437641811e+01 +- 5.098844813e-05
+Acceptance ratio: 9.312953949e-01
+FinalMC done (in 14.606862 s).
+
+Blocking_0 energy: 2.437596697e+01 +- 6.620878808e-04
+Blocking_1 energy: 2.437642931e+01 +- 6.689587850e-04
+Blocking_2 energy: 2.437816384e+01 +- 6.619672776e-04
+Blocking_3 energy: 2.437511231e+01 +- 6.719429971e-04
+Final blocking energy: 2.437641811e+01 +- 3.331266919e-04
+Blocking analysis done (in 0.015180496 s).
+
+One-body density done (in 1.06741821 s).
+
+=========================================

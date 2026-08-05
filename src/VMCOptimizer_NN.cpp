@@ -4,7 +4,7 @@
 
 #include "VMCOptimizer_NN.h"
 #include "system.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/NNsampler.h"
 #include "Hamiltonians/repulsiveho.h"

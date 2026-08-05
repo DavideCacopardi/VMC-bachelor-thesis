@@ -15,26 +15,11 @@ public:
 
     virtual double computeLocalEnergy(
         class WaveFunction&,
-        std::vector<std::unique_ptr<class Particle>>&,
-        class WaveFunctionCache&
-    ) {
-        throw std::invalid_argument("computeLocalEnergy called on base class hamiltonian");
-        return -1;
-    }
-
-    virtual double computeLocalEnergy(
-        class WaveFunction&,
         std::vector<std::unique_ptr<class Particle>>&
     ) {
         throw std::invalid_argument("computeLocalEnergy called on base class hamiltonian");
         return -1;
     }
-
-    /**
-     * @brief Toggles the use of analytical derivatives for kinetic energy.
-     * @param val True to use analytical derivatives (if available), False to force numerical.
-     */
-    void set_analytic_ifAvailable(bool val);
 
     virtual double getRepulsiveFactor() {
         throw std::invalid_argument("getRepulsiveFactor called on base class hamiltonian");
@@ -57,7 +42,5 @@ public:
     virtual void set_percStrength(double) {
         throw std::invalid_argument("set_percStrength called on base class hamiltonian");
     }
-protected:
-    bool m_analytic_ifAvailable = true;
 };
 

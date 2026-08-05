@@ -13,6 +13,7 @@
 #include "Math/random.h"
 #include "Solvers/montecarlo.h"
 #include "Hamiltonians/hamiltonian.h"
+#include "WaveFunctions/wavefunction.h"
 
 MCEngine::MCEngine(
     const runConfig& cfg,

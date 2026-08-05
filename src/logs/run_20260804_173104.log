@@ -1,0 +1,66 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-04 17:31:04
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : RepulsiveHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : EllipticGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : false
+useCache         : false
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 3
+particles (N)    : 2
+omega            : 1
+omega_z          : 2.8243
+rep_a_factor     : 0.0043
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^16 (65536)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 12
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 1000
+Energy Steps     : 3000
+Adiab Steps      : 1000
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 5000000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 0.6, 	2.9, 	
+Optimal parameters: 0.496415521, 	2.87131648, 	
+VMC Optimization done (in 5.5481239 s).
+
+FinalMC energy: 4.824425984e+00 +- 1.086339793e-04
+Acceptance ratio: 9.307403564e-01
+FinalMC done (in 0.021411589 s).
+
+Blocking_0 energy: 4.824098735e+00 +- 4.991479821e-04
+Blocking_1 energy: 4.824295744e+00 +- 5.061204361e-04
+Blocking_2 energy: 4.825312134e+00 +- 5.247424044e-04
+Blocking_3 energy: 4.823997323e+00 +- 5.227082427e-04
+Final blocking energy: 4.824425984e+00 +- 2.566472655e-04
+Blocking analysis done (in 0.002544898 s).
+
+One-body density done (in 1.5887441 s).
+
+=========================================

@@ -46,12 +46,6 @@ public:
         std::vector<std::unique_ptr<class Particle>>& particles
     ) override;
 
-    double computeLocalEnergy(
-        class WaveFunction& waveFunction,
-        std::vector<std::unique_ptr<class Particle>>& particles,
-        class WaveFunctionCache& cache
-    ) override;
-
     double get_interaction_strength() override;
 
     void set_percStrength(double percStrength) override;
@@ -62,6 +56,6 @@ private:
     double m_maxStrength = 1;
     double m_percStrength = 1;
 
-    const double c_eps = 1e-12; // against numerical errors
+    const double c_eps = 1e-12; // prevents numerical errors
 };
 

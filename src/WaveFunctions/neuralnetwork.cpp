@@ -5,7 +5,7 @@
 #include <stdexcept>
 
 #include "neuralnetwork.h"
-#include "../particle.h"
+#include "../Particles/particle.h"
 
 NeuralNetwork::NeuralNetwork(int64_t Nin, int64_t Nhid, double helpDecay)
     : m_Nin(Nin), m_Nhid(Nhid), m_helpDecay(helpDecay) {

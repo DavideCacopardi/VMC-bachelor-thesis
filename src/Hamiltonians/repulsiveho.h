@@ -45,12 +45,6 @@ public:
         std::vector<std::unique_ptr<class Particle>>& particles
     ) override;
 
-    double computeLocalEnergy(
-        class WaveFunction& waveFunction,
-        std::vector<std::unique_ptr<class Particle>>& particles,
-        class WaveFunctionCache& cache
-    ) override;
-
     double getRepulsiveFactor() override { return m_rep_a; }
 
     double has_hardcore() override {

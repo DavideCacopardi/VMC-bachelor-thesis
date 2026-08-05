@@ -8,7 +8,7 @@
 #include "system.h"
 #include "common.h"
 #include "sampler.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
 

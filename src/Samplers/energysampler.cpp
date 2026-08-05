@@ -8,7 +8,7 @@
 #include "system.h"
 #include "common.h"
 #include "energysampler.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
 
@@ -66,12 +66,15 @@ void EnergySampler::sample(bool acceptedStep, System* system, std::vector<double
         energiesOut->push_back(localEnergy);
     }
     m_cumulativeEnergy += localEnergy;
-    m_cumulativeEnergySQ += sq(localEnergy);
-    std::vector<double> OW = system->computeLogParDer_vect();
+    m_cumulativeEnergySQ += sq(localEnergy);    // to later evaluate ΔE
+
+    // calculate <O> and <O E> to later evaluate Cov(O, E) = <O E> - <O><E>
+    std::vector<double> OW = system->getWaveFunction().paramGradientLnAbs(system->getParticles());
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         m_cumulativeOpO[i] += OW[i];
         m_cumulativeOpOE[i] += OW[i] * localEnergy;
     }
+
     m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
     m_watch_end = std::chrono::high_resolution_clock::now();

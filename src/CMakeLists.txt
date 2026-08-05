@@ -41,6 +41,7 @@ include_directories(
     WaveFunctions
     Solvers
     Samplers
+    Particles
     ${ARMADILLO_INCLUDE_DIRS}
     ${NLOPT_INCLUDE_DIRS}
 )
@@ -53,6 +54,7 @@ file(
     GLOB SOURCES "Math/*.cpp"
     GLOB SOURCES "Solvers/*.cpp"
     GLOB SOURCES "Samplers/*.cpp"
+    GLOB SOURCES "Particles/*.cpp"
     GLOB SOURCES "WaveFunctions/*.cpp"
 )
 

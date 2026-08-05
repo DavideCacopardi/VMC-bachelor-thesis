@@ -9,21 +9,23 @@ struct runConfig {
     // [ SYSTEM & MODELS ]
     string hamiltonianType = "CoulombHO";
     string waveFunctionTrainType = "EllipticGaussian";
-    string waveFunctionType = "NN_envelope";
+    string waveFunctionType = "LJGaussian";
     string solverType = "MetropolisHastings";
     bool preferAnalytic = false;
-    bool useCache = false;
     unsigned int numberOfThreads = 4;
 
     // [ PHYSICAL PARAMETERS ]
-    unsigned int numberOfDimensions = 2;
-    unsigned int numberOfParticles = 2;
+    unsigned int numberOfDimensions = 1;
+    unsigned int numberOfParticles = 1;
     double omega = 1.0;
     double omega_z = 2.8243;
+    double LJsigma = 1;
+    double LJenEps = 1;
+    double LJalpha = 1;
     double repulsive_a_factor = 0.0043;
     double repulsive_strength = numeric_limits<double>::infinity();
     double maxStrength = 1.0;
-    vector<double> initialParams = { 0.50, 2.8243 };
+    vector<double> initialParams = { 1, 1, 1 };
 
     // [ MONTE CARLO ]
     double timeStep = 0.15;

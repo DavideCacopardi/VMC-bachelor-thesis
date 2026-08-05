@@ -3,9 +3,11 @@
 #include <memory>
 #include <vector>
 
+#include "Hamiltonians/hamiltonian.h"
+
 /**
  * @brief Represents the complete quantum system.
- * * This class acts as a bridge between the Hamiltonian, WaveFunction, 
+ * * This class acts as a bridge between the Hamiltonian, WaveFunction,
  * particles, and the Monte Carlo solver. It coordinates the step-by-step
  * sampling process.
  */
@@ -32,7 +34,7 @@ public:
 
     /**
      * @brief Executes equilibration (thermalization) steps.
-     * * Moves the particles towards the state of highest probability 
+     * * Moves the particles towards the state of highest probability
      * without collecting any statistics.
      * @param stepParameter Step length for the solver (\f$\Delta t\f$).
      * @param numberOfEquilibrationSteps Number of steps to take and discard.
@@ -75,7 +77,10 @@ public:
      * @brief Evaluates the local energy \f$E_L = \frac{1}{\Psi} \hat{H} \Psi\f$ for the current configuration.
      * @return The local energy in natural units.
      */
-    double computeLocalEnergy();
+    double inline computeLocalEnergy() {
+        return m_hamiltonian->computeLocalEnergy(
+            *m_waveFunction, m_particles);
+    }
 
     /**
      * @brief Calculates the logarithmic derivative of the wave function with respect to a parameter.
@@ -83,9 +88,9 @@ public:
      * @param param_idx The index of the variational parameter (e.g., 0 for alpha, 1 for beta).
      * @return Value of the logarithmic derivative evaluated at the current position.
      */
-    double computeParamDerivativeLn(unsigned int param_idx);
+     // double computeParamDerivativeLn(unsigned int param_idx);
 
-    std::vector<double> computeLogParDer_vect();
+     // std::vector<double> computeLogParDer_vect();
 
     class WaveFunction& getWaveFunction();
     class Hamiltonian& getHamiltonian();

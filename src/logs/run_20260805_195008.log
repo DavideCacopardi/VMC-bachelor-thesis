@@ -1,0 +1,65 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-05 19:50:08
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : HarmonicOscillator
+WF Train Type    : EllipticGaussian
+WaveFunction     : EllipticGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 3
+particles (N)    : 10
+omega            : 1
+omega_z          : 2.824
+rep_a_factor     : 0.0043
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^20 (1.04858e+06)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 0.48, 	3, 	
+Optimal parameters: 0.356229098, 	2.96475116, 	
+VMC Optimization done (in 3.17592267 s).
+
+FinalMC energy: 1.703157245e+01 +- 2.078426145e-03
+Acceptance ratio: 9.562234879e-01
+FinalMC done (in 0.156711441 s).
+
+Blocking_0 energy: 1.699503965e+01 +- 2.656301274e-02
+Blocking_1 energy: 1.703106329e+01 +- 2.842558162e-02
+Blocking_2 energy: 1.704124415e+01 +- 2.779659734e-02
+Blocking_3 energy: 1.705894272e+01 +- 2.789183041e-02
+Final blocking energy: 1.703157245e+01 +- 1.383883206e-02
+Blocking analysis done (in 0.013760794 s).
+
+One-body density done (in 0.05038298 s).
+
+=========================================

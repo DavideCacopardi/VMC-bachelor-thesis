@@ -15,11 +15,8 @@ public:
      * @param omega The trap frequency (strength of the confinement).
      */
     HarmonicOscillator(double omega);
-    double computeLocalEnergy(
-        class WaveFunction& waveFunction,
-        std::vector<std::unique_ptr<class Particle>>& particles,
-        class WaveFunctionCache& cache
-    );
+
+    double computeLocalEnergy(WaveFunction& waveFunction, std::vector<std::unique_ptr<Particle>>& particles);
 
 private:
     double m_omega;

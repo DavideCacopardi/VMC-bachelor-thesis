@@ -11,19 +11,23 @@
 #include "system.h"
 #include "common.h"
 #include "config.h"
-#include "WaveFunctions/simplegaussian.h"
 #include "WaveFunctions/ellipticgaussian.h"
-#include "WaveFunctions/repulsiveellipticgaussian.h"
+#include "WaveFunctions/ljgaussian.h"
 #include "WaveFunctions/nn_envelope.h"
-#include "Hamiltonians/harmonicoscillator.h"
-#include "Hamiltonians/repulsiveho.h"
+#include "WaveFunctions/repulsiveellipticgaussian.h"
+#include "WaveFunctions/simplegaussian.h"
+#include "WaveFunctions/wavefunction.h"
 #include "Hamiltonians/coulombho.h"
+#include "Hamiltonians/hamiltonian.h"
+#include "Hamiltonians/harmonicoscillator.h"
+#include "Hamiltonians/lennardjonesho.h"
+#include "Hamiltonians/repulsiveho.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
 #include "Solvers/metropolishastings.h"
 #include "Math/random.h"
 #include "Math/blocker.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "onebodydensity.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/densitysampler.h"
@@ -51,13 +55,15 @@ void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) 
         globalLog << "WaveFunction     : " << cfg.waveFunctionType << "\n";
         globalLog << "Solver           : " << cfg.solverType << "\n";
         globalLog << "preferAnalytic   : " << (cfg.preferAnalytic ? "true" : "false") << "\n";
-        globalLog << "useCache         : " << (cfg.useCache ? "true" : "false") << "\n";
         globalLog << "-----------------------------------------\n";
         globalLog << "[ PHYSICAL PARAMETERS ]\n";
         globalLog << "dimensions (D)   : " << cfg.numberOfDimensions << "\n";
         globalLog << "particles (N)    : " << cfg.numberOfParticles << "\n";
         globalLog << "omega            : " << cfg.omega << "\n";
         globalLog << "omega_z          : " << cfg.omega_z << "\n";
+        globalLog << "LJsigma          : " << cfg.LJsigma << "\n";
+        globalLog << "LJenEps          : " << cfg.LJenEps << "\n";
+        globalLog << "LJalpha          : " << cfg.LJalpha << "\n";
         globalLog << "rep_a_factor     : " << cfg.repulsive_a_factor << "\n";
         globalLog << "rep_strength     : " << cfg.repulsive_strength << "\n";
         globalLog << "maxStrength      : " << cfg.maxStrength << "\n";
@@ -92,6 +98,7 @@ void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) 
 
 int main(int argc, char* argv[]) {
     runConfig cfg = loadConfig("config.json");
+    WaveFunction::setUseAnalyticalDerivatives(cfg.preferAnalytic);
 
     chrono::high_resolution_clock::time_point watch_start, watch_end;
     chrono::duration<double> elapsedTime;
@@ -132,6 +139,9 @@ int main(int argc, char* argv[]) {
         else if (cfg.hamiltonianType == "CoulombHO") {
             return make_unique<CoulombHO>(cfg.omega, cfg.omega_z, cfg.maxStrength);
         }
+        else if (cfg.hamiltonianType == "LennardJonesHO") {
+            return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha);
+        }
         else { // default to Repulsive
             return make_unique<RepulsiveHO>(cfg.omega, cfg.omega_z, cfg.repulsive_a_factor, cfg.repulsive_strength);
         }
@@ -141,6 +151,8 @@ int main(int argc, char* argv[]) {
             return make_unique<SimpleGaussian>(p[0]);
         else if (cfg.waveFunctionType == "EllipticGaussian")
             return make_unique<EllipticGaussian>(p[0], p[1]);
+        else if (cfg.waveFunctionType == "LJGaussian")
+            return make_unique<LJGaussian>(p[0], p[1], p[2]);
         else if (cfg.waveFunctionType == "NN_envelope")
             return make_unique<NN_envelope>(cfg.numberOfParticles,
                 cfg.numberOfDimensions,
@@ -157,15 +169,17 @@ int main(int argc, char* argv[]) {
             return make_unique<SimpleGaussian>(p[0]);
         else if (cfg.waveFunctionTrainType == "EllipticGaussian")
             return make_unique<EllipticGaussian>(p[0], p[1]);
+        else if (cfg.waveFunctionType == "LJGaussian")
+            return make_unique<LJGaussian>(p[0], p[1], p[2]);
         else // default to Repulsive
             return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
         };
     SolverFactory solverFac = [=](unique_ptr<Random> rng) -> unique_ptr<MonteCarlo> {
         if (cfg.solverType == "Metropolis") {
-            return make_unique<Metropolis>(move(rng), cfg.preferAnalytic, cfg.useCache);
+            return make_unique<Metropolis>(move(rng));
         }
         else // default to Metropolis-Hastings
-            return make_unique<MetropolisHastings>(move(rng), cfg.preferAnalytic, cfg.useCache);
+            return make_unique<MetropolisHastings>(move(rng));
         };
     ActivationFuncFactory actFun = [=]() -> ActivationFunc {
         if (cfg.activationFunctionType == "gelu") {

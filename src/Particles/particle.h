@@ -1,6 +1,10 @@
 #pragma once
 #include <vector>
 
+enum Flavor {
+    A, B
+};
+
 /**
  * @brief Constructs a particle with an initial position.
  * @param position Vector containing the initial spatial coordinates.
@@ -12,6 +16,13 @@ public:
      * @param position Vector containing the initial spatial coordinates.
      */
     Particle(const std::vector<double>& position);
+
+    /**
+     * @brief Constructs a particle with an initial position and an initial flavor.
+     * @param position Vector containing the initial spatial coordinates.
+     * @param flav Flavor of the particle (A or B).
+     */
+    Particle(const std::vector<double>& position, const Flavor flav);
 
     /**
      * @brief Shifts the particle along a specific dimension.
@@ -34,10 +45,22 @@ public:
     void setPosition(const std::vector<double> loc);
 
     /**
+     * @brief Sets the flavor of the particle.
+     * @param flav New flavor.
+     */
+    void setFlavor(const Flavor flav);
+
+    /**
      * @brief Gets the current position of the particle.
      * @return Reference to the coordinate vector.
      */
     std::vector<double>& getPosition() { return m_position; }
+
+    /**
+     * @brief Gets the flavor of the particle.
+     * @return Flavor of the particle.
+     */
+    Flavor getFlavor() { return m_flavor; }
 
     /**
      * @brief Gets the number of dimensions the particle moves in.
@@ -48,5 +71,5 @@ public:
 private:
     unsigned int m_numberOfDimensions = 0;
     std::vector<double> m_position = std::vector<double>();
+    Flavor m_flavor = A;
 };
-

@@ -2,79 +2,92 @@
 #include <cmath>
 #include <cassert>
 #include <iostream>
+#include <functional>
 
 #include "../common.h"
 #include "wavefunction.h"
 #include "../system.h"
-#include "../particle.h"
+#include "../Particles/particle.h"
 
 using namespace CommonUtils;
 
-double WaveFunction::computeNumericalDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles) {
-    double sum = 0.0;
-    double wfCurrent = evaluate(particles);
-    unsigned int numberOfDimensions = particles[0]->getNumberOfDimensions();
+bool WaveFunction::s_useAnalytical = true;
 
-    for (auto& particle : particles) {
-
-        for (unsigned int d = 0; d < numberOfDimensions; d++) {
-            double h = 1e-4 * std::max(1.0, std::abs(particle->getPosition()[d]));
-            double h2 = h * h;
-
-            particle->adjustPosition(h, d);
-            double wfPlus = evaluate(particles);
-
-            particle->adjustPosition(-2.0 * h, d);
-            double wfMinus = evaluate(particles);
-
-            particle->adjustPosition(h, d);
-
-            sum += (wfPlus - 2.0 * wfCurrent + wfMinus) / h2;
-        }
+double WaveFunction::spatialDerivativeLn(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx, unsigned int dim) {
+    if (s_useAnalytical && hasAnalyticalDerivatives()) {
+        return analyticalSpatialDerivativeLn(particles, particle_idx, dim);
     }
 
-    return sum;
-}
-
-double WaveFunction::computeNumericalParamDerivativeLn(std::vector<std::unique_ptr<class Particle>>& particles, unsigned int param_idx) {
-    double h = 1e-4 * std::max(1.0, std::abs(m_parameters[param_idx]));
-
-    m_parameters[param_idx] += h;
-    double lnPlus = evaluateLn(particles);
-
-    m_parameters[param_idx] -= 2.0 * h;
-    double lnMinus = evaluateLn(particles);
-
-    m_parameters[param_idx] += h;  // restore
-
+    double h = 1e-4 * std::max(1.0, std::abs(particles[particle_idx]->getPosition()[dim]));
+    
+    particles[particle_idx]->adjustPosition(h, dim);
+    double lnPlus = evalLn(particles);
+    
+    particles[particle_idx]->adjustPosition(-2.0 * h, dim);
+    double lnMinus = evalLn(particles);
+    
+    particles[particle_idx]->adjustPosition(h, dim); // Restore
+    
     return (lnPlus - lnMinus) / (2.0 * h);
 }
 
-std::vector<double> WaveFunction::computeNumericalQuantumForce(std::vector<std::unique_ptr<class Particle>>& particles, unsigned int particle_idx) {
-    unsigned int numberOfDimensions = particles[particle_idx]->getNumberOfDimensions();
-    std::vector<double> qForce(numberOfDimensions);
-
-    for (unsigned int d = 0; d < numberOfDimensions; d++) {
-        double h = 1e-4 * std::max(1.0, std::abs(particles[particle_idx]->getPosition()[d]));
-
-        particles[particle_idx]->adjustPosition(h, d);
-        double lnPlus = evaluateLn(particles);
-
-        particles[particle_idx]->adjustPosition(-2.0 * h, d);
-        double lnMinus = evaluateLn(particles);
-
-        particles[particle_idx]->adjustPosition(h, d);  // restore
-
-        qForce[d] = 2.0 * (lnPlus - lnMinus) / (2.0 * h);
+std::vector<double> WaveFunction::spatialGradientLn(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
+    unsigned int nDim = particles[particle_idx]->getNumberOfDimensions();
+    std::vector<double> grad(nDim);
+    for (unsigned int d = 0; d < nDim; d++) {
+        grad[d] = spatialDerivativeLn(particles, particle_idx, d);
     }
-
-    return qForce;
+    return grad;
 }
 
-std::vector<double> WaveFunction::computeLogParDer_vect(std::vector<std::unique_ptr<class Particle>>& particles) {
-    std::vector<double> v(m_numberOfParameters);
-    for (int i = 0; i < m_numberOfParameters; i++) {
-        v[i] = computeParamDerivativeLn(particles, i);
+double WaveFunction::spatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>& particles) {
+    if (s_useAnalytical && hasAnalyticalDerivatives()) {
+        return analyticalSpatialNormalizedLaplacian(particles);
     }
-    return v;
+
+    double h = 1e-4 * std::max(1.0, std::abs(particles[0]->getPosition()[0]));
+    double wfCurrent = eval(particles);
+    double sum = 0;
+
+    for (unsigned int i = 0; i < particles.size(); i++) {
+        for (unsigned int d = 0; d < particles[0]->getNumberOfDimensions(); d++) {
+            particles[i]->adjustPosition(h, d);
+            double wfPlus = eval(particles);
+            
+            particles[i]->adjustPosition(-2.0 * h, d);
+            double wfMinus = eval(particles);
+            
+            particles[i]->adjustPosition(h, d); // Restore
+
+            sum += (wfPlus - 2.0 * wfCurrent + wfMinus) / (sq(h) * wfCurrent);
+        }
+    }
+    
+    return sum;
+}
+
+double WaveFunction::paramDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>& particles, unsigned int param_idx) {
+    if (s_useAnalytical && hasAnalyticalDerivatives()) {
+        return analyticalParamDerivativeLnAbs(particles, param_idx);
+    }
+
+    double h = 1e-4 * std::max(1.0, std::abs(m_parameters[param_idx]));
+    
+    m_parameters[param_idx] += h;
+    double lnPlus = evalLn(particles);
+    
+    m_parameters[param_idx] -= 2.0 * h;
+    double lnMinus = evalLn(particles);
+    
+    m_parameters[param_idx] += h; // Restore
+    
+    return (lnPlus - lnMinus) / (2.0 * h);
+}
+
+std::vector<double> WaveFunction::paramGradientLnAbs(std::vector<std::unique_ptr<Particle>>& particles) {
+    std::vector<double> grad(m_numberOfParameters);
+    for (int i = 0; i < m_numberOfParameters; i++) {
+        grad[i] = paramDerivativeLnAbs(particles, i);
+    }
+    return grad;
 }

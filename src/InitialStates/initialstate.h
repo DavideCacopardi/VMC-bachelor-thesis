@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "../particle.h"
+#include "../Particles/particle.h"
 #include "Math/random.h"
 
 /**

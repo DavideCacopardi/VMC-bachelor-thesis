@@ -4,9 +4,9 @@
 
 #include "../common.h"
 #include "harmonicoscillator.h"
-#include "../particle.h"
+#include "../Particles/particle.h"
 #include "../WaveFunctions/wavefunction.h"
-#include "../WaveFunctions/wavefunctioncache.h"
+#include "../WaveFunctions/nn_envelope.h"
 
 using namespace CommonUtils;
 
@@ -16,33 +16,13 @@ HarmonicOscillator::HarmonicOscillator(double omega) {
 }
 
 double HarmonicOscillator::computeLocalEnergy(
-    class WaveFunction& waveFunction,
-    std::vector<std::unique_ptr<class Particle>>& particles,
-    WaveFunctionCache& cache
+    WaveFunction& waveFunction,
+    std::vector<std::unique_ptr<Particle>>& particles
 ) {
-    /* Here, you need to compute the kinetic and potential energies.
-     * Access to the wave function methods can be done using the dot notation
-     * for references, e.g., wavefunction.computeDoubleDerivative(particles),
-     * to get the Laplacian of the wave function.
-     * */
-
-    double kineticEnergy;
-    if (waveFunction.hasAnalyticalDerivative() && m_analytic_ifAvailable) {
-        kineticEnergy = -0.5 * waveFunction.computeDoubleDerivative(particles) / waveFunction.evaluate(particles);
-    }
-    else {
-        // the following commented line is deprecated
-        // kineticEnergy = -0.5 * waveFunction.computeNumericalDoubleDerivative(particles) / waveFunction.evaluate(particles);
-        kineticEnergy = -0.5 * cache.computeNumericalLaplacian(particles, waveFunction);
-    }
-
-    double sum = 0;
+    double kineticEnergy, potentialEnergy = 0;
     for (unsigned int i = 0; i < particles.size(); i++) {
-        for (unsigned int j = 0; j < particles[0]->getNumberOfDimensions(); j++) {
-            sum += sq(particles[i]->getPosition()[j]);
-        }
+        potentialEnergy += 0.5 * m_omega * sqNorm(particles[i]->getPosition());
     }
-    double potentialEnergy = 0.5 * sq(m_omega) * sum; // * m
-
+    kineticEnergy = -0.5 * waveFunction.spatialNormalizedLaplacian(particles);
     return kineticEnergy + potentialEnergy;
 }

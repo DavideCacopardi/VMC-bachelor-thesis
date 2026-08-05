@@ -3,7 +3,7 @@
 #include <vector>
 #include <fstream>
 #include "WaveFunctions/wavefunction.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "mcengine.h"
 #include "Math/random.h"
 

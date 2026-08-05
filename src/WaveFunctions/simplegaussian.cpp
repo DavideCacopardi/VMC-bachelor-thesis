@@ -7,7 +7,7 @@
 #include "common.h"
 #include "wavefunction.h"
 #include "../system.h"
-#include "../particle.h"
+#include "../Particles/particle.h"
 
 using namespace CommonUtils;
 
@@ -16,61 +16,39 @@ SimpleGaussian::SimpleGaussian(double alpha)
     if (alpha < 0) throw std::invalid_argument("alpha must be non-negative");
 }
 
-double SimpleGaussian::evaluate(std::vector<std::unique_ptr<class Particle>>& particles) {
-    /* You need to implement a Gaussian wave function here. The positions of
-     * the particles are accessible through the particle[i]->getPosition()
-     * function.
-     */
+double SimpleGaussian::eval(std::vector<std::unique_ptr<class Particle>>& particles) {
+    return exp(evalLn(particles));
+}
+
+double SimpleGaussian::evalLn(std::vector<std::unique_ptr<class Particle>>& particles) {
     long double sum = 0;
-
-    // sum all coordinates squared
     for (unsigned int i = 0; i < particles.size(); i++) {
-        for (unsigned int j = 0; j < particles[i]->getNumberOfDimensions(); j++) {
-            sum += sq(particles[i]->getPosition()[j]);
-        }
+        sum += sqNorm(particles[i]->getPosition());
     }
-
-    // assumes the first parameter is the alpha value
-    return exp(-m_parameters[0] * sum);
-}
-
-double SimpleGaussian::computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles) {
-    /* All wave functions need to implement this function, so you need to
-     * find the double derivative analytically. Note that by double derivative,
-     * we actually mean the sum of the Laplacians with respect to the
-     * coordinates of each particle.
-     *
-     * This quantity is needed to compute the (local) energy (consider the
-     * Schrödinger equation to see how the two are related).
-     */
-
-    double alpha = m_parameters[0];
-    unsigned int numberOfDimensions = particles[0]->getNumberOfDimensions();
-
-    double sum_over_particles = 0;
-    for (unsigned int i = 0; i < particles.size(); i++) {
-        double rad_sq = 0;
-        for (unsigned int j = 0; j < numberOfDimensions; j++) {
-            rad_sq += sq(particles[i]->getPosition()[j]);
-        }
-
-        double phi_i = exp(-alpha * rad_sq);
-        double lapl_term = -2 * alpha * (numberOfDimensions - 2 * alpha * rad_sq) * phi_i;
-
-        double prod_term = evaluate(particles) / phi_i;
-
-        sum_over_particles += lapl_term * prod_term;
-    }
-    return sum_over_particles;
-}
-
-double SimpleGaussian::computeParticleLn(
-    std::vector<std::unique_ptr<class Particle>>& particles,
-    unsigned int particle_idx) {
-
-    double sum = 0;
-    unsigned int ndim = particles[particle_idx]->getNumberOfDimensions();
-    for (unsigned int j = 0; j < ndim; j++)
-        sum += sq(particles[particle_idx]->getPosition()[j]);
     return -m_parameters[0] * sum;
+}
+
+double SimpleGaussian::analyticalSpatialDerivativeLn(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx, unsigned int dim) {
+    return -2 * m_parameters[0] * particles[particle_idx]->getPosition()[dim];
+}
+
+double SimpleGaussian::analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>& particles, unsigned int param_idx) {
+    if (param_idx != 0) throw std::invalid_argument("ERR: invalid param_idx in analyticalParamDerivativeLnAbs");
+
+    long double sum = 0;
+    for (unsigned int i = 0; i < particles.size(); i++) {
+        sum += sqNorm(particles[i]->getPosition());
+    }
+    return -sum;
+}
+
+double SimpleGaussian::analyticalSpatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>& particles) {
+    unsigned int N = particles.size();
+    unsigned int D = particles[0]->getNumberOfDimensions();
+
+    long double sum = 0;
+    for (unsigned int i = 0; i < particles.size(); i++) {
+        sum += sqNorm(particles[i]->getPosition());
+    }
+    return -2 * m_parameters[0] * N * D + 4 * sq(m_parameters[0]) * sum;
 }

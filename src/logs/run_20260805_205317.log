@@ -1,0 +1,68 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-05 20:53:17
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : LennardJonesHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : LJGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 1
+particles (N)    : 1
+omega            : 1
+omega_z          : 1
+LJsigma          : 1
+LJenEps          : 1
+LJalpha          : 1
+rep_a_factor     : 0.05
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 500000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^20 (1.04858e+06)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 1, 	1, 	1, 	
+Optimal parameters: 0.01, 	1, 	1, 	
+VMC Optimization done (in 1.04720473 s).
+
+FinalMC energy: -4.294968048e+10 +- 6.261913240e+01
+Acceptance ratio: 0.000000000e+00
+FinalMC done (in 0.111424874 s).
+
+Blocking_0 energy: -4.294968316e+10 +- 1.601791382e-02
+Blocking_1 energy: -4.294967299e+10 +- 4.662704468e-02
+Blocking_2 energy: -4.294967326e+10 +- 2.828216553e-02
+Blocking_3 energy: -4.294969251e+10 +- 5.703735352e-02
+Final blocking energy: -4.294968048e+10 +- 2.013050459e-02
+Blocking analysis done (in 0.015636482 s).
+
+One-body density done (in 0.030765965 s).
+
+=========================================

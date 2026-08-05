@@ -14,19 +14,33 @@ public:
 
     const std::vector<double>& getParameters() override;
 
-    double evaluate(std::vector<std::unique_ptr<class Particle>>& particles) override;
+    double eval(std::vector<std::unique_ptr<class Particle>>& particles) override;
     torch::Tensor encode(std::vector<std::unique_ptr<class Particle>>& particles);
     // std::vector<double> QFac(std::vector<std::unique_ptr<class Particle>>& particles);
-    double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles) override;
-    std::vector<double> computeQuantumForce(std::vector<std::unique_ptr<class Particle>>& particles, unsigned int particle_idx) override;
+    // double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles) override;
+    // std::vector<double> computeQuantumForce(std::vector<std::unique_ptr<class Particle>>& particles, unsigned int particle_idx) override;
 
-    std::vector<double> computeLogParDer_vect(std::vector<std::unique_ptr<class Particle>>& particles) override;
+    // std::vector<double> computeLogParDer_vect(std::vector<std::unique_ptr<class Particle>>& particles) override;
 
     NeuralNetwork& net() { return m_net; }
+
+    std::vector<double> spatialGradientLn(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) override;
+    std::vector<double> paramGradientLnAbs(std::vector<std::unique_ptr<Particle>>& particles) override;
+    double spatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>& particles) override;
+
+    // block the scalar methods from being used directly on the NN
+    double spatialDerivativeLn(std::vector<std::unique_ptr<Particle>>&, unsigned int, unsigned int) override {
+        throw std::logic_error("ERR: Do not call scalar derivatives on NN_envelope. Use spatialGradientLn for performance.");
+    }
+    double paramDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>&, unsigned int) override {
+        throw std::logic_error("ERR: Do not call scalar derivatives on NN_envelope. Use paramGradientLnAbs for performance.");
+    }
 
 private:
     int m_N;
     int m_D;
     int m_Nin;
     NeuralNetwork m_net;
+
+    bool hasAnalyticalDerivatives() const override { return true; }
 };

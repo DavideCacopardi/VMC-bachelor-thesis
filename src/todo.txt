@@ -1,1 +1,3 @@
 - fix clocks in samplers
+- fix initial states
+- fix occasional inf energies with repulsiveHO

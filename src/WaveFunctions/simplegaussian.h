@@ -13,13 +13,16 @@
 class SimpleGaussian : public WaveFunction {
 public:
     SimpleGaussian(double alpha);
-    double evaluate(std::vector<std::unique_ptr<class Particle>>& particles);
-    double computeDoubleDerivative(std::vector<std::unique_ptr<class Particle>>& particles);
-    double computeParticleLn(std::vector<std::unique_ptr<class Particle>>& particles,
-        unsigned int particle_idx);
-    bool hasAnalyticalDerivative() override { return true; }
+    double eval(std::vector<std::unique_ptr<class Particle>>& particles);
+    double evalLn(std::vector<std::unique_ptr<class Particle>>& particles);    
 
     std::vector<double> lowerBounds() const override { return { 1e-3 }; }
     std::vector<double> upperBounds() const override { return { 1.0 }; }
+private:
+    bool hasAnalyticalDerivatives() const override { return true; }
+
+    double analyticalSpatialDerivativeLn(std::vector<std::unique_ptr<Particle>>&, unsigned int, unsigned int) override;
+    double analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>&, unsigned int) override;
+    double analyticalSpatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>&) override;
 };
  

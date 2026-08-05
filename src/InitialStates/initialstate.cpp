@@ -3,7 +3,7 @@
 #include <cassert>
 
 #include "initialstate.h"
-#include "../particle.h"
+#include "../Particles/particle.h"
 #include "Math/random.h"
 #include "../common.h"
 
@@ -40,7 +40,9 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
             }
         } while (tooClose);
 
-        particles.push_back(std::make_unique<Particle>(position));
+        Flavor flav = rng.nextInt(0, 1) ? A : B;
+
+        particles.push_back(std::make_unique<Particle>(position, flav));
     }
 
     return particles;

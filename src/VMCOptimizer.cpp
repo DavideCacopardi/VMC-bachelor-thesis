@@ -31,9 +31,7 @@ double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<do
     auto sampler = m_engine.run(params, m_numberOfMetropolisSteps);
 
     if (!grad.empty()) {
-        for (unsigned int i = 0; i < params.size(); i++) {
-            grad[i] = 2 * sampler->getCovariance(i);
-        }
+        grad = sampler->get_dEdW();
     }
 
     if (m_logfile) sampler->logOutput(params, *m_logfile);

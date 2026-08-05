@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <functional>
 
 /**
  * @brief Namespace containing general mathematical utility functions.
@@ -38,3 +39,9 @@ std::vector<std::vector<double>> readMatrix(const std::string& filename);
  * @return A pair where `first` is the mean and `second` is the standard error.
  */
 std::pair<double, double> mean_err(std::vector<double>& vec);
+
+double norm(const std::vector<double>& vec);
+
+double sqNorm(const std::vector<double>& vec);
+
+double distance(const std::vector<double>& v, const std::vector<double>& w);

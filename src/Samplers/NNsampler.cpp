@@ -8,7 +8,7 @@
 
 #include "system.h"
 #include "NNsampler.h"
-#include "particle.h"
+#include "Particles/particle.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/nn_envelope.h"
 #include "WaveFunctions/wavefunction.h"
@@ -43,11 +43,12 @@ void NNsampler::sample(bool acceptedStep, System* system, std::vector<double>*) 
         throw std::logic_error("NNsampler requires a NN_envelope wave function.");
     }
 
-    auto OW = system->computeLogParDer_vect();
+    // auto OW = system->computeLogParDer_vect();
+    auto OW = system->getWaveFunction().paramGradientLnAbs(system->getParticles());
 
     auto& particles = system->getParticles();
-    double psi = system->getWaveFunction().evaluate(particles); // NN
-    double psi_train = m_wf_train.evaluate(particles);          // Gaussian
+    double psi = system->getWaveFunction().eval(particles); // NN
+    double psi_train = m_wf_train.eval(particles);          // Gaussian
 
     double B = psi / (psi_train + c_eps);
     B = std::max(1e-10, std::min(B, 1e10));

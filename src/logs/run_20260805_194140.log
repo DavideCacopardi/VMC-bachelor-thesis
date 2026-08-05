@@ -1,0 +1,65 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-05 19:41:40
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : RepulsiveHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : EllipticGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : false
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 3
+particles (N)    : 3
+omega            : 1
+omega_z          : 2.8243
+rep_a_factor     : 0.0043
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^16 (65536)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 0.5, 	2.8243, 	
+Optimal parameters: 0.500000043, 	2.82430001, 	
+VMC Optimization done (in 1.13333579 s).
+
+FinalMC energy: 7.236449990e+00 +- -nan
+Acceptance ratio: 9.312591553e-01
+FinalMC done (in 0.030750913 s).
+
+Blocking_0 energy: 7.236449993e+00 +- 1.787536266e-09
+Blocking_1 energy: 7.236449988e+00 +- 1.881244826e-09
+Blocking_2 energy: 7.236449989e+00 +- 1.729217456e-09
+Blocking_3 energy: 7.236449989e+00 +- 1.754089018e-09
+Final blocking energy: 7.236449990e+00 +- 8.944757296e-10
+Blocking analysis done (in 0.0020236 s).
+
+One-body density done (in 0.055061923 s).
+
+=========================================

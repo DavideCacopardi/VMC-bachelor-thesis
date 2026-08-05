@@ -31,7 +31,6 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.waveFunctionType      = j["system"].value("waveFunctionType", cfg.waveFunctionType);
         cfg.solverType            = j["system"].value("solverType", cfg.solverType);
         cfg.preferAnalytic        = j["system"].value("preferAnalytic", cfg.preferAnalytic);
-        cfg.useCache              = j["system"].value("useCache", cfg.useCache);
         cfg.numberOfThreads       = j["system"].value("numberOfThreads", cfg.numberOfThreads);
     }
 
@@ -41,6 +40,9 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.numberOfParticles  = j["physics"].value("particles", cfg.numberOfParticles);
         cfg.omega              = j["physics"].value("omega", cfg.omega);
         cfg.omega_z            = j["physics"].value("omega_z", cfg.omega_z);
+        cfg.LJsigma            = j["physics"].value("LJsigma", cfg.LJsigma);
+        cfg.LJenEps            = j["physics"].value("LJenEps", cfg.LJenEps);
+        cfg.LJalpha            = j["physics"].value("LJalpha", cfg.LJalpha);
         cfg.repulsive_a_factor = j["physics"].value("repulsive_a_factor", cfg.repulsive_a_factor);
         cfg.maxStrength        = j["physics"].value("maxStrength", cfg.maxStrength);
 

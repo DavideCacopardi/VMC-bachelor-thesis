@@ -1,44 +1,46 @@
 {
     "system": {
-        "hamiltonianType": "RepulsiveHO",
+        "hamiltonianType": "LennardJonesHO",
         "waveFunctionTrainType": "EllipticGaussian",
-        "waveFunctionType": "EllipticGaussian",
+        "waveFunctionType": "LJGaussian",
         "solverType": "MetropolisHastings",
-        "preferAnalytic": false,
-        "useCache": false,
+        "preferAnalytic": true,
         "numberOfThreads": 4
     },
     "physics": {
-        "dimensions": 3,
-        "particles": 2,
+        "dimensions": 1,
+        "particles": 1,
         "omega": 1.0,
-        "omega_z": 2.8243,
-        "repulsive_a_factor": 0.0043,
+        "omega_z": 1.0,
+        "LJsigma": 1.0,
+        "LJenEps": 1.0,
+        "LJalpha": 1.0,
+        "repulsive_a_factor": 0.05,
         "repulsive_strength": "inf",
         "maxStrength": 1,
-        "initialParams": [0.6, 2.9]
+        "initialParams": [1, 1, 1]
     },
     "monte_carlo": {
         "timeStep": 0.15,
         "equilibrationSteps": 10000,
-        "metropolisSteps": 1e6,
-        "finalMClog2steps": 16,
+        "metropolisSteps": 500000,
+        "finalMClog2steps": 20,
         "BFGS_tol": 1e-5
     },
     "neural_network": {
-        "Nhid": 12,
+        "Nhid": 10,
         "activationFunctionType": "tanh",
         "helpDecay": 0.4,
         "lr": 0.05,
         "Adam_ktol": 0.99,
         "max_patience": 80,
         "min_improvement": 0.02,
-        "nPretrainSteps": 1000,
-        "nEnergySteps": 3000,
-        "nAdiabSteps": 1000
+        "nPretrainSteps": 200,
+        "nEnergySteps": 1100,
+        "nAdiabSteps": 100
     },
     "observables": {
-        "onebodyDensitySteps": 5000000,
+        "onebodyDensitySteps": 100000,
         "onebodyDensity_rMax": 3.5,
         "onebodyDensity_nBins": 50
     },
