@@ -35,7 +35,7 @@ public:
      * @param initialParams Vector containing the starting variational parameters.
      * @return Vector containing the optimal parameters found.
      */
-    std::vector<double> optimize(std::vector<double> initialParams);
+    std::vector<double> optimize(std::vector<double> initialParams, const std::vector<bool>& optimize_mask = {});
 
 private:
     /**
@@ -53,11 +53,8 @@ private:
      * @param data Void pointer to the instance of VMCOptimizer.
      * @return The objective function value (energy).
      */
-    static double nloptObjective(const std::vector<double>& params,
-        std::vector<double>& grad,
-        void* data) {
-        return static_cast<VMCOptimizer*>(data)->computeMC(params, grad);
-    }
+    static double nloptObjective(
+        const std::vector<double>& params, std::vector<double>& grad, void* data);
 
     MCEngine& m_engine;
     unsigned int m_numberOfMetropolisSteps;
@@ -66,4 +63,5 @@ private:
     std::ofstream* m_outfile;
     std::ofstream* m_paramsfile;
     unsigned int m_mcCount = 0;
+    double m_previousEnergy;
 };

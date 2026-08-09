@@ -13,9 +13,11 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
     unsigned int numberOfDimensions,
     unsigned int numberOfParticles,
     Random& rng,
-    double rep_a
+    double min_dist,
+    double max_radius
 ) {
     assert(numberOfDimensions > 0 && numberOfParticles > 0);
+    const unsigned int c_max_nIteration = 1000000000;
 
     auto particles = std::vector<std::unique_ptr<Particle>>();
 
@@ -23,26 +25,34 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
         std::vector<double> position(numberOfDimensions);
         bool tooClose = true;
 
+        unsigned int nIteration = 0;
         do {
+            nIteration++;
             for (unsigned int j = 0; j < numberOfDimensions; j++) {
-                position[j] = (rng.nextDouble() - 0.5) * 10.0;
+                position[j] = 2 * (rng.nextDouble() - 0.5) * max_radius;
             }
             tooClose = false;
             for (unsigned int k = 0; k < i; k++) {
-                double dist = 0;
-                for (unsigned int j = 0; j < numberOfDimensions; j++) {
-                    dist += sq(position[j] - particles[k]->getPosition()[j]);
-                }
-                if (sqrt(dist) <= rep_a) {
+                if (distance(position, particles[k]->getPosition()) <= min_dist) {
                     tooClose = true;
                     break;
                 }
             }
-        } while (tooClose);
+        } while (tooClose && nIteration < c_max_nIteration);
+        if (tooClose) {
+            throw std::runtime_error(
+                "ERR: Particle didn't manage to be randomly setup satisfying the requested conditions in far too many iterations.");
+        }
 
-        Flavor flav = rng.nextInt(0, 1) ? A : B;
+        
+        // Flavor flav = rng.nextInt(0, 1) ? A : B;
+        // particles.push_back(std::make_unique<Particle>(position, flav));
 
-        particles.push_back(std::make_unique<Particle>(position, flav));
+        // TEMP
+        if (i % 2 == 0)
+            particles.push_back(std::make_unique<Particle>(position, A));
+        else
+            particles.push_back(std::make_unique<Particle>(position, B));
     }
 
     return particles;

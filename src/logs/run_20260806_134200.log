@@ -1,0 +1,68 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-06 13:42:00
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : LennardJonesHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : LJGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : false
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 1
+particles (N)    : 2
+omega            : 1
+omega_z          : 1
+LJsigma          : 1
+LJenEps          : 5
+LJalpha          : 1
+rep_a_factor     : 0.05
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^23 (8.38861e+06)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 1, 	1, 	1, 	
+Optimal parameters: 15.7099262, 	99.9984633, 	1, 	
+VMC Optimization done (in 6.59806312 s).
+
+FinalMC energy: 1.737204706e+05 +- 1.038633817e+02
+Acceptance ratio: 7.494939566e-01
+FinalMC done (in 2.81335164 s).
+
+Blocking_0 energy: 4.175066907e+01 +- 1.276684211e-01
+Blocking_1 energy: 4.161230638e+01 +- 1.246669514e-01
+Blocking_2 energy: 6.947568360e+05 +- 7.215827007e-06
+Blocking_3 energy: 4.168330101e+01 +- 1.308097526e-01
+Final blocking energy: 1.737204706e+05 +- 5.531289742e-02
+Blocking analysis done (in 0.117129213 s).
+
+One-body density done (in 0.051550106 s).
+
+=========================================

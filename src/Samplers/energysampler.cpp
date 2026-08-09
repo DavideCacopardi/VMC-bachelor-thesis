@@ -42,23 +42,25 @@ EnergySampler::EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& 
         others[0]->m_numberOfDimensions,
         others[0]->m_numberOfParameters,
         others[0]->m_stepLength,
-        0)
-{
+        0) {
     for (unsigned int i = 0; i < others.size(); i++) {
-        if (others[i]->m_elapsedTime > m_elapsedTime)
-            m_elapsedTime = others[i]->m_elapsedTime;
-        m_cumulativeEnergy += others[i]->m_cumulativeEnergy;
-        m_cumulativeEnergySQ += others[i]->m_cumulativeEnergySQ;
-        m_numberOfMetropolisSteps += others[i]->m_numberOfMetropolisSteps;
-        m_numberOfAcceptedSteps += others[i]->m_numberOfAcceptedSteps;
-        for (unsigned int j = 0; j < m_numberOfParameters; j++) {
-            m_cumulativeOpO[j] += others[i]->m_cumulativeOpO[j];
-            m_cumulativeOpOE[j] += others[i]->m_cumulativeOpOE[j];
-        }
+        mergeBaseData(others[i].get());
     }
     computeAverages();
 }
 
+void EnergySampler::mergeBaseData(const EnergySampler* other) {
+    if (other->m_elapsedTime > m_elapsedTime)
+        m_elapsedTime = other->m_elapsedTime;
+    m_cumulativeEnergy += other->m_cumulativeEnergy;
+    m_cumulativeEnergySQ += other->m_cumulativeEnergySQ;
+    m_numberOfMetropolisSteps += other->m_numberOfMetropolisSteps;
+    m_numberOfAcceptedSteps += other->m_numberOfAcceptedSteps;
+    for (unsigned int j = 0; j < m_numberOfParameters; j++) {
+        m_cumulativeOpO[j] += other->m_cumulativeOpO[j];
+        m_cumulativeOpOE[j] += other->m_cumulativeOpOE[j];
+    }
+}
 
 void EnergySampler::sample(bool acceptedStep, System* system, std::vector<double>* energiesOut) {
     double localEnergy = system->computeLocalEnergy();
@@ -126,6 +128,19 @@ void EnergySampler::printOutputToFile(System& system, std::ofstream& outs) {
     outs << m_energy << ", \t" << m_variance << ", \t" << m_error << std::endl;
 }
 
+void EnergySampler::logHeader(const std::vector<double>& params, std::ofstream& outs) {
+    outs << "#";
+    const unsigned int width = 20;
+    for (unsigned int i = 0; i < params.size(); i++) {
+        std::string temp = "p[" + std::to_string(i) + "],";
+        outs << std::setw(width - (i == 0)) << temp;
+    }
+    outs << std::setw(width) << "energy," << std::setw(width) << "variance,"
+        << std::setw(width) << "error," << std::setw(width) << "elapsed time,"
+        << std::setw(width) << "accept. ratio,"
+        << std::setw(width) << "Monte Carlo steps " << std::endl;
+}
+
 void EnergySampler::logOutput(const std::vector<double>& params, std::ofstream& outs) {
     const unsigned int prec = 12, width = 19;
     outs << std::scientific << std::setprecision(prec);
@@ -137,7 +152,8 @@ void EnergySampler::logOutput(const std::vector<double>& params, std::ofstream& 
         << std::setw(width) << m_variance << ","
         << std::setw(width) << m_error << ","
         << std::setw(width) << m_elapsedTime.count() << ","
-        << std::setw(width) << ((double)m_numberOfAcceptedSteps) / ((double)m_numberOfMetropolisSteps)
+        << std::setw(width) << ((double)m_numberOfAcceptedSteps) / ((double)m_numberOfMetropolisSteps) << ","
+        << std::setw(width) << m_numberOfMetropolisSteps
         << std::endl;
 }
 
@@ -150,7 +166,8 @@ void EnergySampler::logOutput(std::ofstream& outs, std::vector<double> additiona
     for (int i = 0; i < (int)additional_log.size(); i++)
         outs << std::setw(width) << additional_log[i] << ",";
     outs << std::setw(width) << m_elapsedTime.count() << ","
-        << std::setw(width) << ((double)m_numberOfAcceptedSteps) / ((double)m_numberOfMetropolisSteps)
+        << std::setw(width) << ((double)m_numberOfAcceptedSteps) / ((double)m_numberOfMetropolisSteps) << ","
+        << std::setw(width) << m_numberOfMetropolisSteps
         << std::endl;
 }
 

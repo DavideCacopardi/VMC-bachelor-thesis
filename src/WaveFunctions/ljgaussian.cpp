@@ -38,7 +38,7 @@ double LJGaussian::evalLn_onlyInteraction(std::vector<std::unique_ptr<class Part
     double sum = 0;
     for (unsigned int i = 0; i < particles.size(); i++) {
         for (unsigned int j = i + 1; j < particles.size(); j++) {
-            sum += pow(m_parameters[1] / norm(particles[i]->getPosition()), m_parameters[2]);
+            sum += pow(m_parameters[1] / distance(particles[i]->getPosition(), particles[j]->getPosition()), m_parameters[2]);
         }
     }
     return -0.5 * sum;
@@ -80,25 +80,27 @@ double LJGaussian::analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Pa
         for (unsigned int i = 0; i < particles.size(); i++) {
             for (unsigned int j = i + 1; j < particles.size(); j++) {
                 double dist = distance(particles[i]->getPosition(), particles[j]->getPosition());
-                sum += pow(m_parameters[1] / dist, m_parameters[2]);
+                double logarithm = log(m_parameters[1] / dist);
+                sum += logarithm * exp(logarithm * m_parameters[2]);
             }
         }
-        return -0.5 * log(m_parameters[1]) * sum;
+        return -0.5 * sum;
     }
     throw std::invalid_argument("ERR: Invalid param_idx requested in LJGaussian.");
 }
 
-// (∇ᵢ²ψ)/ψ = ∇ᵢ²ln(ψ) + ||∇ᵢln(ψ)||²
+// (∇²ψ)/ψ = sum_i( ∇ᵢ²ln(ψ) + ||∇ᵢln(ψ)||² )
 double LJGaussian::analyticalSpatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>& particles) {
     double total_laplacian = 0;
     for (unsigned int i = 0; i < particles.size(); i++) {
-        total_laplacian += analyticalLaplacian2_lnPsi(particles, i) + analyticalSqNorm_lnPsi(particles, i);
+        total_laplacian += analyticalParticleLaplacian2_lnPsi(particles, i) + analyticalSqNorm_ParticleGradlnPsi(particles, i);
     }
     return total_laplacian;
 }
 
 // ∇ᵢ²ln(ψ)
-double LJGaussian::analyticalLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
+double LJGaussian::analyticalParticleLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
+    double nDim = particles[0]->getNumberOfDimensions();
     double sum = 0;
     for (unsigned int j = 0; j < particles.size(); j++) {
         if (j == particle_idx) continue;
@@ -106,12 +108,12 @@ double LJGaussian::analyticalLaplacian2_lnPsi(std::vector<std::unique_ptr<Partic
         sum += pow(dist, -(m_parameters[2] + 2));
     }
     // ∇ᵢ²ln(ψ)
-    return -particles[0]->getNumberOfDimensions() / m_parameters[0] - 0.5 * m_parameters[2] * (m_parameters[2] - 1.0)
+    return -nDim / m_parameters[0] + 0.5 * m_parameters[2] * (nDim - m_parameters[2] - 2.0)
         * pow(m_parameters[1], m_parameters[2]) * sum;
 }
 
 // ||∇ᵢln(ψ)||²
-double LJGaussian::analyticalSqNorm_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
+double LJGaussian::analyticalSqNorm_ParticleGradlnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
     double sqNorm_lnPsi = 0;
     for (unsigned int d = 0; d < particles[0]->getNumberOfDimensions(); d++) {
         double sum_d = 0;

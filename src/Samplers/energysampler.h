@@ -10,7 +10,7 @@
  * * Accumulates the local energy at each Metropolis step to calculate 
  * the expectation value of the Hamiltonian, its variance, and the standard error.
  */
-class EnergySampler : Sampler {
+class EnergySampler : public Sampler {
 public:
     EnergySampler(
         unsigned int numberOfParticles,
@@ -18,32 +18,33 @@ public:
         unsigned int numberOfParameters,
         double stepLength,
         unsigned int numberOfMetropolisSteps);
-
     // Construct merged sampler
     EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others);
+    virtual ~EnergySampler() = default;
 
-    void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr);
+    virtual void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr);
     void printOutputToTerminal(class System& system);
     void printOutputToFile(class System& system, std::ofstream& outs);
-    void logOutput(const std::vector<double>& params, std::ofstream& outs);
+    virtual void logHeader(const std::vector<double>& params, std::ofstream& outs);
+    virtual void logOutput(const std::vector<double>& params, std::ofstream& outs);
     void logOutput(std::ofstream& outs, std::vector<double> additional_log = {});
-    void computeAverages();
+    virtual void computeAverages();
     double getEnergy() { return m_energy; }
     double getError() { return m_error; }
     double getAcceptanceRatio() { return (double)m_numberOfAcceptedSteps / (double)m_numberOfMetropolisSteps; }
     double getCovariance(unsigned int param_idx) { return m_covariance[param_idx]; }
     std::vector<double> get_dEdW() const;
     void setElapsedTime(std::chrono::duration<double> time);
-
-private:
+protected:
+    void mergeBaseData(const EnergySampler* other);
     double m_energy = 0;
     double m_energySQ = 0;
     double m_variance = 0;
     std::vector<double> m_covariance;
     std::vector<double> m_opO;
     double m_error = 0;
-    double m_cumulativeEnergy = 0;
-    double m_cumulativeEnergySQ = 0;
-    std::vector<double> m_cumulativeOpOE;
-    std::vector<double> m_cumulativeOpO;
+    long double m_cumulativeEnergy = 0;
+    long double m_cumulativeEnergySQ = 0;
+    std::vector<long double> m_cumulativeOpOE;
+    std::vector<long double> m_cumulativeOpO;
 };

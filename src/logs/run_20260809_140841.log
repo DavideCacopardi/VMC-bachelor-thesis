@@ -1,0 +1,67 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-09 14:08:41
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO_noInteraction
+WF Train Type             : EllipticGaussian
+WaveFunction              : LJGaussian
+Solver                    : MetropolisHastings
+preferAnalytic            : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 10
+omega                     : 1
+omega_z                   : 2.8
+LJsigma                   : 0.5
+LJenEps                   : 5
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.05
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 1, 0.5, 5 ]
+param-optimization mask   : [ false, true, false ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+time Step                 : 0.15
+Equilibr. Steps           : 10000
+BFGS MC Steps             : 10000
+BFGS_tol                  : 1e-05
+Final MC Steps            : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 10
+Activation Func           : tanh
+Learning Rate             : 0.05
+Pretrain Steps            : 200
+Energy Steps              : 1100
+Adiab Steps               : 100
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.02
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps          : 100000
+1bodyDens. rMax           : 3.5
+1bodyDens. nBins          : 50
+Seed                      : 0
+=========================================
+
+FinalMC energy: 1.889807585e+01 +- 1.424281505e-03
+Acceptance ratio: 9.049750566e-01
+FinalMC done (in 38.9860525 s).
+
+Blocking_0 energy: 1.899701350e+01 +- 5.007467254e-02
+Blocking_1 energy: 1.890660307e+01 +- 5.080525078e-02
+Blocking_2 energy: 1.872492656e+01 +- 1.701624134e-01
+Blocking_3 energy: 1.896376027e+01 +- 5.640079381e-02
+Final blocking energy: 1.889807585e+01 +- 4.823441640e-02
+Blocking analysis done (in 0.125712632 s).
+
+Mesh plot done (in 6.64153934 s).
+
+=========================================

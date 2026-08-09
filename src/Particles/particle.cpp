@@ -1,6 +1,9 @@
 #include "particle.h"
 #include <cassert>
 
+double Particle::s_max_radius = 100;
+double Particle::s_min_dist = 0;
+
 Particle::Particle(const std::vector<double>& position) {
     m_numberOfDimensions = position.size();
     m_position = position;

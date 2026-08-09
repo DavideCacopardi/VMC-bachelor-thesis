@@ -16,7 +16,7 @@ public:
      */
     HarmonicOscillator(double omega);
 
-    double computeLocalEnergy(WaveFunction& waveFunction, std::vector<std::unique_ptr<Particle>>& particles);
+    double computeLocalEnergy(WaveFunction& waveFunction, std::vector<std::unique_ptr<Particle>>& particles) override;
 
 private:
     double m_omega;

@@ -36,15 +36,18 @@ runConfig loadConfig(const std::string& filepath) {
 
     // --- [ PHYSICAL PARAMETERS ] ---
     if (j.contains("physics")) {
-        cfg.numberOfDimensions = j["physics"].value("dimensions", cfg.numberOfDimensions);
-        cfg.numberOfParticles  = j["physics"].value("particles", cfg.numberOfParticles);
-        cfg.omega              = j["physics"].value("omega", cfg.omega);
-        cfg.omega_z            = j["physics"].value("omega_z", cfg.omega_z);
-        cfg.LJsigma            = j["physics"].value("LJsigma", cfg.LJsigma);
-        cfg.LJenEps            = j["physics"].value("LJenEps", cfg.LJenEps);
-        cfg.LJalpha            = j["physics"].value("LJalpha", cfg.LJalpha);
-        cfg.repulsive_a_factor = j["physics"].value("repulsive_a_factor", cfg.repulsive_a_factor);
-        cfg.maxStrength        = j["physics"].value("maxStrength", cfg.maxStrength);
+        cfg.numberOfDimensions          = j["physics"].value("dimensions", cfg.numberOfDimensions);
+        cfg.numberOfParticles           = j["physics"].value("particles", cfg.numberOfParticles);
+        cfg.min_dist                    = j["physics"].value("min_dist", cfg.min_dist);
+        cfg.max_radius                  = j["physics"].value("max_radius", cfg.max_radius);
+        cfg.omega                       = j["physics"].value("omega", cfg.omega);
+        cfg.omega_z                     = j["physics"].value("omega_z", cfg.omega_z);
+        cfg.LJsigma                     = j["physics"].value("LJsigma", cfg.LJsigma);
+        cfg.LJenEps                     = j["physics"].value("LJenEps", cfg.LJenEps);
+        cfg.LJalpha                     = j["physics"].value("LJalpha", cfg.LJalpha);
+        cfg.LJGaussian_loc_Ken_method   = j["physics"].value("LJGaussian_loc_Ken_method", cfg.LJGaussian_loc_Ken_method);
+        cfg.repulsive_a_factor          = j["physics"].value("repulsive_a_factor", cfg.repulsive_a_factor);
+        cfg.maxStrength                 = j["physics"].value("maxStrength", cfg.maxStrength);
 
         // Special handling for the "inf" string
         if (j["physics"].contains("repulsive_strength")) {
@@ -59,6 +62,9 @@ runConfig loadConfig(const std::string& filepath) {
         if (j["physics"].contains("initialParams")) {
             cfg.initialParams = j["physics"]["initialParams"].get<std::vector<double>>();
         }
+        if (j["physics"].contains("optimizeParams_mask")) {
+            cfg.optParams_mask = j["physics"]["optimizeParams_mask"].get<std::vector<bool>>();
+        }
     }
 
     // --- [ MONTE CARLO ] ---
@@ -68,6 +74,20 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.metropolisSteps    = j["monte_carlo"].value("metropolisSteps", cfg.metropolisSteps);
         cfg.finalMClog2steps   = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
         cfg.BFGS_tol           = j["monte_carlo"].value("BFGS_tol", cfg.BFGS_tol);
+    }
+
+    // --- [ PARAMETER MESH ] ---
+    if (j.contains("parameter_mesh")) {
+        cfg.mesh_MClog2steps       = j["parameter_mesh"].value("mesh_MClog2steps", cfg.mesh_MClog2steps);
+        if (j["parameter_mesh"].contains("mesh_lb")) {
+            cfg.mesh_lb = j["parameter_mesh"]["mesh_lb"].get<std::vector<double>>();
+        }
+        if (j["parameter_mesh"].contains("mesh_ub")) {
+            cfg.mesh_ub = j["parameter_mesh"]["mesh_ub"].get<std::vector<double>>();
+        }
+        if (j["parameter_mesh"].contains("mesh_nPoints")) {
+            cfg.mesh_nPoints = j["parameter_mesh"]["mesh_nPoints"].get<std::vector<unsigned int>>();
+        }
     }
 
     // --- [ NEURAL NETWORK ] ---

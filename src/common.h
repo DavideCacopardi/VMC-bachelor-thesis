@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <memory>
 #include <functional>
 
 /**
@@ -45,3 +46,25 @@ double norm(const std::vector<double>& vec);
 double sqNorm(const std::vector<double>& vec);
 
 double distance(const std::vector<double>& v, const std::vector<double>& w);
+
+void inline swapVar(double& a, double& b) {
+    double temp = a;
+    a = b;
+    b = temp;
+}
+
+std::vector<std::vector<double>> generate_mesh(
+    std::vector<double>& lb, std::vector<double>& ub, std::vector<unsigned int>& nPoints);
+
+
+template <typename Derived, typename Base>
+std::unique_ptr<Derived> dynamic_unique_cast(std::unique_ptr<Base>&& p) {
+    // Try to cast the raw pointer
+    if (Derived* result = dynamic_cast<Derived*>(p.get())) {
+        // Only if successful, release the original and wrap the new one
+        p.release(); 
+        return std::unique_ptr<Derived>(result);
+    }
+    // If it fails, the original unique_ptr 'p' safely retains ownership
+    return std::unique_ptr<Derived>(nullptr); 
+}

@@ -6,14 +6,18 @@
 #include <omp.h>
 
 #include "mcengine.h"
+#include "common.h"
 #include "system.h"
 #include "Samplers/energysampler.h"
+#include "Samplers/energyekinsampler.h"
 #include "Samplers/densitysampler.h"
 #include "InitialStates/initialstate.h"
 #include "Math/random.h"
 #include "Solvers/montecarlo.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "WaveFunctions/wavefunction.h"
+
+using namespace CommonUtils;
 
 MCEngine::MCEngine(
     const runConfig& cfg,
@@ -62,7 +66,7 @@ std::unique_ptr<EnergySampler> MCEngine::run(
         auto rng = std::make_unique<Random>(base_seed + thread_id);
         // thread-local physical system
         auto particles = setupRandomUniformInitialState(
-            m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
+            m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng);
         auto solver = m_solverFactory(std::move(rng));
         auto system = std::make_unique<System>(
             m_hamiltonianFactory(),
@@ -77,7 +81,23 @@ std::unique_ptr<EnergySampler> MCEngine::run(
             energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr
         );
     }
-    auto global_sampler = std::make_unique<EnergySampler>(local_samplers);
+
+    std::unique_ptr<EnergySampler> global_sampler;
+    auto* helper_ptr = dynamic_cast<EnergyEkinSampler*>(local_samplers[0].get());
+    if (helper_ptr == nullptr) {
+        global_sampler = std::make_unique<EnergySampler>(local_samplers);
+    }
+    else {
+        std::vector<std::unique_ptr<EnergyEkinSampler>> local_ekin_samplers;
+        local_ekin_samplers.reserve(m_cfg.numberOfThreads);
+        for (auto& sampler : local_samplers) {
+            local_ekin_samplers.push_back(
+                dynamic_unique_cast<EnergyEkinSampler>(std::move(sampler))
+            );
+        }
+        global_sampler = std::make_unique<EnergyEkinSampler>(local_ekin_samplers);
+    }
+
     return global_sampler;
 }
 
@@ -90,7 +110,7 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
         ? std::chrono::system_clock::now().time_since_epoch().count()
         : m_cfg.seed);
     auto particles = setupRandomUniformInitialState(
-        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng, m_rep_a);
+        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng);
     auto solver = m_solverFactory(std::move(rng));
     auto system = std::make_unique<System>(
         m_hamiltonianFactory(),

@@ -53,7 +53,8 @@ public:
     std::unique_ptr<class EnergySampler> runMetropolisSteps(
         double stepParameter,
         unsigned int numberOfMetropolisSteps,
-        std::vector<double>* energiesOut = nullptr);
+        std::vector<double>* energiesOut = nullptr,
+        bool request_Ekin = true);
 
     // std::unique_ptr<class NNsampler> runMetropolisSteps_NN(double stepParameter,
     //     unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);

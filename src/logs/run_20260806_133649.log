@@ -1,0 +1,68 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time    : 2026-08-06 13:36:49
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian      : LennardJonesHO
+WF Train Type    : EllipticGaussian
+WaveFunction     : LJGaussian
+Solver           : MetropolisHastings
+preferAnalytic   : false
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)   : 1
+particles (N)    : 2
+omega            : 1
+omega_z          : 1
+LJsigma          : 1
+LJenEps          : 5
+LJalpha          : 1
+rep_a_factor     : 0.05
+rep_strength     : inf
+maxStrength      : 1
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ]
+time Step        : 0.15
+Equilibr. Steps  : 10000
+BFGS MC Steps    : 1000000
+BFGS_tol         : 1e-05
+Final MC Steps   : 2^23 (8.38861e+06)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid             : 10
+Activation Func  : tanh
+Learning Rate    : 0.05
+Pretrain Steps   : 200
+Energy Steps     : 1100
+Adiab Steps      : 100
+Adam_ktol        : 0.99
+max_patience     : 80
+min_improvement  : 0.02
+helpDecay        : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps : 100000
+1bodyDens. rMax  : 3.5
+1bodyDens. nBins : 50
+Seed             : 0
+=========================================
+
+Initial parameters: 1, 	1, 	1, 	
+Optimal parameters: 1.45602061, 	2.99666042, 	5, 	
+VMC Optimization done (in 5.13775282 s).
+
+FinalMC energy: -2.423837878e+06 +- 1.449506027e+03
+Acceptance ratio: 6.892788410e-01
+FinalMC done (in 2.75774875 s).
+
+Blocking_0 energy: 4.350201610e+00 +- 1.296937317e-02
+Blocking_1 energy: 4.353872978e+00 +- 5.996575287e-03
+Blocking_2 energy: -9.695364575e+06 +- 8.581465409e-04
+Blocking_3 energy: 4.360663961e+00 +- 2.981834454e-03
+Final blocking energy: -2.423837878e+06 +- 3.655401037e-03
+Blocking analysis done (in 0.121531036 s).
+
+One-body density done (in 0.051061439 s).
+
+=========================================

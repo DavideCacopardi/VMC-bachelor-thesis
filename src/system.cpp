@@ -4,11 +4,14 @@
 
 #include "system.h"
 #include "Samplers/energysampler.h"
+#include "Samplers/energyekinsampler.h"
 #include "Samplers/densitysampler.h"
 #include "Samplers/NNsampler.h"
 #include "Particles/particle.h"
 #include "WaveFunctions/wavefunction.h"
+#include "WaveFunctions/ljgaussian.h"
 #include "Hamiltonians/hamiltonian.h"
+#include "Hamiltonians/lennardjonesho.h"
 #include "InitialStates/initialstate.h"
 #include "Solvers/montecarlo.h"
 
@@ -49,20 +52,32 @@ unsigned int System::runEquilibrationSteps(double stepParameter,
     return acceptedSteps;
 }
 
-std::unique_ptr<class EnergySampler> System::runMetropolisSteps(double stepParameter,
-    unsigned int numberOfMetropolisSteps, std::vector<double>* energiesOut) {
-    auto sampler = std::make_unique<EnergySampler>(
-        m_numberOfParticles,
-        m_numberOfDimensions,
-        m_waveFunction->getNumberOfParameters(),
-        stepParameter,
-        numberOfMetropolisSteps);
+std::unique_ptr<EnergySampler> System::runMetropolisSteps(double stepParameter,
+    unsigned int numberOfMetropolisSteps, std::vector<double>* energiesOut, bool request_Ekin)
+{
+    std::unique_ptr<EnergySampler> sampler;
+    auto* ptr_h = dynamic_cast<LennardJonesHO*>(&getHamiltonian());
+    auto* ptr_wf = dynamic_cast<LJGaussian*>(&getWaveFunction());
+    if (request_Ekin && ptr_h != nullptr && ptr_wf != nullptr) {
+        sampler = std::make_unique<EnergyEkinSampler>(
+            m_numberOfParticles,
+            m_numberOfDimensions,
+            m_waveFunction->getNumberOfParameters(),
+            stepParameter,
+            numberOfMetropolisSteps);
+    }
+    else {
+        sampler = std::make_unique<EnergySampler>(
+            m_numberOfParticles,
+            m_numberOfDimensions,
+            m_waveFunction->getNumberOfParameters(),
+            stepParameter,
+            numberOfMetropolisSteps);
+    }
 
     auto watch_start = std::chrono::high_resolution_clock::now();
     for (unsigned int i = 0; i < numberOfMetropolisSteps; i++) {
-        // Call solver method to do a single Monte-Carlo step
         bool acceptedStep = m_solver->step(stepParameter, *m_waveFunction, m_particles);
-
         sampler->sample(acceptedStep, this, energiesOut);
     }
     auto watch_end = std::chrono::high_resolution_clock::now();
@@ -84,11 +99,7 @@ std::unique_ptr<NNsampler> System::runMetropolisSteps_NN_pretrain(double stepPar
         wf_train);
 
     for (unsigned int i = 0; i < numberOfMetropolisSteps; i++) {
-        /* Call solver method to do a single Monte-Carlo step.
-         */
         bool acceptedStep = m_solver->step(stepParameter, wf_train, m_particles);
-
-        // Sample 
         sampler->sample(acceptedStep, this);
     }
 
@@ -97,7 +108,7 @@ std::unique_ptr<NNsampler> System::runMetropolisSteps_NN_pretrain(double stepPar
     return sampler;
 }
 
-std::unique_ptr<class DensitySampler> System::runMetropolisStepsOnebodyDensity(double stepParameter,
+std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double stepParameter,
     unsigned int numberOfMetropolisSteps, double rMax, unsigned int nBins) {
     auto sampler = std::make_unique<DensitySampler>(
         m_numberOfParticles,
@@ -121,16 +132,6 @@ std::unique_ptr<class DensitySampler> System::runMetropolisStepsOnebodyDensity(d
 
     return sampler;
 }
-
-// double System::computeParamDerivativeLn(unsigned int param_idx) {
-//     // Helper function
-//     return m_waveFunction->computeParamDerivativeLn(m_particles, param_idx);
-// }
-
-// std::vector<double> System::computeLogParDer_vect() {
-//     // Helper function
-//     return m_waveFunction->computeLogParDer_vect(m_particles);
-// }
 
 const std::vector<double>& System::getWaveFunctionParameters() {
     // Helper function

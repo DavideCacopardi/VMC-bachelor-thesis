@@ -17,7 +17,7 @@ public:
     double evalLn(std::vector<std::unique_ptr<class Particle>>& particles);    
 
     std::vector<double> lowerBounds() const override { return { 1e-3 }; }
-    std::vector<double> upperBounds() const override { return { 1.0 }; }
+    std::vector<double> upperBounds() const override { return { 5.0 }; }
 private:
     bool hasAnalyticalDerivatives() const override { return true; }
 

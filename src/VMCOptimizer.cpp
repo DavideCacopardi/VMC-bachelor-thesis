@@ -18,15 +18,16 @@ VMCOptimizer::VMCOptimizer(
     std::ofstream* logfile,
     std::ofstream* outfile,
     std::ofstream* paramsfile
-) : m_engine(engine)
-, m_numberOfMetropolisSteps(numberOfMetropolisSteps)
-, m_BFGS_tol(BFGS_tol)
-, m_logfile(logfile)
-, m_outfile(outfile) 
-, m_paramsfile(paramsfile) {}
+) : m_engine(engine),
+m_numberOfMetropolisSteps(numberOfMetropolisSteps),
+m_BFGS_tol(BFGS_tol),
+m_logfile(logfile),
+m_outfile(outfile),
+m_paramsfile(paramsfile) {}
 
 double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<double>& grad) {
-    std::cout << "\rComputing MC #" << ++m_mcCount << std::flush;
+    std::cout << "\rComputing MC #" << m_mcCount + 1 << "      (nMCsteps: "
+        << m_numberOfMetropolisSteps << ")              " << std::flush;
 
     auto sampler = m_engine.run(params, m_numberOfMetropolisSteps);
 
@@ -34,32 +35,49 @@ double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<do
         grad = sampler->get_dEdW();
     }
 
-    if (m_logfile) sampler->logOutput(params, *m_logfile);
-
-    return sampler->getEnergy();
-}
-
-std::vector<double> VMCOptimizer::optimize(std::vector<double> params) {
-    // print log header
     if (m_logfile) {
-        *m_logfile << "#";
-        const unsigned int width = 20;
-        for (unsigned int i = 0; i < params.size(); i++) {
-            std::string temp = "p[" + std::to_string(i) + "],";
-            *m_logfile << std::setw(width - (i == 0)) << temp;
+        if (m_mcCount == 0) {
+            sampler->logHeader(params, *m_logfile);
         }
-        *m_logfile << std::setw(width) << "energy," << std::setw(width) << "variance,"
-            << std::setw(width) << "error," << std::setw(width) << "elapsed time,"
-            << std::setw(width) << "acceptance ratio " << std::endl;
+        sampler->logOutput(params, *m_logfile);
     }
 
+    // Signal-to-Noise Ratio increment
+    double energy = sampler->getEnergy();
+    double error = sampler->getError();
+    if (m_mcCount > 0 && std::abs(energy - m_previousEnergy) < 8 * error) {
+        m_numberOfMetropolisSteps *= 1.2; // HARD-CODED!
+    }
+    m_previousEnergy = energy;
+    m_mcCount++;
+
+    return energy;
+}
+
+std::vector<double> VMCOptimizer::optimize(std::vector<double> params, const std::vector<bool>& optimize_mask) {
+    // nlopt setup
     nlopt::opt lib_optimizer(nlopt::LD_LBFGS, params.size());
     {
         auto tempWaveFunction = m_engine.makeWaveFunction(params);
         auto lb = tempWaveFunction->lowerBounds();
         auto ub = tempWaveFunction->upperBounds();
-        if (!lb.empty()) lib_optimizer.set_lower_bounds(lb);
-        if (!ub.empty()) lib_optimizer.set_upper_bounds(ub);
+        // If the wavefunction didn't supply bounds
+        if (lb.empty())
+            lb.assign(params.size(), -std::numeric_limits<double>::infinity());
+        if (ub.empty())
+            ub.assign(params.size(), std::numeric_limits<double>::infinity());
+        if (optimize_mask.size() == params.size()) {
+            for (unsigned int i = 0; i < params.size(); ++i) {
+                // If the mask dictates this parameter should not be optimized, freeze it
+                if (!optimize_mask[i]) {
+                    lb[i] = params[i];
+                    ub[i] = params[i];
+                }
+            }
+        }
+
+        lib_optimizer.set_lower_bounds(lb);
+        lib_optimizer.set_upper_bounds(ub);
     }
     lib_optimizer.set_min_objective(nloptObjective, this);
     lib_optimizer.set_xtol_rel(m_BFGS_tol);
@@ -67,6 +85,7 @@ std::vector<double> VMCOptimizer::optimize(std::vector<double> params) {
     lib_optimizer.set_maxtime(10800.0);
     m_mcCount = 0;
 
+    // run the actual optimization
     double minEnergy;
     try {
         lib_optimizer.optimize(params, minEnergy);
@@ -94,4 +113,10 @@ std::vector<double> VMCOptimizer::optimize(std::vector<double> params) {
     }
 
     return params;
+}
+
+double VMCOptimizer::nloptObjective(
+    const std::vector<double>& params, std::vector<double>& grad, void* data
+) {
+    return static_cast<VMCOptimizer*>(data)->computeMC(params, grad);
 }

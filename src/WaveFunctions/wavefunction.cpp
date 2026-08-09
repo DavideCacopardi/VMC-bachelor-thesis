@@ -18,7 +18,7 @@ double WaveFunction::spatialDerivativeLn(std::vector<std::unique_ptr<Particle>>&
         return analyticalSpatialDerivativeLn(particles, particle_idx, dim);
     }
 
-    double h = 1e-4 * std::max(1.0, std::abs(particles[particle_idx]->getPosition()[dim]));
+    double h = 1e-7 * std::max(1.0, std::abs(particles[particle_idx]->getPosition()[dim]));
     
     particles[particle_idx]->adjustPosition(h, dim);
     double lnPlus = evalLn(particles);
@@ -45,7 +45,7 @@ double WaveFunction::spatialNormalizedLaplacian(std::vector<std::unique_ptr<Part
         return analyticalSpatialNormalizedLaplacian(particles);
     }
 
-    double h = 1e-4 * std::max(1.0, std::abs(particles[0]->getPosition()[0]));
+    double h = 1e-7 * std::max(1.0, std::abs(particles[0]->getPosition()[0]));
     double wfCurrent = eval(particles);
     double sum = 0;
 
@@ -71,7 +71,7 @@ double WaveFunction::paramDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>
         return analyticalParamDerivativeLnAbs(particles, param_idx);
     }
 
-    double h = 1e-4 * std::max(1.0, std::abs(m_parameters[param_idx]));
+    double h = 1e-7 * std::max(1.0, std::abs(m_parameters[param_idx]));
     
     m_parameters[param_idx] += h;
     double lnPlus = evalLn(particles);

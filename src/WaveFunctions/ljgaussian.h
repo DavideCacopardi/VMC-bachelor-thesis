@@ -13,23 +13,24 @@
 class LJGaussian : public WaveFunction {
 public:
     LJGaussian(double alpha, double beta1, double beta2);
+
     double eval(std::vector<std::unique_ptr<class Particle>>& particles);
     double evalLn(std::vector<std::unique_ptr<class Particle>>& particles);
+    
+    // special:
+    // ∇ᵢ²ln(ψ)
+    double analyticalParticleLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
+    // ||∇ᵢln(ψ)||²
+    double analyticalSqNorm_ParticleGradlnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
 
-    std::vector<double> lowerBounds() const override { return { 1e-2, 0.1, 0.1 }; }
-    std::vector<double> upperBounds() const override { return { 1e2, 5.0, 5.0 }; }
+    std::vector<double> lowerBounds() const override { return { 0.4, 0, 1e-4 }; }
+    std::vector<double> upperBounds() const override { return { 50, 2, 10 }; }
 private:
     bool hasAnalyticalDerivatives() const override { return true; }
 
     double analyticalSpatialDerivativeLn(std::vector<std::unique_ptr<Particle>>&, unsigned int, unsigned int) override;
     double analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>&, unsigned int) override;
     double analyticalSpatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>&) override;
-
-    // special:
-    // ∇ᵢ²ln(ψ)
-    double analyticalLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
-    // ||∇ᵢln(ψ)||²
-    double analyticalSqNorm_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
 
     double evalLn_noInteraction(std::vector<std::unique_ptr<class Particle>>& particles);
     double evalLn_onlyInteraction(std::vector<std::unique_ptr<class Particle>>& particles);

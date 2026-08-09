@@ -21,6 +21,7 @@ public:
     
     int getNumberOfParameters() const { return m_numberOfParameters; }
     virtual const std::vector<double>& getParameters() { return m_parameters; }
+    // for optimization
     virtual std::vector<double> lowerBounds() const { return {}; }
     virtual std::vector<double> upperBounds() const { return {}; }
 

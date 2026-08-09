@@ -17,15 +17,19 @@ struct runConfig {
     // [ PHYSICAL PARAMETERS ]
     unsigned int numberOfDimensions = 1;
     unsigned int numberOfParticles = 1;
+    double min_dist = 1;
+    double max_radius = 10000;
     double omega = 1.0;
     double omega_z = 2.8243;
     double LJsigma = 1;
     double LJenEps = 1;
     double LJalpha = 1;
+    unsigned int LJGaussian_loc_Ken_method = 0;
     double repulsive_a_factor = 0.0043;
     double repulsive_strength = numeric_limits<double>::infinity();
     double maxStrength = 1.0;
     vector<double> initialParams = { 1, 1, 1 };
+    vector<bool> optParams_mask = { true, true, true };
 
     // [ MONTE CARLO ]
     double timeStep = 0.15;
@@ -33,6 +37,12 @@ struct runConfig {
     unsigned int metropolisSteps = 10000;
     unsigned int finalMClog2steps = 16;
     double BFGS_tol = 1e-5;
+
+    // [ PARAMETER MESH ]
+    unsigned int mesh_MClog2steps = 16;
+    vector<double> mesh_lb = { 1, 1, 5 };
+    vector<double> mesh_ub = { 1, 1, 5 };
+    vector<unsigned int> mesh_nPoints = { 5, 5, 1 };
 
     // [ NEURAL NETWORK ]
     int Nhid = 12;

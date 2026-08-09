@@ -1,6 +1,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <iostream>
 #include <sstream>
 #include <cmath>
 #include <functional>
@@ -9,14 +10,14 @@
 
 using namespace CommonUtils;
 
-std::vector<double> readVector(const std::string & filename) {
+std::vector<double> readVector(const std::string& filename) {
     std::ifstream file(filename);
     std::vector<double> vec;
     double temp;
     while (file >> temp) {
         vec.push_back(temp);
         while (file.peek() == ',' || file.peek() == ' ' || file.peek() == '\t') {
-            file.ignore(); 
+            file.ignore();
         }
     }
     file.close();
@@ -79,3 +80,40 @@ double distance(const std::vector<double>& v, const std::vector<double>& w) {
     return sqrt(temp);
 }
 
+std::vector<std::vector<double>> generate_mesh(
+    std::vector<double>& lb, std::vector<double>& ub, std::vector<unsigned int>& nPoints)
+{
+    unsigned int nPar = lb.size();
+    if (nPar != ub.size() || nPar != nPoints.size()) {
+        throw std::invalid_argument("ERR: nPar for mesh size is ambiguous");
+    }
+    unsigned int nRows_tot = 1;
+    for (unsigned int i = 0; i < nPar; i++) {
+        if (nPoints[i] == 0)
+            throw std::invalid_argument("ERR: mesh_nPoints entries must be > 0");
+        nRows_tot *= nPoints[i];
+        if (lb[i] > ub[i])
+            swapVar(lb[i], ub[i]);
+    }
+    
+    std::vector<unsigned int> idx(nPar, 0);
+    std::vector<std::vector<double>> mesh(nRows_tot);
+    for (unsigned int row = 0; row < nRows_tot; row++) {
+        mesh[row].resize(nPar);
+        for (unsigned int par = 0; par < nPar; par++) {
+            double dx = (ub[par] - lb[par]) / (double)nPoints[par];
+            mesh[row][par] = lb[par] + dx * idx[par];
+        }
+
+        for (int j = nPar - 1; j >= 0; j--) {
+            if (idx[j] + 1 < nPoints[j]) {
+                idx[j]++;
+                break;
+            }
+            else {
+                idx[j] = 0;
+            }
+        }
+    }
+    return mesh;
+}

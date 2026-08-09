@@ -1,0 +1,71 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-06 16:17:00
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : EllipticGaussian
+WaveFunction              : LJGaussian
+Solver                    : MetropolisHastings
+preferAnalytic            : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 1
+particles (N)             : 2
+omega                     : 1
+omega_z                   : 1
+LJsigma                   : 1
+LJenEps                   : 5
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.05
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 1, 1, 0.001 ]
+param-optimization mask   : [ true, true, true ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+time Step                 : 0.15
+Equilibr. Steps           : 10000
+BFGS MC Steps             : 1000000
+BFGS_tol                  : 1e-05
+Final MC Steps            : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 10
+Activation Func           : tanh
+Learning Rate             : 0.05
+Pretrain Steps            : 200
+Energy Steps              : 1100
+Adiab Steps               : 100
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.02
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps          : 100000
+1bodyDens. rMax           : 3.5
+1bodyDens. nBins          : 50
+Seed                      : 0
+=========================================
+
+Initial parameters: 1, 	1, 	0.001, 	
+Optimal parameters: 1.85008332, 	1.00000995, 	10, 	
+VMC Optimization done (in 3.85668241 s).
+
+FinalMC energy: -7.534472237e+03 +- 4.507696040e+00
+Acceptance ratio: 6.476128101e-01
+FinalMC done (in 2.38673458 s).
+
+Blocking_0 energy: 3.241426451e+00 +- 1.715657093e-02
+Blocking_1 energy: -3.014757499e+04 +- 3.581117198e-07
+Blocking_2 energy: 3.233725055e+00 +- 1.362999029e-02
+Blocking_3 energy: 3.210889726e+00 +- 2.282685487e-02
+Final blocking energy: -7.534472237e+03 +- 7.910396104e-03
+Blocking analysis done (in 0.138228176 s).
+
+One-body density done (in 0.049425442 s).
+
+=========================================

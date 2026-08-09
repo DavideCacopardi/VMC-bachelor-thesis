@@ -16,14 +16,11 @@ if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-# Add all compiler warnings. Remember, a warning in C++ can very often lead to a bug
-# later on so _fix your warnings!_
+# Add all compiler warnings.
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 # Add debugging flag for tools such as gdb and valgrind.
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-# Add full compiler optimization when in the release build type. Other options include
-# -O0, -O1, -O2.
-# set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+# Add full compiler optimization when in the release build type.
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -march=native -flto -fno-math-errno")
 
 # Find packages

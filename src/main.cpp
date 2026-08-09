@@ -45,66 +45,96 @@ using ActivationFuncFactory = std::function<ActivationFunc()>;
 
 void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) {
     globalLog << "=========================================\n";
-        globalLog << "               VMC RUN LOG               \n";
-        globalLog << "=========================================\n";
-        globalLog << "Date and time    : " << std::put_time(now_tm, "%Y-%m-%d %H:%M:%S") << "\n";
-        globalLog << "-----------------------------------------\n";
-        globalLog << "[ SYSTEM & MODELS ]\n";
-        globalLog << "Hamiltonian      : " << cfg.hamiltonianType << "\n";
-        globalLog << "WF Train Type    : " << cfg.waveFunctionTrainType << "\n";
-        globalLog << "WaveFunction     : " << cfg.waveFunctionType << "\n";
-        globalLog << "Solver           : " << cfg.solverType << "\n";
-        globalLog << "preferAnalytic   : " << (cfg.preferAnalytic ? "true" : "false") << "\n";
-        globalLog << "-----------------------------------------\n";
-        globalLog << "[ PHYSICAL PARAMETERS ]\n";
-        globalLog << "dimensions (D)   : " << cfg.numberOfDimensions << "\n";
-        globalLog << "particles (N)    : " << cfg.numberOfParticles << "\n";
-        globalLog << "omega            : " << cfg.omega << "\n";
-        globalLog << "omega_z          : " << cfg.omega_z << "\n";
-        globalLog << "LJsigma          : " << cfg.LJsigma << "\n";
-        globalLog << "LJenEps          : " << cfg.LJenEps << "\n";
-        globalLog << "LJalpha          : " << cfg.LJalpha << "\n";
-        globalLog << "rep_a_factor     : " << cfg.repulsive_a_factor << "\n";
-        globalLog << "rep_strength     : " << cfg.repulsive_strength << "\n";
-        globalLog << "maxStrength      : " << cfg.maxStrength << "\n";
-        globalLog << "-----------------------------------------\n";
-        globalLog << "[ MONTE CARLO & OPTIMIZATION ]\n";
-        globalLog << "time Step        : " << cfg.timeStep << "\n";
-        globalLog << "Equilibr. Steps  : " << cfg.equilibrationSteps << "\n";
-        globalLog << "BFGS MC Steps    : " << cfg.metropolisSteps << "\n";
-        globalLog << "BFGS_tol         : " << cfg.BFGS_tol << "\n";
-        globalLog << "Final MC Steps   : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
-        globalLog << "-----------------------------------------\n";
-        globalLog << "[ NEURAL NETWORK ]\n";
-        globalLog << "Nhid             : " << cfg.Nhid << "\n";
-        globalLog << "Activation Func  : " << cfg.activationFunctionType << "\n";
-        globalLog << "Learning Rate    : " << cfg.lr << "\n";
-        globalLog << "Pretrain Steps   : " << cfg.nPretrainSteps << "\n";
-        globalLog << "Energy Steps     : " << cfg.nEnergySteps << "\n";
-        globalLog << "Adiab Steps      : " << cfg.nAdiabSteps << "\n";
-        globalLog << "Adam_ktol        : " << cfg.Adam_ktol << "\n";
-        globalLog << "max_patience     : " << cfg.max_patience << "\n";
-        globalLog << "min_improvement  : " << cfg.min_improvement << "\n";
-        globalLog << "helpDecay        : " << cfg.helpDecay << "\n";
-        globalLog << "-----------------------------------------\n";
-        globalLog << "[ OBSERVABLES & MISC ]\n";
-        globalLog << "1bodyDens. Steps : " << cfg.onebodyDensitySteps << "\n";
-        globalLog << "1bodyDens. rMax  : " << cfg.onebodyDensity_rMax << "\n";
-        globalLog << "1bodyDens. nBins : " << cfg.onebodyDensity_nBins << "\n";
-        globalLog << "Seed             : " << cfg.seed << "\n";
-        globalLog << "=========================================\n\n";
-        globalLog << std::flush;
+    globalLog << "               VMC RUN LOG               \n";
+    globalLog << "=========================================\n";
+    globalLog << "Date and time             : " << std::put_time(now_tm, "%Y-%m-%d %H:%M:%S") << "\n";
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ SYSTEM & MODELS ]\n";
+    globalLog << "Hamiltonian               : " << cfg.hamiltonianType << "\n";
+    globalLog << "WF Train Type             : " << cfg.waveFunctionTrainType << "\n";
+    globalLog << "WaveFunction              : " << cfg.waveFunctionType << "\n";
+    globalLog << "Solver                    : " << cfg.solverType << "\n";
+    globalLog << "preferAnalytic            : " << (cfg.preferAnalytic ? "true" : "false") << "\n";
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ PHYSICAL PARAMETERS ]\n";
+    globalLog << "dimensions (D)            : " << cfg.numberOfDimensions << "\n";
+    globalLog << "particles (N)             : " << cfg.numberOfParticles << "\n";
+    globalLog << "min_dist                  : " << cfg.min_dist << "\n";
+    globalLog << "max_radius                : " << cfg.max_radius<< "\n";
+    globalLog << "omega                     : " << cfg.omega << "\n";
+    globalLog << "omega_z                   : " << cfg.omega_z << "\n";
+    globalLog << "LJsigma                   : " << cfg.LJsigma << "\n";
+    globalLog << "LJenEps                   : " << cfg.LJenEps << "\n";
+    globalLog << "LJalpha                   : " << cfg.LJalpha << "\n";
+    globalLog << "LJGaussian_loc_Ken_method : " << cfg.LJGaussian_loc_Ken_method << "\n";
+    globalLog << "rep_a_factor              : " << cfg.repulsive_a_factor << "\n";
+    globalLog << "rep_strength              : " << cfg.repulsive_strength << "\n";
+    globalLog << "maxStrength               : " << cfg.maxStrength << "\n";
+    globalLog << "pre-optimization params   : [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.initialParams.size(); i++) {
+        globalLog << cfg.initialParams[i];
+        globalLog << ((i + 1 == cfg.initialParams.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "param-optimization mask   : [ ";
+    for (unsigned int i = 0; i < cfg.optParams_mask.size(); i++) {
+        globalLog << (cfg.optParams_mask[i] ? "true" : "false");
+        globalLog << ((i + 1 == cfg.optParams_mask.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ MONTE CARLO & OPTIMIZATION ENGINES ]\n";
+    globalLog << "time Step                 : " << cfg.timeStep << "\n";
+    globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
+    globalLog << "BFGS MC Steps             : " << cfg.metropolisSteps << "\n";
+    globalLog << "BFGS_tol                  : " << cfg.BFGS_tol << "\n";
+    globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ PARAMETER MESH ]\n";
+    globalLog << "lower bounds              : [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.mesh_lb.size(); i++) {
+        globalLog << cfg.mesh_lb[i];
+        globalLog << ((i + 1 == cfg.mesh_lb.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "upper bounds              : [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.mesh_ub.size(); i++) {
+        globalLog << cfg.mesh_ub[i];
+        globalLog << ((i + 1 == cfg.mesh_ub.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "number of points          : [ ";
+    for (unsigned int i = 0; i < cfg.mesh_nPoints.size(); i++) {
+        globalLog << cfg.mesh_nPoints[i];
+        globalLog << ((i + 1 == cfg.mesh_nPoints.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "Mesh MC Steps             : 2^" << cfg.mesh_MClog2steps << " (" << std::pow(2, cfg.mesh_MClog2steps) << ")\n";
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ NEURAL NETWORK ]\n";
+    globalLog << "Nhid                      : " << cfg.Nhid << "\n";
+    globalLog << "Activation Func           : " << cfg.activationFunctionType << "\n";
+    globalLog << "Learning Rate             : " << cfg.lr << "\n";
+    globalLog << "Pretrain Steps            : " << cfg.nPretrainSteps << "\n";
+    globalLog << "Energy Steps              : " << cfg.nEnergySteps << "\n";
+    globalLog << "Adiab Steps               : " << cfg.nAdiabSteps << "\n";
+    globalLog << "Adam_ktol                 : " << cfg.Adam_ktol << "\n";
+    globalLog << "max_patience              : " << cfg.max_patience << "\n";
+    globalLog << "min_improvement           : " << cfg.min_improvement << "\n";
+    globalLog << "helpDecay                 : " << cfg.helpDecay << "\n";
+    globalLog << "-----------------------------------------\n";
+    globalLog << "[ OBSERVABLES & MISC ]\n";
+    globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
+    globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
+    globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
+    globalLog << "Seed                      : " << cfg.seed << "\n";
+    globalLog << "=========================================\n\n";
+    globalLog << std::flush;
 }
 
 int main(int argc, char* argv[]) {
     runConfig cfg = loadConfig("config.json");
-    WaveFunction::setUseAnalyticalDerivatives(cfg.preferAnalytic);
 
     chrono::high_resolution_clock::time_point watch_start, watch_end;
     chrono::duration<double> elapsedTime;
 
     // --- Toggles based on argc, argv ---
-    vector<bool> toggles(3, false);
+    vector<bool> toggles(4, false);
     if (argc > 1) {
         for (int i = 1; i < argc; i++) {
             int temp = atoi(argv[i]);
@@ -131,7 +161,16 @@ int main(int argc, char* argv[]) {
     }
     printLogHeader(cfg, globalLog, now_tm);
 
-    // --- Setup Factories ---
+    // --- Setup Classes and Factories ---
+    WaveFunction::setUseAnalyticalDerivatives(cfg.preferAnalytic);
+    if (!cfg.preferAnalytic && cfg.LJGaussian_loc_Ken_method != 0) {
+        toLogStr = "\n WRN: the selected LJGaussian_loc_Ken_method has no numerical implementation (preferAnalytic is set to false).\n";
+        globalLog << toLogStr;
+        cout << toLogStr;
+    }
+    LennardJonesHO::set_loc_Ken_method(cfg.LJGaussian_loc_Ken_method);
+    Particle::set_min_dist(cfg.repulsive_a_factor > cfg.min_dist ? cfg.repulsive_a_factor : cfg.min_dist);
+    Particle::set_max_radius(Particle::s_min_dist > cfg.max_radius ? Particle::s_min_dist : cfg.max_radius);
     HamiltonianFactory hFac = [=]() -> unique_ptr<Hamiltonian> {
         if (cfg.hamiltonianType == "HarmonicOscillator") {
             return make_unique<HarmonicOscillator>(cfg.omega);
@@ -141,6 +180,9 @@ int main(int argc, char* argv[]) {
         }
         else if (cfg.hamiltonianType == "LennardJonesHO") {
             return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha);
+        }
+        else if (cfg.hamiltonianType == "LennardJonesHO_noInteraction") {
+            return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, false);
         }
         else { // default to Repulsive
             return make_unique<RepulsiveHO>(cfg.omega, cfg.omega_z, cfg.repulsive_a_factor, cfg.repulsive_strength);
@@ -220,14 +262,14 @@ int main(int argc, char* argv[]) {
             hFac(),
             solverFac,
             actFun(),
-            & logfile, & outfile, & paramsfile
+            &logfile, &outfile, &paramsfile
         );
 
         watch_start = chrono::high_resolution_clock::now();
         vector<double> optimalParams = optimizer.optimize(wfFacTrain(cfg.initialParams));
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
-    
+
         cout << "Optimal parameters: " << setprecision(9);
         globalLog << "Optimal parameters: " << setprecision(9);
         for (unsigned int i = 0; i < optimalParams.size(); i++) {
@@ -255,13 +297,19 @@ int main(int argc, char* argv[]) {
         }
         globalLog << endl;
 
-        ofstream logfile("./iofiles/log.csv");
-        ofstream outfile("./iofiles/details_results.csv");
+        ostringstream filenameStream;
+        filenameStream << "./logs_exec/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+        ofstream logfile(filenameStream.str());
+        if (!logfile.is_open()) {
+            cerr << "Error: unable to generate log_NN file " << filenameStream.str() << endl;
+            return 1;
+        }
+        ofstream outfile("./iofiles/detailed_nlopt_results.csv");
         ofstream paramsfile("./iofiles/params.dat");
         VMCOptimizer optimizer(engine, cfg.metropolisSteps, cfg.BFGS_tol, &logfile, &outfile, &paramsfile);
 
         watch_start = chrono::high_resolution_clock::now();
-        vector<double> optimalParams = optimizer.optimize(cfg.initialParams);
+        vector<double> optimalParams = optimizer.optimize(cfg.initialParams, cfg.optParams_mask);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
 
@@ -281,9 +329,10 @@ int main(int argc, char* argv[]) {
         watch_start = chrono::high_resolution_clock::now();
         vector<double> params = readVector("./iofiles/params.dat");
         std::vector<std::vector<double>> rawEnergiesData;   // later analyzed by blocking algorithm
+        cout << "\rComputing Final MC..." << flush;
         unique_ptr<EnergySampler> sampler =
             engine.run(params, (unsigned int)pow(2, cfg.finalMClog2steps), &rawEnergiesData);
-        cout << scientific << setprecision(9) << "FinalMC energy: " << sampler->getEnergy()
+        cout << scientific << setprecision(9) << "\rFinalMC energy: " << sampler->getEnergy()
             << " +- " << sampler->getError() << endl << defaultfloat;
         globalLog << scientific << setprecision(9) << "FinalMC energy: " << sampler->getEnergy()
             << " +- " << sampler->getError() << endl << defaultfloat;
@@ -310,7 +359,7 @@ int main(int argc, char* argv[]) {
             double cumulative_var = 0;
             for (unsigned int i = 0; i < rawEnergiesData.size(); i++) {
                 Blocker block(rawEnergiesData[i]);
-                block.printResults("./iofiles/blocking_results.csv");
+                // block.printResults("./iofiles/blocking_results.csv");
                 cout << "Blocking_" << i << scientific << setprecision(9) << " energy: " << block.mean
                     << " +- " << block.stdErr << endl << defaultfloat;
                 globalLog << "Blocking_" << i << scientific << setprecision(9) << " energy: " << block.mean
@@ -319,16 +368,16 @@ int main(int argc, char* argv[]) {
                 cumulative_var += sq(block.stdErr);
             }
             cout << scientific << setprecision(9) << "Final blocking energy: "
-                << cumulative_E / (double) rawEnergiesData.size()
-                << " +- " << sqrt(cumulative_var) / (double) rawEnergiesData.size() << endl << defaultfloat;
+                << cumulative_E / (double)rawEnergiesData.size()
+                << " +- " << sqrt(cumulative_var) / (double)rawEnergiesData.size() << endl << defaultfloat;
             globalLog << scientific << setprecision(9) << "Final blocking energy: "
-                << cumulative_E / (double) rawEnergiesData.size()
-                << " +- " << sqrt(cumulative_var) / (double) rawEnergiesData.size() << endl << defaultfloat;
-            watch_end = chrono::high_resolution_clock::now();
-            elapsedTime = watch_end - watch_start;
-            cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
-            globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+                << cumulative_E / (double)rawEnergiesData.size()
+                << " +- " << sqrt(cumulative_var) / (double)rawEnergiesData.size() << endl << defaultfloat;
         }
+        watch_end = chrono::high_resolution_clock::now();
+        elapsedTime = watch_end - watch_start;
+        cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+        globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
     }
 
     if (toggles[2]) {
@@ -349,6 +398,67 @@ int main(int argc, char* argv[]) {
         densityfile.close();
     }
 
+    if (toggles[3]) {
+        // --- 4: Mesh ---
+        watch_start = chrono::high_resolution_clock::now();
+        vector<vector<double>> param_mesh = generate_mesh(cfg.mesh_lb, cfg.mesh_ub, cfg.mesh_nPoints);
+
+        // file setup
+        ostringstream filenameStream;
+        filenameStream << "./parameter_mesh/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+        ofstream meshfile(filenameStream.str());
+        if (!meshfile.is_open()) {
+            cerr << "Error: unable to generate meshfile " << filenameStream.str() << endl;
+            return 1;
+        }
+        meshfile << "#";
+        unsigned int col_width = 20, col_prec = 12; // print to file in columns
+        for (unsigned int i = 0; i < param_mesh[0].size(); i++) {
+            std::string temp = "p[" + std::to_string(i) + "],";
+            meshfile << std::setw(col_width - (i == 0)) << temp;
+        }
+        meshfile << std::setw(col_width) << "energy," << std::setw(col_width) << "error" << std::endl;
+
+        for (unsigned int par_idx = 0; par_idx < param_mesh.size(); par_idx++) {
+            cout << "\rComputing mesh MC #" << par_idx + 1 << " of " << param_mesh.size() << flush;
+            // --- 4a: MC run ---
+            std::vector<std::vector<double>> rawEnergiesData;   // later analyzed by blocking algorithm
+            unique_ptr<EnergySampler> sampler =
+                engine.run(param_mesh[par_idx], (unsigned int)pow(2, cfg.mesh_MClog2steps), &rawEnergiesData);
+            double energy = sampler->getEnergy();
+            double err = sampler->getError();
+
+            // --- 4b: Blocking ---
+            if (rawEnergiesData[0].size() % 2 != 0) {   // check viability of the blocking estimate
+                toLogStr = "WRN: size of data fed into the blocking algorithm must be a power of 2."
+                    "\n    This may be caused by the number of threads not being a power of 2 itself."
+                    "\n    The blocking estimate will not be evaluated.\n\n";
+                cout << toLogStr;
+                globalLog << toLogStr;
+            }
+            else {  // The number of MC cycles is a power of 2. Blocking can be calculated.
+                double cumulative_var = 0;
+                for (unsigned int i = 0; i < rawEnergiesData.size(); i++) {
+                    Blocker block(rawEnergiesData[i]);
+                    cumulative_var += sq(block.stdErr);
+                }
+                err = sqrt(cumulative_var) / (double)rawEnergiesData.size();
+
+                // print row
+                meshfile << scientific << setprecision(col_prec);
+                for (unsigned int i = 0; i < param_mesh[par_idx].size(); i++) {
+                    meshfile << setw(col_width-1) << param_mesh[par_idx][i] << ",";
+                }
+                meshfile << setw(col_width-1) << energy << "," << setw(col_width-1) << err << endl;
+            }
+        }
+
+        watch_end = chrono::high_resolution_clock::now();
+        elapsedTime = watch_end - watch_start;
+        cout << "\nMesh plot done (in " << elapsedTime.count() << " s).\n\n";
+        globalLog << "Mesh plot done (in " << elapsedTime.count() << " s).\n\n";
+        meshfile.close();
+    }
 
     globalLog << "=========================================\n";
     globalLog.close();

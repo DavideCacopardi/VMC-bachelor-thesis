@@ -8,24 +8,34 @@
         "numberOfThreads": 4
     },
     "physics": {
-        "dimensions": 1,
-        "particles": 1,
-        "omega": 1.0,
-        "omega_z": 1.0,
+        "dimensions": 3,
+        "particles": 6,
+        "min_dist": 1,
+        "max_radius": 1000000,
+        "omega": 0.111803,
+        "omega_z": 0.027951,
         "LJsigma": 1.0,
         "LJenEps": 1.0,
         "LJalpha": 1.0,
+        "LJGaussian_loc_Ken_method": 0,
         "repulsive_a_factor": 0.05,
         "repulsive_strength": "inf",
         "maxStrength": 1,
-        "initialParams": [1, 1, 1]
+        "initialParams": [ 4, 1, 5 ],
+        "optimizeParams_mask": [ true, true, false]
     },
     "monte_carlo": {
-        "timeStep": 0.15,
+        "timeStep": 0.85,
         "equilibrationSteps": 10000,
-        "metropolisSteps": 500000,
-        "finalMClog2steps": 20,
+        "metropolisSteps": 1000000,
+        "finalMClog2steps": 23,
         "BFGS_tol": 1e-5
+    },
+    "parameter_mesh": {
+        "mesh_lb": [ 3, 1.05, 5 ],
+        "mesh_ub": [ 4.2, 1.2, 5 ],
+        "mesh_nPoints": [ 10, 10, 1 ],
+        "mesh_MClog2steps": 20
     },
     "neural_network": {
         "Nhid": 10,
@@ -40,9 +50,9 @@
         "nAdiabSteps": 100
     },
     "observables": {
-        "onebodyDensitySteps": 100000,
-        "onebodyDensity_rMax": 3.5,
-        "onebodyDensity_nBins": 50
+        "onebodyDensitySteps": 500000,
+        "onebodyDensity_rMax": 4.5,
+        "onebodyDensity_nBins": 70
     },
     "misc": {
         "seed": 0
