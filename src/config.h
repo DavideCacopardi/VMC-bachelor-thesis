@@ -37,6 +37,7 @@ struct runConfig {
     unsigned int metropolisSteps = 10000;
     unsigned int finalMClog2steps = 16;
     double BFGS_tol = 1e-5;
+    bool LJ_request_Ekin = true;
 
     // [ PARAMETER MESH ]
     unsigned int mesh_MClog2steps = 16;

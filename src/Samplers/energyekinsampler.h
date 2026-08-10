@@ -27,12 +27,20 @@ public:
     void logHeader(const std::vector<double>& params, std::ofstream& outs) override;
     void computeAverages() override;
     double getEkin1() { return m_Ekin1; }
+    double getEkin1_variance() { return m_Ekin1_variance; }
     double getEkin2() { return m_Ekin2; }
+    double getEkin2_variance() { return m_Ekin2_variance; }
 
 private:
     LennardJonesHO* m_ljHam;
     long double m_cumulativeEkin1 = 0;
+    long double m_cumulativeEkin1SQ = 0;
     long double m_cumulativeEkin2 = 0;
+    long double m_cumulativeEkin2SQ = 0;
     double m_Ekin1;
+    double m_Ekin1SQ;
+    double m_Ekin1_variance;
     double m_Ekin2;
+    double m_Ekin2SQ;
+    double m_Ekin2_variance;
 };

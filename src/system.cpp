@@ -41,15 +41,38 @@ System::System(
 }
 
 
-unsigned int System::runEquilibrationSteps(double stepParameter,
+double System::runEquilibrationSteps(double stepParameter,
     unsigned int numberOfEquilibrationSteps) {
-    unsigned int acceptedSteps = 0;
 
-    for (unsigned int i = 0; i < numberOfEquilibrationSteps; i++) {
-        acceptedSteps += m_solver->step(stepParameter, *m_waveFunction, m_particles);
+    const double target = m_solver->get_target_acceptanceRatio();
+    const unsigned int tuneBlockSize = 100; 
+
+    const unsigned int blocks = numberOfEquilibrationSteps / tuneBlockSize;
+    for (unsigned int b = 0; b < blocks; ++b) {
+        unsigned int acceptedSteps = 0;
+        
+        for (unsigned int i = 0; i < tuneBlockSize; ++i) {
+            acceptedSteps += m_solver->step(stepParameter, *m_waveFunction, m_particles);
+        }
+
+        double acceptanceRatio = static_cast<double>(acceptedSteps) / tuneBlockSize;
+
+        // tune stepParameter
+        if (acceptanceRatio < target - 0.05) {
+            stepParameter *= 0.9; // shrink step to increase acceptance
+        }
+        else if (acceptanceRatio > target + 0.05) {
+            stepParameter *= 1.1; // grow step to decrease acceptance
+        }
     }
 
-    return acceptedSteps;
+    // leftover steps without tuning
+    const unsigned int remainingSteps = numberOfEquilibrationSteps % tuneBlockSize;
+    for (unsigned int i = 0; i < remainingSteps; ++i) {
+        m_solver->step(stepParameter, *m_waveFunction, m_particles);
+    }
+
+    return stepParameter;
 }
 
 std::unique_ptr<EnergySampler> System::runMetropolisSteps(double stepParameter,

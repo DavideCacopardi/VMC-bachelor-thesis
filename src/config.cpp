@@ -74,6 +74,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.metropolisSteps    = j["monte_carlo"].value("metropolisSteps", cfg.metropolisSteps);
         cfg.finalMClog2steps   = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
         cfg.BFGS_tol           = j["monte_carlo"].value("BFGS_tol", cfg.BFGS_tol);
+        cfg.LJ_request_Ekin    = j["monte_carlo"].value("LJ_request_Ekin", cfg.LJ_request_Ekin);
     }
 
     // --- [ PARAMETER MESH ] ---

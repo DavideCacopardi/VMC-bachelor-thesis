@@ -9,7 +9,7 @@
     },
     "physics": {
         "dimensions": 3,
-        "particles": 6,
+        "particles": 8,
         "min_dist": 1,
         "max_radius": 1000000,
         "omega": 0.111803,
@@ -25,17 +25,18 @@
         "optimizeParams_mask": [ true, true, false]
     },
     "monte_carlo": {
-        "timeStep": 0.85,
-        "equilibrationSteps": 10000,
-        "metropolisSteps": 1000000,
-        "finalMClog2steps": 23,
-        "BFGS_tol": 1e-5
+        "timeStep": 0.10,
+        "equilibrationSteps": 50000,
+        "metropolisSteps": 5e6,
+        "finalMClog2steps": 24,
+        "BFGS_tol": 1e-5,
+        "LJ_request_Ekin": false
     },
     "parameter_mesh": {
-        "mesh_lb": [ 3, 1.05, 5 ],
-        "mesh_ub": [ 4.2, 1.2, 5 ],
-        "mesh_nPoints": [ 10, 10, 1 ],
-        "mesh_MClog2steps": 20
+        "mesh_lb": [ 1.5, 0.95, 5 ],
+        "mesh_ub": [ 4.5, 1.25, 5 ],
+        "mesh_nPoints": [ 9, 9, 1 ],
+        "mesh_MClog2steps": 21
     },
     "neural_network": {
         "Nhid": 10,

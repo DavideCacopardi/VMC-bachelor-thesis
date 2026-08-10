@@ -56,7 +56,7 @@ std::unique_ptr<EnergySampler> MCEngine::run(
         }
     }
 
-    #pragma omp parallel
+#pragma omp parallel
     {
         int thread_id = omp_get_thread_num();
         // thread-safe RNG
@@ -74,20 +74,18 @@ std::unique_ptr<EnergySampler> MCEngine::run(
             std::move(solver),
             std::move(particles));
 
-        system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+        double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
         local_samplers[thread_id] = system->runMetropolisSteps(
-            m_cfg.timeStep, 
+            tuned_timeStep, 
             localSteps, 
-            energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr
+            energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr,
+            m_cfg.LJ_request_Ekin
         );
     }
 
     std::unique_ptr<EnergySampler> global_sampler;
     auto* helper_ptr = dynamic_cast<EnergyEkinSampler*>(local_samplers[0].get());
-    if (helper_ptr == nullptr) {
-        global_sampler = std::make_unique<EnergySampler>(local_samplers);
-    }
-    else {
+    if (m_cfg.LJ_request_Ekin && helper_ptr != nullptr) { // check EnergyEkinSampler
         std::vector<std::unique_ptr<EnergyEkinSampler>> local_ekin_samplers;
         local_ekin_samplers.reserve(m_cfg.numberOfThreads);
         for (auto& sampler : local_samplers) {
@@ -96,6 +94,9 @@ std::unique_ptr<EnergySampler> MCEngine::run(
             );
         }
         global_sampler = std::make_unique<EnergyEkinSampler>(local_ekin_samplers);
+    }
+    else {
+        global_sampler = std::make_unique<EnergySampler>(local_samplers);
     }
 
     return global_sampler;
@@ -118,8 +119,8 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
         std::move(solver),
         std::move(particles));
 
-    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    return system->runMetropolisStepsOnebodyDensity(m_cfg.timeStep, numberOfMetropolisSteps, rMax, nBins);
+    double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+    return system->runMetropolisStepsOnebodyDensity(tuned_timeStep, numberOfMetropolisSteps, rMax, nBins);
 }
 
 double MCEngine::getRepulsiveFactor() const {

@@ -1,0 +1,81 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-10 13:00:24
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : HarmonicOscillator
+WF Train Type             : EllipticGaussian
+WaveFunction              : SimpleGaussian
+Solver                    : MetropolisHastings
+preferAnalytic            : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 2
+min_dist                  : 0
+max_radius                : 1e+06
+omega                     : 1
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.05
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 0.6 ]
+param-optimization mask   : [ true ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+time Step                 : 0.85
+Equilibr. Steps           : 10000
+BFGS MC Steps             : 1000000
+BFGS_tol                  : 1e-05
+Final MC Steps            : 2^23 (8388608)
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 0.5 ]
+upper bounds              : [ 0.5 ]
+number of points          : [ 1 ]
+Mesh MC Steps             : 2^20 (1048576)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 10
+Activation Func           : tanh
+Learning Rate             : 0.05
+Pretrain Steps            : 200
+Energy Steps              : 1100
+Adiab Steps               : 100
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.02
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps          : 500000
+1bodyDens. rMax           : 4.5
+1bodyDens. nBins          : 70
+Seed                      : 0
+=========================================
+
+Initial parameters: 0.6, 	
+Optimal parameters: 0.500001456, 	
+VMC Optimization done (in 13.6237844 s).
+
+FinalMC energy: 2.999999998e+00 +- 1.195561541e-09
+Acceptance ratio: 6.642153263e-01
+FinalMC done (in 1.01346255 s).
+
+Blocking_0 energy: 2.999999990e+00 +- 5.567413438e-09
+Blocking_1 energy: 2.999999998e+00 +- 5.550950107e-09
+Blocking_2 energy: 3.000000002e+00 +- 3.845711460e-09
+Blocking_3 energy: 3.000000000e+00 +- 5.583307224e-09
+Final blocking energy: 2.999999998e+00 +- 2.595331815e-09
+Blocking analysis done (in 0.125015219 s).
+
+One-body density done (in 0.174795587 s).
+
+Mesh plot done (in 0.130694315 s).
+
+=========================================

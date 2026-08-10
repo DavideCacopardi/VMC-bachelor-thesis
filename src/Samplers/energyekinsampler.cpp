@@ -39,37 +39,56 @@ EnergyEkinSampler::EnergyEkinSampler(const std::vector<std::unique_ptr<EnergyEki
         this->mergeBaseData(others[i].get());
         m_cumulativeEkin1 += others[i]->m_cumulativeEkin1;
         m_cumulativeEkin2 += others[i]->m_cumulativeEkin2;
+        m_cumulativeEkin1SQ += others[i]->m_cumulativeEkin1SQ;
+        m_cumulativeEkin2SQ += others[i]->m_cumulativeEkin2SQ;
     }
     computeAverages();
 }
 
 void EnergyEkinSampler::sample(bool acceptedStep, System* system, std::vector<double>* energiesOut) {
-    EnergySampler::sample(acceptedStep, system, energiesOut);
+    EnergySampler::sample(acceptedStep, system, energiesOut);   // computeLocalEnergy loads wf's cache
 
     auto* ljHam = dynamic_cast<LennardJonesHO*>(&system->getHamiltonian());
     if (ljHam == nullptr) {
         throw std::invalid_argument("ERR: EnergyEkinSampler requires an LJHamiltonian!");
     }
-    m_cumulativeEkin1 += ljHam->computeLocalKineticEnergy(system->getWaveFunction(), system->getParticles(), 1);
-    m_cumulativeEkin2 += ljHam->computeLocalKineticEnergy(system->getWaveFunction(), system->getParticles(), 2);
+    double currEkin1 = ljHam->computeLocalKineticEnergy(
+        system->getWaveFunction(),
+        system->getParticles(),
+        1,
+        LennardJonesHO::get_loc_Ken_method() == 2 ? false : true); // if available, take advantage of cache
+    double currEkin2 = ljHam->computeLocalKineticEnergy(
+        system->getWaveFunction(),
+        system->getParticles(),
+        2,
+        LennardJonesHO::get_loc_Ken_method() == 1 ? false : true); // if available, take advantage of cache
+    m_cumulativeEkin1 += currEkin1;
+    m_cumulativeEkin2 += currEkin2;
+    m_cumulativeEkin1SQ += sq(currEkin1);
+    m_cumulativeEkin2SQ += sq(currEkin2);
 }
 
 void EnergyEkinSampler::logHeader(const std::vector<double>& params, std::ofstream& outs) {
     outs << "#";
-    const unsigned int width = 20;
+    const unsigned int width = 22;
     for (unsigned int i = 0; i < params.size(); i++) {
         std::string temp = "p[" + std::to_string(i) + "],";
         outs << std::setw(width - (i == 0)) << temp;
     }
-    outs << std::setw(width) << "energy," << std::setw(width) << "variance,"
-        << std::setw(width) << "error," << std::setw(width) << "    -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩,"
-        << std::setw(width) << "   (ℏ/2)⟨|∇ᵢln(ψ)|²⟩," << std::setw(width) << "elapsed time,"
+    outs << std::setw(width) << "energy,"
+        << std::setw(width) << "variance,"
+        << std::setw(width) << "error,"
+        << std::setw(width) << "      -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩,"
+        << std::setw(width) << "  Var -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩,"
+        << std::setw(width) << "    (ℏ/2)⟨|∇ᵢln(ψ)|²⟩,"
+        << std::setw(width) << " Var (ℏ/2)⟨|∇ᵢln(ψ)|²⟩,"
+        << std::setw(width) << "elapsed time,"
         << std::setw(width) << "accept. ratio,"
         << std::setw(width) << "Monte Carlo steps " << std::endl;
 }
 
 void EnergyEkinSampler::logOutput(const std::vector<double>& params, std::ofstream& outs) {
-    const unsigned int prec = 12, width = 19;
+    const unsigned int prec = 14, width = 21;
     outs << std::scientific << std::setprecision(prec);
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         outs << std::setw(width) << params[i] << ",";
@@ -79,7 +98,9 @@ void EnergyEkinSampler::logOutput(const std::vector<double>& params, std::ofstre
         << std::setw(width) << m_variance << ","
         << std::setw(width) << m_error << ","
         << std::setw(width) << m_Ekin1 << ","
+        << std::setw(width) << m_Ekin1_variance << ","
         << std::setw(width) << m_Ekin2 << ","
+        << std::setw(width) << m_Ekin2_variance << ","
         << std::setw(width) << m_elapsedTime.count() << ","
         << std::setw(width) << ((double)m_numberOfAcceptedSteps) / ((double)m_numberOfMetropolisSteps) << ","
         << std::setw(width) << m_numberOfMetropolisSteps
@@ -88,6 +109,10 @@ void EnergyEkinSampler::logOutput(const std::vector<double>& params, std::ofstre
 
 void EnergyEkinSampler::computeAverages() {
     EnergySampler::computeAverages();
-    m_Ekin1 = m_cumulativeEkin1 / m_numberOfMetropolisSteps;
-    m_Ekin2 = m_cumulativeEkin2 / m_numberOfMetropolisSteps;
+    m_Ekin1 = m_cumulativeEkin1 / (double)m_numberOfMetropolisSteps;
+    m_Ekin1SQ = m_cumulativeEkin1SQ / (double)m_numberOfMetropolisSteps;
+    m_Ekin2 = m_cumulativeEkin2 / (double)m_numberOfMetropolisSteps;
+    m_Ekin2SQ = m_cumulativeEkin2SQ / (double)m_numberOfMetropolisSteps;
+    m_Ekin1_variance = m_Ekin1SQ - sq(m_Ekin1);
+    m_Ekin2_variance = m_Ekin2SQ - sq(m_Ekin2);
 }

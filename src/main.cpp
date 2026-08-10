@@ -298,7 +298,7 @@ int main(int argc, char* argv[]) {
         globalLog << endl;
 
         ostringstream filenameStream;
-        filenameStream << "./logs_exec/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+        filenameStream << "./logs_NLOPT/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
         ofstream logfile(filenameStream.str());
         if (!logfile.is_open()) {
             cerr << "Error: unable to generate log_NN file " << filenameStream.str() << endl;

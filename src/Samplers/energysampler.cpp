@@ -172,10 +172,10 @@ void EnergySampler::logOutput(std::ofstream& outs, std::vector<double> additiona
 }
 
 void EnergySampler::computeAverages() {
-    m_energy = m_cumulativeEnergy / m_numberOfMetropolisSteps;
-    m_energySQ = m_cumulativeEnergySQ / m_numberOfMetropolisSteps;
+    m_energy = m_cumulativeEnergy / (double)m_numberOfMetropolisSteps;
+    m_energySQ = m_cumulativeEnergySQ / (double)m_numberOfMetropolisSteps;
     m_variance = m_energySQ - sq(m_energy);
-    m_error = sqrt(m_variance / m_numberOfMetropolisSteps);
+    m_error = sqrt(m_variance / (double)m_numberOfMetropolisSteps);
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         m_covariance[i] = (m_cumulativeOpOE[i] - m_cumulativeOpO[i] * m_energy) / (double)m_numberOfMetropolisSteps;
     }

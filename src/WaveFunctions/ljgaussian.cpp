@@ -91,11 +91,15 @@ double LJGaussian::analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Pa
 
 // (∇²ψ)/ψ = sum_i( ∇ᵢ²ln(ψ) + ||∇ᵢln(ψ)||² )
 double LJGaussian::analyticalSpatialNormalizedLaplacian(std::vector<std::unique_ptr<Particle>>& particles) {
-    double total_laplacian = 0;
+    double sum_Laplacian2_lnPsi = 0;
+    double sum_SqNorm_GradlnPsi = 0;
     for (unsigned int i = 0; i < particles.size(); i++) {
-        total_laplacian += analyticalParticleLaplacian2_lnPsi(particles, i) + analyticalSqNorm_ParticleGradlnPsi(particles, i);
+        sum_Laplacian2_lnPsi += analyticalParticleLaplacian2_lnPsi(particles, i);
+        sum_SqNorm_GradlnPsi += analyticalSqNorm_ParticleGradlnPsi(particles, i);
     }
-    return total_laplacian;
+    m_cachedSum_Laplacian2_lnPsi = sum_Laplacian2_lnPsi;
+    m_cachedSum_SqNorm_GradlnPsi = sum_SqNorm_GradlnPsi;
+    return sum_Laplacian2_lnPsi + sum_SqNorm_GradlnPsi;
 }
 
 // ∇ᵢ²ln(ψ)

@@ -38,9 +38,9 @@ public:
      * without collecting any statistics.
      * @param stepParameter Step length for the solver (\f$\Delta t\f$).
      * @param numberOfEquilibrationSteps Number of steps to take and discard.
-     * @return Number of accepted moves during equilibration.
+     * @return Tuned step parameter.
      */
-    unsigned int runEquilibrationSteps(
+    double runEquilibrationSteps(
         double stepParameter,
         unsigned int numberOfEquilibrationSteps);
 

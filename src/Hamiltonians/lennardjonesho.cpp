@@ -52,23 +52,36 @@ double LennardJonesHO::computeLocalEnergy(
 double LennardJonesHO::computeLocalKineticEnergy(
     WaveFunction& waveFunction,
     std::vector<std::unique_ptr<Particle>>& particles,
-    unsigned int method
-) {
+    unsigned int method,
+    bool use_cached_result)
+{
     auto* ptr = dynamic_cast<LJGaussian*>(&waveFunction);
     if (ptr != nullptr) {   // if wf is LJGaussian
         if (method == 1) {
-            double sum = 0;
-            for (unsigned int i = 0; i < particles.size(); i++) {
-                sum += ptr->analyticalParticleLaplacian2_lnPsi(particles, i);
+            double sum_Laplacian2_lnPsi = 0;
+            if (use_cached_result) {
+                sum_Laplacian2_lnPsi = ptr->get_cachedSum_Laplacian2_lnPsi();
             }
-            return -0.5 * m_kinetic_factor * sum;
+            else {
+                for (unsigned int i = 0; i < particles.size(); i++) {
+                    sum_Laplacian2_lnPsi += ptr->analyticalParticleLaplacian2_lnPsi(particles, i);
+                }
+                ptr->set_cachedSum_Laplacian2_lnPsi(sum_Laplacian2_lnPsi);
+            }
+            return -0.5 * m_kinetic_factor * sum_Laplacian2_lnPsi;
         }
         else if (method == 2) {
-            double sum = 0;
-            for (unsigned int i = 0; i < particles.size(); i++) {
-                sum += ptr->analyticalSqNorm_ParticleGradlnPsi(particles, i);
+            double sum_SqNorm_GradlnPsi = 0;
+            if (use_cached_result) {
+                sum_SqNorm_GradlnPsi = ptr->get_cachedSum_SqNorm_GradlnPsi();
             }
-            return m_kinetic_factor * sum;
+            else {
+                for (unsigned int i = 0; i < particles.size(); i++) {
+                    sum_SqNorm_GradlnPsi += ptr->analyticalSqNorm_ParticleGradlnPsi(particles, i);
+                }
+                ptr->set_cachedSum_SqNorm_GradlnPsi(sum_SqNorm_GradlnPsi);
+            }
+            return m_kinetic_factor * sum_SqNorm_GradlnPsi;
         }
         // else proceed as with any other wf
     }
