@@ -86,6 +86,7 @@ void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) 
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
     globalLog << "BFGS MC Steps             : " << cfg.metropolisSteps << "\n";
     globalLog << "BFGS_tol                  : " << cfg.BFGS_tol << "\n";
+    globalLog << "BFGS_VarOpt_weight        : " << cfg.BFGS_VarOpt_weight << "\n";
     globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PARAMETER MESH ]\n";
@@ -306,7 +307,14 @@ int main(int argc, char* argv[]) {
         }
         ofstream outfile("./iofiles/detailed_nlopt_results.csv");
         ofstream paramsfile("./iofiles/params.dat");
-        VMCOptimizer optimizer(engine, cfg.metropolisSteps, cfg.BFGS_tol, &logfile, &outfile, &paramsfile);
+        VMCOptimizer optimizer(
+            engine,
+            cfg.metropolisSteps,
+            cfg.BFGS_tol,
+            cfg.BFGS_VarOpt_weight,
+            &logfile,
+            &outfile,
+            &paramsfile);
 
         watch_start = chrono::high_resolution_clock::now();
         vector<double> optimalParams = optimizer.optimize(cfg.initialParams, cfg.optParams_mask);

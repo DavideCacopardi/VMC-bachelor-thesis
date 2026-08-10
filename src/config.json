@@ -9,7 +9,7 @@
     },
     "physics": {
         "dimensions": 3,
-        "particles": 8,
+        "particles": 2,
         "min_dist": 1,
         "max_radius": 1000000,
         "omega": 0.111803,
@@ -18,7 +18,7 @@
         "LJenEps": 1.0,
         "LJalpha": 1.0,
         "LJGaussian_loc_Ken_method": 0,
-        "repulsive_a_factor": 0.05,
+        "repulsive_a_factor": 0.01,
         "repulsive_strength": "inf",
         "maxStrength": 1,
         "initialParams": [ 4, 1, 5 ],
@@ -26,10 +26,11 @@
     },
     "monte_carlo": {
         "timeStep": 0.10,
-        "equilibrationSteps": 50000,
-        "metropolisSteps": 5e6,
+        "equilibrationSteps": 2e5,
+        "metropolisSteps": 10e6,
         "finalMClog2steps": 24,
         "BFGS_tol": 1e-5,
+        "BFGS_VarOpt_weight": 0.05,
         "LJ_request_Ekin": false
     },
     "parameter_mesh": {

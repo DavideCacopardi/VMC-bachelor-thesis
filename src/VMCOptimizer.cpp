@@ -15,12 +15,14 @@ VMCOptimizer::VMCOptimizer(
     MCEngine& engine,
     unsigned int numberOfMetropolisSteps,
     double BFGS_tol,
+    double BFGS_VarOpt_weight,
     std::ofstream* logfile,
     std::ofstream* outfile,
     std::ofstream* paramsfile
 ) : m_engine(engine),
 m_numberOfMetropolisSteps(numberOfMetropolisSteps),
 m_BFGS_tol(BFGS_tol),
+m_BFGS_VarOpt_weight(BFGS_VarOpt_weight),
 m_logfile(logfile),
 m_outfile(outfile),
 m_paramsfile(paramsfile) {}
@@ -31,27 +33,37 @@ double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<do
 
     auto sampler = m_engine.run(params, m_numberOfMetropolisSteps);
 
-    if (!grad.empty()) {
-        grad = sampler->get_dEdW();
-    }
-
     if (m_logfile) {
         if (m_mcCount == 0) {
             sampler->logHeader(params, *m_logfile);
         }
         sampler->logOutput(params, *m_logfile);
     }
-
-    // Signal-to-Noise Ratio increment
     double energy = sampler->getEnergy();
+    double variance = sampler->getVariance();
     double error = sampler->getError();
-    if (m_mcCount > 0 && std::abs(energy - m_previousEnergy) < 8 * error) {
+
+    if (!grad.empty()) {
+        std::vector<double> dEdW = sampler->get_dEdW();
+        std::vector<double> dVardW = sampler->get_dVardW();
+        for (unsigned int i = 0; i < grad.size(); i++) {
+            grad[i] = dEdW[i] + m_BFGS_VarOpt_weight * dVardW[i];
+        }
+    }
+    double objectiveValue = energy + m_BFGS_VarOpt_weight * variance;
+    if (objectiveValue < m_bestObjective) {
+        m_bestObjective = objectiveValue;
+        m_bestParams = params; // deep copy of the best vector found so far
+    }
+
+    // Signal-to-Noise Ratio increment check (every c_wait cycles to avoid forced variance decrease)
+    if (m_mcCount % c_wait == 1 && std::abs(objectiveValue - m_previousObjVal) < 8 * error) {
         m_numberOfMetropolisSteps *= 1.2; // HARD-CODED!
     }
-    m_previousEnergy = energy;
+    m_previousObjVal = objectiveValue;
     m_mcCount++;
 
-    return energy;
+    return objectiveValue;
 }
 
 std::vector<double> VMCOptimizer::optimize(std::vector<double> params, const std::vector<bool>& optimize_mask) {
@@ -88,7 +100,8 @@ std::vector<double> VMCOptimizer::optimize(std::vector<double> params, const std
     // run the actual optimization
     double minEnergy;
     try {
-        lib_optimizer.optimize(params, minEnergy);
+        nlopt::result res = lib_optimizer.optimize(params, minEnergy);
+        std::cout << "\nNLopt returned " << res << std::endl;
     }
     catch (const std::runtime_error& e) {
         std::cout << "\nNLopt failed: " << e.what() << std::endl;
@@ -103,16 +116,15 @@ std::vector<double> VMCOptimizer::optimize(std::vector<double> params, const std
     std::cout << std::endl;
 
     if (m_outfile) {
-        *m_outfile << "# Optimal energy: " << minEnergy << std::endl;
         *m_outfile << "# Optimal parameters: " << std::setprecision(8);
-        for (auto p : params) *m_outfile << p << ", \t";
+        for (auto p : m_bestParams) *m_outfile << p << ", \t";
         *m_outfile << std::endl;
     }
     if (m_paramsfile) {
-        for (auto p : params) *m_paramsfile << p << std::endl;
+        for (auto p : m_bestParams) *m_paramsfile << p << std::endl;
     }
 
-    return params;
+    return m_bestParams;
 }
 
 double VMCOptimizer::nloptObjective(

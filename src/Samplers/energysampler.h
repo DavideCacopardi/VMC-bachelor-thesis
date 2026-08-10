@@ -30,21 +30,25 @@ public:
     void logOutput(std::ofstream& outs, std::vector<double> additional_log = {});
     virtual void computeAverages();
     double getEnergy() { return m_energy; }
+    double getVariance() { return m_variance; }
     double getError() { return m_error; }
     double getAcceptanceRatio() { return (double)m_numberOfAcceptedSteps / (double)m_numberOfMetropolisSteps; }
-    double getCovariance(unsigned int param_idx) { return m_covariance[param_idx]; }
+    double getCovariance(unsigned int param_idx) { return m_covarianceE[param_idx]; }
     std::vector<double> get_dEdW() const;
+    std::vector<double> get_dVardW() const;
     void setElapsedTime(std::chrono::duration<double> time);
 protected:
     void mergeBaseData(const EnergySampler* other);
     double m_energy = 0;
     double m_energySQ = 0;
     double m_variance = 0;
-    std::vector<double> m_covariance;
-    std::vector<double> m_opO;
     double m_error = 0;
+    std::vector<double> m_opO;
+    std::vector<double> m_covarianceE;
+    std::vector<double> m_covarianceE2;
     long double m_cumulativeEnergy = 0;
     long double m_cumulativeEnergySQ = 0;
-    std::vector<long double> m_cumulativeOpOE;
     std::vector<long double> m_cumulativeOpO;
+    std::vector<long double> m_cumulativeOpOE;
+    std::vector<long double> m_cumulativeOpOE2;
 };

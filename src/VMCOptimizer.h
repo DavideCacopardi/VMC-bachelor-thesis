@@ -25,6 +25,7 @@ public:
         MCEngine& engine,
         unsigned int numberOfMetropolisSteps,
         double BFGS_tol,
+        double BFGS_VarOpt_weight,
         std::ofstream* logfile = nullptr,
         std::ofstream* outfile = nullptr,
         std::ofstream* paramsfile = nullptr
@@ -59,9 +60,13 @@ private:
     MCEngine& m_engine;
     unsigned int m_numberOfMetropolisSteps;
     double m_BFGS_tol;
+    double m_BFGS_VarOpt_weight;
     std::ofstream* m_logfile;
     std::ofstream* m_outfile;
     std::ofstream* m_paramsfile;
     unsigned int m_mcCount = 0;
-    double m_previousEnergy;
+    double m_previousObjVal;
+    double m_bestObjective = std::numeric_limits<double>::infinity();
+    std::vector<double> m_bestParams;
+    const unsigned int c_wait = 10;
 };

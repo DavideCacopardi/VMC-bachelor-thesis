@@ -25,7 +25,8 @@ EnergySampler::EnergySampler(
     numberOfParameters,
     stepLength,
     numberOfMetropolisSteps) {
-    m_covariance.resize(m_numberOfParameters, 0);
+    m_covarianceE.resize(m_numberOfParameters, 0);
+    m_covarianceE2.resize(m_numberOfParameters, 0);
     m_opO.resize(m_numberOfParameters, 0);
     m_energy = 0;
     m_energySQ = 0;
@@ -35,6 +36,7 @@ EnergySampler::EnergySampler(
     m_cumulativeEnergySQ = 0;
     m_cumulativeOpO.resize(m_numberOfParameters, 0);
     m_cumulativeOpOE.resize(m_numberOfParameters, 0);
+    m_cumulativeOpOE2.resize(m_numberOfParameters, 0);
 }
 
 EnergySampler::EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others)
@@ -59,6 +61,7 @@ void EnergySampler::mergeBaseData(const EnergySampler* other) {
     for (unsigned int j = 0; j < m_numberOfParameters; j++) {
         m_cumulativeOpO[j] += other->m_cumulativeOpO[j];
         m_cumulativeOpOE[j] += other->m_cumulativeOpOE[j];
+        m_cumulativeOpOE2[j] += other->m_cumulativeOpOE2[j];
     }
 }
 
@@ -75,6 +78,7 @@ void EnergySampler::sample(bool acceptedStep, System* system, std::vector<double
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         m_cumulativeOpO[i] += OW[i];
         m_cumulativeOpOE[i] += OW[i] * localEnergy;
+        m_cumulativeOpOE2[i] += OW[i] * sq(localEnergy);
     }
 
     m_stepNumber++;
@@ -177,16 +181,25 @@ void EnergySampler::computeAverages() {
     m_variance = m_energySQ - sq(m_energy);
     m_error = sqrt(m_variance / (double)m_numberOfMetropolisSteps);
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
-        m_covariance[i] = (m_cumulativeOpOE[i] - m_cumulativeOpO[i] * m_energy) / (double)m_numberOfMetropolisSteps;
+        m_covarianceE[i] = (m_cumulativeOpOE[i] - m_cumulativeOpO[i] * m_energy) / (double)m_numberOfMetropolisSteps;
+        m_covarianceE2[i] = (m_cumulativeOpOE2[i] - m_cumulativeOpO[i] * m_energySQ) / (double)m_numberOfMetropolisSteps;
     }
 }
 
 std::vector<double> EnergySampler::get_dEdW() const {
     std::vector<double> dEdW(m_numberOfParameters);
     for (unsigned i = 0; i < m_numberOfParameters; i++) {
-        dEdW[i] = 2 * m_covariance[i];
+        dEdW[i] = 2 * m_covarianceE[i];
     }
     return dEdW;
+}
+
+std::vector<double> EnergySampler::get_dVardW() const {
+    std::vector<double> dVardW(m_numberOfParameters);
+    for (unsigned i = 0; i < m_numberOfParameters; i++) {
+        dVardW[i] = 2 * m_covarianceE2[i] - 4 * m_energy * m_covarianceE[i];
+    }
+    return dVardW;
 }
 
 void EnergySampler::setElapsedTime(std::chrono::duration<double> time) {
