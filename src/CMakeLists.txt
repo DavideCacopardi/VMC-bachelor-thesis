@@ -39,6 +39,7 @@ include_directories(
     Solvers
     Samplers
     Particles
+    VMCOptimizer
     ${ARMADILLO_INCLUDE_DIRS}
     ${NLOPT_INCLUDE_DIRS}
 )
@@ -53,6 +54,7 @@ file(
     GLOB SOURCES "Samplers/*.cpp"
     GLOB SOURCES "Particles/*.cpp"
     GLOB SOURCES "WaveFunctions/*.cpp"
+    GLOB SOURCES "VMCOptimizer/*.cpp"
 )
 
 

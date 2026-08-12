@@ -9,7 +9,7 @@
     },
     "physics": {
         "dimensions": 3,
-        "particles": 6,
+        "particles": 8,
         "min_dist": 1,
         "max_radius": 1000000,
         "omega": 0.111803,
@@ -27,12 +27,17 @@
         "jsonParams": [ 3.98009743, 	1.12619699, 	5 ]
     },
     "monte_carlo": {
+        "optimizer": "Adam",
         "timeStep": 0.10,
         "equilibrationSteps": 2e5,
-        "metropolisSteps": 10e6,
-        "finalMClog2steps": 24,
+        "optimizationMCsteps": 1e6,
+        "finalMClog2steps": 27,
         "BFGS_tol": 1e-8,
-        "BFGS_VarOpt_weight": 0.05,
+        "Adam_lr": 0.02,
+        "Adam_nSteps": 250,
+        "Adam_min_improvement": 0.01,
+        "Adam_max_patience": 40,
+        "varOpt_weight": 0.05,
         "LJ_request_Ekin": false
     },
     "parameter_mesh": {
@@ -45,7 +50,7 @@
         "Nhid": 10,
         "activationFunctionType": "tanh",
         "helpDecay": 0.4,
-        "lr": 0.05,
+        "NN_lr": 0.05,
         "Adam_ktol": 0.99,
         "max_patience": 80,
         "min_improvement": 0.02,

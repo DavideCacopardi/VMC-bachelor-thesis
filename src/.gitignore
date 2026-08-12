@@ -36,6 +36,10 @@ build
 build_release
 build_debug
 
+# Ignore external-library-directory
+libtorch
+pytorch_test
+
 #ignore logs
 # logs/*
 # logs/old_logs/*

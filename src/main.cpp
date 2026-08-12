@@ -32,8 +32,10 @@
 #include "onebodydensity.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/densitysampler.h"
-#include "VMCOptimizer.h"
-#include "VMCOptimizer_NN.h"
+#include "VMCOptimizer/VMCOptimizer.h"
+#include "VMCOptimizer/VMCOptimizer_NLOPT.h"
+#include "VMCOptimizer/VMCOptimizer_Adam.h"
+#include "VMCOptimizer/VMCOptimizer_NN.h"
 
 using namespace std;
 using namespace CommonUtils;
@@ -89,11 +91,16 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     }
     globalLog << "-----------------------------------------\n";
     globalLog << "[ MONTE CARLO & OPTIMIZATION ENGINES ]\n";
+    globalLog << "optimizer                 : " << cfg.optimizer << "\n";
     globalLog << "time Step                 : " << cfg.timeStep << "\n";
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
-    globalLog << "BFGS MC Steps             : " << cfg.metropolisSteps << "\n";
+    globalLog << "optimizationMCsteps       : " << cfg.metropolisSteps << "\n";
     globalLog << "BFGS_tol                  : " << cfg.BFGS_tol << "\n";
-    globalLog << "BFGS_VarOpt_weight        : " << cfg.BFGS_VarOpt_weight << "\n";
+    globalLog << "Adam_lr                   : " << cfg.Adam_lr << "\n";
+    globalLog << "Adam_nSteps               : " << cfg.Adam_nSteps << "\n";
+    globalLog << "Adam_min_improvement      : " << cfg.Adam_min_improvement << "\n";
+    globalLog << "Adam_max_patience         : " << cfg.Adam_max_patience << "\n";
+    globalLog << "varOpt_weight             : " << cfg.varOpt_weight << "\n";
     globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PARAMETER MESH ]\n";
@@ -117,7 +124,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "[ NEURAL NETWORK ]\n";
     globalLog << "Nhid                      : " << cfg.Nhid << "\n";
     globalLog << "Activation Func           : " << cfg.activationFunctionType << "\n";
-    globalLog << "Learning Rate             : " << cfg.lr << "\n";
+    globalLog << "NN Learning Rate          : " << cfg.NN_lr << "\n";
     globalLog << "Pretrain Steps            : " << cfg.nPretrainSteps << "\n";
     globalLog << "Energy Steps              : " << cfg.nEnergySteps << "\n";
     globalLog << "Adiab Steps               : " << cfg.nAdiabSteps << "\n";
@@ -315,7 +322,7 @@ int main(int argc, char* argv[]) {
         globalLog << endl;
 
         ostringstream filenameStream;
-        filenameStream << "./logs_NLOPT/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+        filenameStream << "./logs_opt/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
         ofstream logfile(filenameStream.str());
         if (!logfile.is_open()) {
             cerr << "Error: unable to generate log_NN file " << filenameStream.str() << endl;
@@ -323,21 +330,21 @@ int main(int argc, char* argv[]) {
         }
         ofstream outfile("./iofiles/detailed_nlopt_results.csv");
         ofstream paramsfile("./iofiles/params.dat");
-        VMCOptimizer optimizer(
-            engine,
-            cfg.metropolisSteps,
-            cfg.BFGS_tol,
-            cfg.BFGS_VarOpt_weight,
-            &logfile,
-            &outfile,
-            &paramsfile);
 
+        unique_ptr<VMCOptimizer> optimizer;
+        if (cfg.optimizer == "Adam") {
+            optimizer = make_unique<VMCOptimizer_Adam>(cfg, engine, &logfile, &outfile, &paramsfile);
+        }
+        else {  // default to NLOPT
+            optimizer = make_unique<VMCOptimizer_NLOPT>(cfg, engine, &logfile, &outfile, &paramsfile);
+        }
+        
         watch_start = chrono::high_resolution_clock::now();
-        vector<double> optimalParams = optimizer.optimize(cfg.initialParams, cfg.optParams_mask);
+        vector<double> optimalParams = optimizer->optimize(cfg.initialParams, cfg.optParams_mask);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
 
-        cout << "Optimal parameters: " << setprecision(9);
+        cout << "\nOptimal parameters: " << setprecision(9);
         globalLog << "Optimal parameters: " << setprecision(9);
         for (unsigned int i = 0; i < optimalParams.size(); i++) {
             cout << optimalParams[i] << ", \t";

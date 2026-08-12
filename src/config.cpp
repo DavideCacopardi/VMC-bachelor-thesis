@@ -73,13 +73,18 @@ runConfig loadConfig(const std::string& filepath) {
 
     // --- [ MONTE CARLO ] ---
     if (j.contains("monte_carlo")) {
-        cfg.timeStep           = j["monte_carlo"].value("timeStep", cfg.timeStep);
-        cfg.equilibrationSteps = j["monte_carlo"].value("equilibrationSteps", cfg.equilibrationSteps);
-        cfg.metropolisSteps    = j["monte_carlo"].value("metropolisSteps", cfg.metropolisSteps);
-        cfg.finalMClog2steps   = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
-        cfg.BFGS_tol           = j["monte_carlo"].value("BFGS_tol", cfg.BFGS_tol);
-        cfg.BFGS_VarOpt_weight = j["monte_carlo"].value("BFGS_VarOpt_weight", cfg.BFGS_VarOpt_weight);
-        cfg.LJ_request_Ekin    = j["monte_carlo"].value("LJ_request_Ekin", cfg.LJ_request_Ekin);
+        cfg.optimizer            = j["monte_carlo"].value("optimizer", cfg.optimizer);
+        cfg.timeStep             = j["monte_carlo"].value("timeStep", cfg.timeStep);
+        cfg.equilibrationSteps   = j["monte_carlo"].value("equilibrationSteps", cfg.equilibrationSteps);
+        cfg.metropolisSteps      = j["monte_carlo"].value("optimizationMCsteps", cfg.metropolisSteps);
+        cfg.finalMClog2steps     = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
+        cfg.BFGS_tol             = j["monte_carlo"].value("BFGS_tol", cfg.BFGS_tol);
+        cfg.Adam_lr              = j["monte_carlo"].value("Adam_lr", cfg.Adam_lr);
+        cfg.Adam_nSteps          = j["monte_carlo"].value("Adam_nSteps", cfg.Adam_nSteps);
+        cfg.Adam_min_improvement = j["monte_carlo"].value("Adam_min_improvement", cfg.Adam_min_improvement);
+        cfg.Adam_max_patience    = j["monte_carlo"].value("Adam_max_patience", cfg.Adam_max_patience);
+        cfg.varOpt_weight        = j["monte_carlo"].value("varOpt_weight", cfg.varOpt_weight);
+        cfg.LJ_request_Ekin      = j["monte_carlo"].value("LJ_request_Ekin", cfg.LJ_request_Ekin);
     }
 
     // --- [ PARAMETER MESH ] ---
@@ -101,7 +106,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.Nhid                   = j["neural_network"].value("Nhid", cfg.Nhid);
         cfg.activationFunctionType = j["neural_network"].value("activationFunctionType", cfg.activationFunctionType);
         cfg.helpDecay              = j["neural_network"].value("helpDecay", cfg.helpDecay);
-        cfg.lr                     = j["neural_network"].value("lr", cfg.lr);
+        cfg.NN_lr                  = j["neural_network"].value("NN_lr", cfg.NN_lr);
         cfg.Adam_ktol              = j["neural_network"].value("Adam_ktol", cfg.Adam_ktol);
         cfg.max_patience           = j["neural_network"].value("max_patience", cfg.max_patience);
         cfg.min_improvement        = j["neural_network"].value("min_improvement", cfg.min_improvement);

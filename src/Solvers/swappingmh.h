@@ -16,5 +16,5 @@ public:
     bool step(double timeStep, class WaveFunction& waveFunction,
         std::vector<std::unique_ptr<class Particle>>& particles);
 
-    double get_target_acceptanceRatio() const override { return 0.93; }
+    // double get_target_acceptanceRatio() const override { return 0.93; }
 };

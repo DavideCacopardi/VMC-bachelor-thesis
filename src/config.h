@@ -34,12 +34,17 @@ struct runConfig {
     vector<double> jsonParams = { 1, 1, 1 };
 
     // [ MONTE CARLO ]
+    string optimizer = "NLOPT";
     double timeStep = 0.15;
     unsigned int equilibrationSteps = 10000;
     unsigned int metropolisSteps = 10000;
     unsigned int finalMClog2steps = 16;
     double BFGS_tol = 1e-5;
-    double BFGS_VarOpt_weight = 0.01;
+    double Adam_lr = 1e-5;
+    unsigned int Adam_nSteps = 200;
+    double Adam_min_improvement = 0.05;
+    unsigned int Adam_max_patience = 25;
+    double varOpt_weight = 0.01;
     bool LJ_request_Ekin = true;
 
     // [ PARAMETER MESH ]
@@ -52,7 +57,7 @@ struct runConfig {
     int Nhid = 12;
     string activationFunctionType = "tanh"; // gelu or tanh or relu or sigmoid
     double helpDecay = 0.4; // typically 0 < helpDecay <= 0.5
-    double lr = 5e-2;     // 5e-2 looked good
+    double NN_lr = 5e-2;     // 5e-2 looked good
     double Adam_ktol = 0.99;
     int max_patience = 80;
     double min_improvement = 0.05;

@@ -24,38 +24,52 @@ def readmetadata(fname):
     meta_dict = {"Description": lines}
     return meta_dict
 
-def plot3D(x, y, energy, err, fig, plot_surface):
-    cmap = "viridis"
+def plot3D(x,
+           y,
+           energy,
+           err,
+           ax_sx,
+           ax_dx,
+           plot_surface=True,
+           set_norm=True,
+           norm_sx = None,
+           norm_dx = None,
+           s=30,
+           c_min=30,
+           label_min = "min",
+           marker_min = '.',
+           cmap = "viridis"):
     
     min_idx = np.argmin(energy)
 
-    ax = fig.add_subplot(121, projection='3d')
-    norm = mcolors.PowerNorm(gamma=0.5, vmin=np.min(energy), vmax=np.max(energy))
+    if set_norm:
+        norm_sx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(energy), vmax=np.max(energy))
     if plot_surface:
-        plot_obj = ax.plot_trisurf(x, y, energy, cmap=cmap, norm=norm, edgecolor='none', alpha=0.85)
+        plot_obj = ax_sx.plot_trisurf(x, y, energy, cmap=cmap, norm=norm_sx, edgecolor='none', alpha=0.85)
     else:
-        plot_obj = ax.scatter(x, y, energy, c=energy, cmap=cmap, s=30)
-    ax.errorbar(x, y, energy, zerr=err, 
+        plot_obj = ax_sx.scatter(x, y, energy, c=energy, cmap=cmap, norm=norm_sx, s=s)
+    ax_sx.errorbar(x, y, energy, zerr=err, 
                     fmt='none', ecolor='black', alpha=0.3, lw=1.0, zorder=4)
-    ax.scatter(x[min_idx], y[min_idx], energy[min_idx], color='red', s=100, zorder=5)
-    ax.set_title(r"Energy")
-    ax.set_zlabel(r"$E$")
-    ax.set_xlabel(f"p[0]")
-    ax.set_ylabel(f"p[1]")
+    ax_sx.scatter(x[min_idx], y[min_idx], energy[min_idx], color=c_min, s=120, zorder=10, label=label_min, marker=marker_min)
+    ax_sx.set_title(r"Energy")
+    ax_sx.set_zlabel(r"$E$")
+    ax_sx.set_xlabel(f"p[0]")
+    ax_sx.set_ylabel(f"p[1]")
     # plt.colorbar(plot_obj, ax=ax, shrink=0.5)
 
-    ax = fig.add_subplot(122, projection='3d')
-    norm = mcolors.PowerNorm(gamma=0.5, vmin=np.min(err**2), vmax=np.max(err**2))
+    if set_norm:
+        norm_dx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(err**2), vmax=np.max(err**2))
     if plot_surface:
-        plot_obj_var = ax.plot_trisurf(x, y, err**2, cmap=cmap, norm=norm, edgecolor='none', alpha=0.85)
+        plot_obj_var = ax_dx.plot_trisurf(x, y, err**2, cmap=cmap, norm=norm_dx, edgecolor='none', alpha=0.85)
     else:
-        plot_obj_var = ax.scatter(x, y, err**2, c=err**2, cmap=cmap, s=30)
-    ax.scatter(x[min_idx], y[min_idx], err[min_idx]**2, color='red', s=100, zorder=5)
-    ax.set_title(r"Variance")
-    ax.set_zlabel(r"Var $E$")
-    ax.set_xlabel(f"p[0]")
-    ax.set_ylabel(f"p[1]")
+        plot_obj_var = ax_dx.scatter(x, y, err**2, c=err**2, cmap=cmap, norm=norm_dx, s=s)
+    ax_dx.scatter(x[min_idx], y[min_idx], err[min_idx]**2, color=c_min, s=120, zorder=10, label=label_min, marker=marker_min)
+    ax_dx.set_title(r"Variance")
+    ax_dx.set_zlabel(r"Var $E$")
+    ax_dx.set_xlabel(f"p[0]")
+    ax_dx.set_ylabel(f"p[1]")
     # plt.colorbar(plot_obj_var, ax=ax, shrink=0.5)
+    return norm_sx, norm_dx
 
 def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
     ax = fig.add_subplot(gs[row, 0])
@@ -74,7 +88,7 @@ def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
     ax.set_xlabel(f"p[{parNo}]")
     
 
-def plot_file(fname, plot_surface, talk = True):
+def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
     fdir = "./parameter_mesh"
     totfname = f"{fdir}/{fname}"
     
@@ -82,38 +96,58 @@ def plot_file(fname, plot_surface, talk = True):
     try:
         mesh = np.loadtxt(totfname, delimiter=',')
     except Exception as e:
-        messagebox.showerror("Error", f"Could not load {fname}:\n{e}")
+        messagebox.showerror("Error", f"Could not load file {fname}:\n{e}")
         return
+    
+    if opt_ifAvailable:
+        fdir_opt = "./logs_opt"
+        totfname_opt = f"{fdir_opt}/{fname}"
+        try:
+            mesh_opt = np.loadtxt(totfname_opt, delimiter=',', usecols=range(0, mesh.shape[1] + 1))
+            plot_opt = True
+        except Exception as e:
+            messagebox.showerror("Error", f"file_opt {fname} not found")
+            plot_opt = False
+    else:
+        plot_opt = False
 
     nPar = mesh.shape[1] - 2
 
     if nPar == 1:
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
-        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname, fig, gs)
-    elif nPar == 2:
-        fig = plt.figure(figsize=(12, 6))
-        plot3D(mesh[:,0], mesh[:,1], mesh[:,-2], mesh[:,-1], fig, plot_surface)
+        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname)
     else:
-        min_idx = np.argmin(mesh[:,-2])
-        okIdx_arr = []
         countRows = 0
-        for par in range(nPar):
-            mask = np.ones(mesh.shape[0], dtype=bool)
-            for j in range(nPar):
-                if j != par:
-                    mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
-            
-            okIdx = np.where(mask)[0]
-            okIdx_arr.append(okIdx)
-            if okIdx.size > 1:
-                countRows += 1
-        
-        if countRows == 2:
-            varied_params = [par for par, okIdx in enumerate(okIdx_arr) if okIdx.size > 1]
-            p_x, p_y = varied_params[0], varied_params[1]
+        if nPar > 2:
+            min_idx = np.argmin(mesh[:,-2])
+            okIdx_arr = []
+            for par in range(nPar):
+                mask = np.ones(mesh.shape[0], dtype=bool)
+                for j in range(nPar):
+                    if j != par:
+                        mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
+                
+                okIdx = np.where(mask)[0]
+                okIdx_arr.append(okIdx)
+                if okIdx.size > 1:
+                    countRows += 1
+        if nPar == 2 or countRows == 2:
+            if nPar == 2:
+                p_x = 0
+                p_y = 1
+            else:
+                varied_params = [par for par, okIdx in enumerate(okIdx_arr) if okIdx.size > 1]
+                p_x, p_y = varied_params[0], varied_params[1]
             fig = plt.figure(figsize=(12, 6))
-            plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], fig, plot_surface)
+            gs = fig.add_gridspec(1, 2)
+            ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
+            ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
+            norm_sx, norm_dx = plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], ax_sx,ax_dx, plot_surface, c_min="red", label_min="min mesh")
+            if plot_opt:
+                plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*')
+            ax_sx.legend()
+            ax_dx.legend()
         else:
             fig = plt.figure(figsize=(12, 6 * countRows))
             gs = fig.add_gridspec(countRows, 2)
@@ -132,7 +166,7 @@ def plot_file(fname, plot_surface, talk = True):
         plt.show() 
 
 
-def on_select(listbox, plot_surface_var, event=None):
+def on_select(listbox, plot_surface_var, plot_optimization_var, event=None):
     """Triggered when the user clicks the plot button or double-clicks a file."""
     selection = listbox.curselection()
     if not selection:
@@ -141,7 +175,7 @@ def on_select(listbox, plot_surface_var, event=None):
     
     fname = listbox.get(selection[0])
     # Pass the state of the checkbox to the plotting function
-    plot_file(fname, plot_surface_var.get())
+    plot_file(fname, plot_surface_var.get(), plot_optimization_var.get())
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -152,7 +186,7 @@ def main():
         if os.path.exists(fdir):
             for file in sorted(os.listdir(fdir)):
                 if file.endswith(".csv"):
-                    plot_file(file, plot_surface=True, talk=False)
+                    plot_file(file, plot_surface=True, opt_ifAvailable=False, talk=False)
             print("Done!")
         else:
             print("Directory not found!")
@@ -160,7 +194,7 @@ def main():
 
     root = tk.Tk()
     root.title("VMC Parameter Mesh Viewer")
-    root.geometry("400x400")
+    root.geometry("400x600")
 
     label = tk.Label(root, text="Select a .csv file to plot:", font=("Arial", 12))
     label.pack(pady=10)
@@ -180,7 +214,11 @@ def main():
     surface_check = tk.Checkbutton(root, text="Plot 3D Surfaces (Trisurf)", variable=plot_surface_var, font=("Arial", 10))
     surface_check.pack(pady=5)
 
-    listbox.bind('<Double-1>', lambda event: on_select(listbox, plot_surface_var, event))
+    # checkbutton for optimization plot
+    plot_optimization_var = tk.BooleanVar(value=False) # Default is False
+    optimization_check = tk.Checkbutton(root, text="Plot Optimization", variable=plot_optimization_var, font=("Arial", 10))
+    optimization_check.pack(pady=10)
+    listbox.bind('<Double-1>', lambda event: on_select(listbox, plot_surface_var, plot_optimization_var, event))
 
     fdir = "./parameter_mesh"
     if os.path.exists(fdir):
@@ -192,7 +230,7 @@ def main():
 
     plot_button = tk.Button(root, text="Plot Selected File", font=("Arial", 12, "bold"), 
                             bg="#4CAF50", fg="white", 
-                            command=lambda: on_select(listbox, plot_surface_var))
+                            command=lambda: on_select(listbox, plot_surface_var, plot_optimization_var))
     plot_button.pack(pady=10)
 
     root.mainloop()
