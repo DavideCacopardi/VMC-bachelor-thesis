@@ -7,7 +7,7 @@ mkdir -p build_debug
 cd build_debug
 
 # Run CMake (Defaults to Debug based on CMakeLists.txt)
-cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=$PWD/../libtorch ../
+cmake -DCMAKE_BUILD_TYPE=Debug ../
 
 # Generate documentation using Doxygen
 make doc > /dev/null

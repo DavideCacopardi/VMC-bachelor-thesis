@@ -2,7 +2,6 @@
 
 using namespace CommonUtils;
 
-// Costruttore che chiama il costruttore padre
 VMCOptimizer_Adam::VMCOptimizer_Adam(
     const runConfig& cfg,
     MCEngine& engine,
