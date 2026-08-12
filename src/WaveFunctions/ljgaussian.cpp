@@ -13,8 +13,8 @@
 
 using namespace CommonUtils;
 
-LJGaussian::LJGaussian(double alpha, double beta1, double beta2)
-    : WaveFunction(3, { alpha, beta1, beta2 }) {
+LJGaussian::LJGaussian(double alpha, double betaAA, double betaAB)
+    : WaveFunction(3, { alpha, betaAA, betaAB }) {
     if (alpha <= 0) throw std::invalid_argument("alpha must be positive");
 }
 
@@ -37,8 +37,10 @@ double LJGaussian::evalLn_noInteraction(std::vector<std::unique_ptr<class Partic
 double LJGaussian::evalLn_onlyInteraction(std::vector<std::unique_ptr<class Particle>>& particles) {
     double sum = 0;
     for (unsigned int i = 0; i < particles.size(); i++) {
+        Flavor f_i = particles[i]->getFlavor();
         for (unsigned int j = i + 1; j < particles.size(); j++) {
-            sum += pow(m_parameters[1] / distance(particles[i]->getPosition(), particles[j]->getPosition()), m_parameters[2]);
+            Flavor f_j = particles[j]->getFlavor();
+            sum += pow5(m_parameters[f_i == f_j ? 1 : 2] / distance(particles[i]->getPosition(), particles[j]->getPosition()));
         }
     }
     return -0.5 * sum;
@@ -46,15 +48,17 @@ double LJGaussian::evalLn_onlyInteraction(std::vector<std::unique_ptr<class Part
 
 double LJGaussian::analyticalSpatialDerivativeLn(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx, unsigned int dim) {
     double coord = particles[particle_idx]->getPosition()[dim];
+    Flavor f = particles[particle_idx]->getFlavor();
 
     double sum = 0;
     for (unsigned int j = 0; j < particles.size(); j++) {
         if (j == particle_idx) continue;
         double dist = distance(particles[particle_idx]->getPosition(), particles[j]->getPosition());
-        sum += (coord - particles[j]->getPosition()[dim]) * pow(dist, -(m_parameters[2] + 2));
+        Flavor f_j = particles[j]->getFlavor();
+        sum += pow5(m_parameters[f == f_j ? 1 : 2]) * (coord - particles[j]->getPosition()[dim]) * pow(dist, -7);
     }
 
-    return -coord / m_parameters[0] + 0.5 * m_parameters[2] * pow(m_parameters[1], m_parameters[2]) * sum;
+    return -coord / m_parameters[0] + 0.5 * 5 * sum;
 }
 
 double LJGaussian::analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Particle>>& particles, unsigned int param_idx) {
@@ -68,24 +72,32 @@ double LJGaussian::analyticalParamDerivativeLnAbs(std::vector<std::unique_ptr<Pa
     else if (param_idx == 1) {
         double sum = 0;
         for (unsigned int i = 0; i < particles.size(); i++) {
+            Flavor f_i = particles[i]->getFlavor();
             for (unsigned int j = i + 1; j < particles.size(); j++) {
+                Flavor f_j = particles[j]->getFlavor();
+                if (f_i != f_j) continue;
+                
                 double dist = distance(particles[i]->getPosition(), particles[j]->getPosition());
-                sum += pow(m_parameters[1] / dist, m_parameters[2]);
+                sum += pow5(m_parameters[1] / dist);
             }
         }
-        return -0.5 * m_parameters[2] / m_parameters[1] * sum;
+        return -0.5 * 5 / m_parameters[1] * sum;
     }
     else if (param_idx == 2) {
         double sum = 0;
         for (unsigned int i = 0; i < particles.size(); i++) {
+            Flavor f_i = particles[i]->getFlavor();
             for (unsigned int j = i + 1; j < particles.size(); j++) {
+                Flavor f_j = particles[j]->getFlavor();
+                if (f_i == f_j) continue;
+                
                 double dist = distance(particles[i]->getPosition(), particles[j]->getPosition());
-                double logarithm = log(m_parameters[1] / dist);
-                sum += logarithm * exp(logarithm * m_parameters[2]);
+                sum += pow5(m_parameters[2] / dist);
             }
         }
-        return -0.5 * sum;
+        return -0.5 * 5 / m_parameters[2] * sum;
     }
+
     throw std::invalid_argument("ERR: Invalid param_idx requested in LJGaussian.");
 }
 
@@ -105,29 +117,36 @@ double LJGaussian::analyticalSpatialNormalizedLaplacian(std::vector<std::unique_
 // ∇ᵢ²ln(ψ)
 double LJGaussian::analyticalParticleLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
     double nDim = particles[0]->getNumberOfDimensions();
+    Flavor f = particles[particle_idx]->getFlavor();
+
     double sum = 0;
     for (unsigned int j = 0; j < particles.size(); j++) {
         if (j == particle_idx) continue;
+        Flavor f_j = particles[j]->getFlavor();
+
         double dist = distance(particles[particle_idx]->getPosition(), particles[j]->getPosition());
-        sum += pow(dist, -(m_parameters[2] + 2));
+        sum += pow5(m_parameters[f == f_j ? 1 : 2]) * pow(dist, -7);
     }
     // ∇ᵢ²ln(ψ)
-    return -nDim / m_parameters[0] + 0.5 * m_parameters[2] * (nDim - m_parameters[2] - 2.0)
-        * pow(m_parameters[1], m_parameters[2]) * sum;
+    return -nDim / m_parameters[0] + 0.5 * 5 * (nDim - 7) * sum;
 }
 
 // ||∇ᵢln(ψ)||²
 double LJGaussian::analyticalSqNorm_ParticleGradlnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx) {
+    Flavor f = particles[particle_idx]->getFlavor();
+
     double sqNorm_lnPsi = 0;
     for (unsigned int d = 0; d < particles[0]->getNumberOfDimensions(); d++) {
         double sum_d = 0;
         for (unsigned int j = 0; j < particles.size(); j++) {
             if (j == particle_idx) continue;
+            Flavor f_j = particles[j]->getFlavor();
+
             double dist = distance(particles[particle_idx]->getPosition(), particles[j]->getPosition());
-            sum_d += (particles[particle_idx]->getPosition()[d] - particles[j]->getPosition()[d]) * pow(dist, -(m_parameters[2] + 2));
+            sum_d += pow5(m_parameters[f == f_j ? 1 : 2]) * pow(dist, -7)
+                * (particles[particle_idx]->getPosition()[d] - particles[j]->getPosition()[d]);
         }
-        sqNorm_lnPsi += sq(-particles[particle_idx]->getPosition()[d] / m_parameters[0] + 0.5
-            * m_parameters[2] * pow(m_parameters[1], m_parameters[2]) * sum_d);
+        sqNorm_lnPsi += sq(-particles[particle_idx]->getPosition()[d] / m_parameters[0] + 0.5 * 5 * sum_d);
     }
     return sqNorm_lnPsi;
 }

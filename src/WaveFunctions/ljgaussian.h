@@ -4,12 +4,6 @@
 
 #include "wavefunction.h"
 
-/**
- * @brief Represents an interacting (repulsive) wave function in an elliptical trap.
- * * Uses a Gaussian single-particle state combined with a Jastrow correlation factor 
- * to model the hard-core repulsion between bosons.
- * Parameters: alpha (xy width), beta (z deformation), and rep_a (hard-core radius).
- */
 class LJGaussian : public WaveFunction {
 public:
     LJGaussian(double alpha, double beta1, double beta2);
