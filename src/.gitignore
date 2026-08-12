@@ -49,6 +49,9 @@ pytorch_test
 # logs_OBD/*
 # figs_NN/*
 
+#ignore iofiles
+iofiles/*
+
 #ignore report files
 images_backup
 reportFiles
