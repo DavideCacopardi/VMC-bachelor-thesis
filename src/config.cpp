@@ -46,6 +46,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.LJenEps                     = j["physics"].value("LJenEps", cfg.LJenEps);
         cfg.LJalpha                     = j["physics"].value("LJalpha", cfg.LJalpha);
         cfg.LJGaussian_loc_Ken_method   = j["physics"].value("LJGaussian_loc_Ken_method", cfg.LJGaussian_loc_Ken_method);
+        cfg.use_jsonParams              = j["physics"].value("use_jsonParams", cfg.use_jsonParams);
         cfg.repulsive_a_factor          = j["physics"].value("repulsive_a_factor", cfg.repulsive_a_factor);
         cfg.maxStrength                 = j["physics"].value("maxStrength", cfg.maxStrength);
 
@@ -64,6 +65,9 @@ runConfig loadConfig(const std::string& filepath) {
         }
         if (j["physics"].contains("optimizeParams_mask")) {
             cfg.optParams_mask = j["physics"]["optimizeParams_mask"].get<std::vector<bool>>();
+        }
+        if (j["physics"].contains("jsonParams")) {
+            cfg.jsonParams = j["physics"]["jsonParams"].get<std::vector<double>>();
         }
     }
 

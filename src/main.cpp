@@ -25,6 +25,7 @@
 #include "InitialStates/initialstate.h"
 #include "Solvers/metropolis.h"
 #include "Solvers/metropolishastings.h"
+#include "Solvers/swappingmh.h"
 #include "Math/random.h"
 #include "Math/blocker.h"
 #include "Particles/particle.h"
@@ -43,7 +44,7 @@ using SolverFactory = function<unique_ptr<MonteCarlo>(unique_ptr<Random>)>;
 using ActivationFunc = std::function<torch::Tensor(const torch::Tensor&)>;
 using ActivationFuncFactory = std::function<ActivationFunc()>;
 
-void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) {
+void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofstream& globalLog, tm* now_tm) {
     globalLog << "=========================================\n";
     globalLog << "               VMC RUN LOG               \n";
     globalLog << "=========================================\n";
@@ -79,6 +80,12 @@ void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) 
     for (unsigned int i = 0; i < cfg.optParams_mask.size(); i++) {
         globalLog << (cfg.optParams_mask[i] ? "true" : "false");
         globalLog << ((i + 1 == cfg.optParams_mask.size()) ? " ]\n" : ", ");
+    }
+    globalLog << "use_jsonParams            : " << (cfg.use_jsonParams ? "true" : "false") << "\n";
+    globalLog << "json params               : [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.jsonParams.size(); i++) {
+        globalLog << cfg.jsonParams[i];
+        globalLog << ((i + 1 == cfg.jsonParams.size()) ? " ]\n" : ", ");
     }
     globalLog << "-----------------------------------------\n";
     globalLog << "[ MONTE CARLO & OPTIMIZATION ENGINES ]\n";
@@ -124,6 +131,12 @@ void printLogHeader(const runConfig& cfg, std::ofstream& globalLog, tm* now_tm) 
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
     globalLog << "Seed                      : " << cfg.seed << "\n";
+    globalLog << "=========================================\n";
+    globalLog << "Called toggles            : [ ";
+    for (unsigned int i = 0; i < toggles.size(); i++) {
+        globalLog << (toggles[i] ? "true" : "false");
+        globalLog << ((i + 1 == toggles.size()) ? " ]\n" : ", ");
+    }
     globalLog << "=========================================\n\n";
     globalLog << std::flush;
 }
@@ -160,7 +173,7 @@ int main(int argc, char* argv[]) {
         cerr << "Error: unable to generate log file " << filenameStream.str() << endl;
         return 1;
     }
-    printLogHeader(cfg, globalLog, now_tm);
+    printLogHeader(cfg, toggles, globalLog, now_tm);
 
     // --- Setup Classes and Factories ---
     WaveFunction::setUseAnalyticalDerivatives(cfg.preferAnalytic);
@@ -220,6 +233,9 @@ int main(int argc, char* argv[]) {
     SolverFactory solverFac = [=](unique_ptr<Random> rng) -> unique_ptr<MonteCarlo> {
         if (cfg.solverType == "Metropolis") {
             return make_unique<Metropolis>(move(rng));
+        }
+        else if (cfg.solverType == "SwappingMH") {
+            return make_unique<SwappingMH>(move(rng));
         }
         else // default to Metropolis-Hastings
             return make_unique<MetropolisHastings>(move(rng));
@@ -335,7 +351,7 @@ int main(int argc, char* argv[]) {
     if (toggles[1]) {
         // --- 2a: Final MC ---
         watch_start = chrono::high_resolution_clock::now();
-        vector<double> params = readVector("./iofiles/params.dat");
+        vector<double> params = (!toggles[0] && cfg.use_jsonParams) ? cfg.jsonParams : readVector("./iofiles/params.dat");
         std::vector<std::vector<double>> rawEnergiesData;   // later analyzed by blocking algorithm
         cout << "\rComputing Final MC..." << flush;
         unique_ptr<EnergySampler> sampler =
@@ -391,8 +407,7 @@ int main(int argc, char* argv[]) {
     if (toggles[2]) {
         // --- 3: One-body density ---
         watch_start = chrono::high_resolution_clock::now();
-        vector<double> params = readVector("./iofiles/params.dat");
-        vector<vector<double>> rGrid = readMatrix("./iofiles/rGrid.csv");
+        vector<double> params = (!toggles[0] && cfg.use_jsonParams) ? cfg.jsonParams : readVector("./iofiles/params.dat");
         ostringstream filenameStream;
         filenameStream << "./logs_OBD/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
         ofstream densityfile(filenameStream.str());

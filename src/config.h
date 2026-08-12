@@ -30,6 +30,8 @@ struct runConfig {
     double maxStrength = 1.0;
     vector<double> initialParams = { 1, 1, 1 };
     vector<bool> optParams_mask = { true, true, true };
+    bool use_jsonParams = false;
+    vector<double> jsonParams = { 1, 1, 1 };
 
     // [ MONTE CARLO ]
     double timeStep = 0.15;

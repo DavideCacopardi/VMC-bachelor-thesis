@@ -23,4 +23,6 @@ private:
     std::vector<double> quantumForce_particleWise(
         WaveFunction& wf, std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx
     );
+    std::vector<double> umrigarDrift(
+        const std::vector<double>& qforce, double timeStep);
 };

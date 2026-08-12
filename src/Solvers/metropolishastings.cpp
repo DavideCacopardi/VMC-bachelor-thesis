@@ -24,8 +24,9 @@ bool MetropolisHastings::step(double timeStep, class WaveFunction& waveFunction,
     unsigned int numberOfDimensions = particles[particle_idx]->getNumberOfDimensions();
     std::vector<double> displacement(numberOfDimensions);
     // update position
+    std::vector<double> drift = umrigarDrift(qforceold, timeStep);
     for (unsigned int i = 0; i < numberOfDimensions; i++) {
-        displacement[i] = m_rng->nextGaussian(0.0, 1.0) * sqrt(timeStep) + qforceold[i] * timeStep * m_D;
+        displacement[i] = m_rng->nextGaussian(0.0, 1.0) * sqrt(timeStep) + drift[i];
         particles[particle_idx]->adjustPosition(displacement[i], i);
     }
     double ratio = waveFunction.eval(particles) / psi_old;
@@ -35,7 +36,7 @@ bool MetropolisHastings::step(double timeStep, class WaveFunction& waveFunction,
     double GreensFunction = 0;
     for (unsigned int i = 0; i < numberOfDimensions; i++) {
         GreensFunction += 0.5 * (qforceold[i] + qforcenew[i]) *
-        (m_D * timeStep * 0.5 * (qforceold[i] - qforcenew[i]) - displacement[i]);
+            (m_D * timeStep * 0.5 * (qforceold[i] - qforcenew[i]) - displacement[i]);
     }
     GreensFunction = exp(GreensFunction);
 
@@ -57,4 +58,20 @@ std::vector<double> MetropolisHastings::quantumForce_particleWise(
     for (unsigned int i = 0; i < vec.size(); i++)
         vec[i] *= 2;
     return vec;
+}
+
+std::vector<double> MetropolisHastings::umrigarDrift(
+    const std::vector<double>& qforce, double timeStep
+) {
+    const double a = 1;
+    std::vector<double> drift(qforce.size());
+    for (unsigned int i = 0; i < drift.size(); i++) {
+        drift[i] = qforce[i] * timeStep * m_D;
+    }
+    double sqn = sqNorm(drift);
+    double umrigar_multiplier = (sqrt(1 + 2 * a * sqn) - 1) / (a * sqn);
+    for (unsigned int i = 0; i < drift.size(); i++) {
+        drift[i] *= umrigar_multiplier;
+    }
+    return drift;
 }

@@ -3,6 +3,7 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
+import matplotlib
 import tkinter as tk
 from tkinter import messagebox
 
@@ -14,9 +15,9 @@ def readmetadata(fname):
             idx = line.find("Hamiltonian")
             if idx != -1:
                 on = True
-            if on and line.find("--") == -1 and line.find("[") == -1:
+            if on and line.find("--") == -1:
                 lines += line
-            idx = line.find("Seed")
+            idx = line.find("Called")
             if idx != -1:
                 on = False
                 break
@@ -144,6 +145,7 @@ def on_select(listbox, plot_surface_var, event=None):
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
+    matplotlib.rcParams.update({"axes.grid": True, "font.size": 15})
 
     if len(sys.argv) > 1 and sys.argv[1] == "all":
         fdir = "./parameter_mesh"

@@ -1,0 +1,86 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-11 23:35:13
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : EllipticGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+preferAnalytic            : true
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 4
+min_dist                  : 1
+max_radius                : 1e+06
+omega                     : 0.111803
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.01
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 4, 1, 5 ]
+param-optimization mask   : [ true, true, false ]
+use_jsonParams            : true
+json params               : [ 3.98009743, 1.12619699, 5 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+time Step                 : 0.1
+Equilibr. Steps           : 200000
+BFGS MC Steps             : 10000000
+BFGS_tol                  : 1e-05
+BFGS_VarOpt_weight        : 0.05
+Final MC Steps            : 2^24 (16777216)
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 1.5, 0.95, 5 ]
+upper bounds              : [ 4.5, 1.25, 5 ]
+number of points          : [ 9, 9, 1 ]
+Mesh MC Steps             : 2^21 (2097152)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 10
+Activation Func           : tanh
+Learning Rate             : 0.05
+Pretrain Steps            : 200
+Energy Steps              : 1100
+Adiab Steps               : 100
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.02
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps          : 10000000
+1bodyDens. rMax           : 5.5
+1bodyDens. nBins          : 100
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, true ]
+=========================================
+
+Initial parameters: 4, 	1, 	5, 	
+Optimal parameters: 3.99383342, 	1.10981108, 	5, 	
+VMC Optimization done (in 176.093261 s).
+
+FinalMC energy: 2.100482369e-01 +- 4.198647199e-05
+Acceptance ratio: 9.340664744e-01
+FinalMC done (in 15.3979831 s).
+
+Blocking_0 energy: 2.106461766e-01 +- 1.887280383e-03
+Blocking_1 energy: 2.107356941e-01 +- 2.285344502e-03
+Blocking_2 energy: 2.082720978e-01 +- 8.491710450e-04
+Blocking_3 energy: 2.105389789e-01 +- 1.747942086e-03
+Final blocking energy: 2.100482369e-01 +- 8.860382236e-04
+Blocking analysis done (in 0.278837039 s).
+
+One-body density done (in 12.5060347 s).
+
+Mesh plot done (in 180.555222 s).
+
+=========================================
