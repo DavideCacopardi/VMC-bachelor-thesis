@@ -9,7 +9,7 @@
     },
     "physics": {
         "dimensions": 3,
-        "particles": 8,
+        "particles": 4,
         "min_dist": 1,
         "max_radius": 1000000,
         "omega": 0.111803,
