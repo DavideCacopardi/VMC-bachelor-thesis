@@ -18,6 +18,17 @@ namespace CommonUtils {
     constexpr T sq(T x) {
         return x * x;
     }
+
+    /**
+     * @brief Efficiently calculates the fifth power of a value.
+     * @tparam T Numeric type (e.g., double, int).
+     * @param x The value.
+     * @return The fifth power ($x^5$).
+     */
+    template <typename T>
+    constexpr T pow5(T x) {
+        return x * x * x * x * x;
+    }
 }
 
 /**

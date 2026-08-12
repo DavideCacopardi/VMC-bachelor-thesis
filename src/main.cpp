@@ -14,6 +14,7 @@
 #include "WaveFunctions/ellipticgaussian.h"
 #include "WaveFunctions/ljgaussian.h"
 #include "WaveFunctions/nn_envelope.h"
+#include "WaveFunctions/flavoredljgaussian.h"
 #include "WaveFunctions/repulsiveellipticgaussian.h"
 #include "WaveFunctions/simplegaussian.h"
 #include "WaveFunctions/wavefunction.h"
@@ -216,6 +217,8 @@ int main(int argc, char* argv[]) {
             return make_unique<EllipticGaussian>(p[0], p[1]);
         else if (cfg.waveFunctionType == "LJGaussian")
             return make_unique<LJGaussian>(p[0], p[1], p[2]);
+        else if (cfg.waveFunctionType == "FlavoredLJGaussian")
+            return make_unique<FlavoredLJGaussian>(p[0], p[1], p[2]);
         else if (cfg.waveFunctionType == "NN_envelope")
             return make_unique<NN_envelope>(cfg.numberOfParticles,
                 cfg.numberOfDimensions,
@@ -234,6 +237,8 @@ int main(int argc, char* argv[]) {
             return make_unique<EllipticGaussian>(p[0], p[1]);
         else if (cfg.waveFunctionType == "LJGaussian")
             return make_unique<LJGaussian>(p[0], p[1], p[2]);
+        else if (cfg.waveFunctionType == "FlavoredLJGaussian")
+            return make_unique<FlavoredLJGaussian>(p[0], p[1], p[2]);
         else // default to Repulsive
             return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
         };

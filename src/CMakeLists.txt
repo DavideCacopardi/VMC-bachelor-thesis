@@ -62,7 +62,7 @@ file(
 add_executable(vmc ${SOURCES})
 
 target_link_libraries(vmc PRIVATE ${ARMADILLO_LIBRARIES} ${NLOPT_LIBRARIES} ${TORCH_LIBRARIES} OpenMP::OpenMP_CXX)
-target_compile_options(vmc PRIVATE ${TORCH_CXX_FLAGS})
+target_compile_options(vmc PRIVATE ${TORCH_CXX_FLAGS} ${CMAKE_CXX_FLAGS})
 
 # find_package(Doxygen)
 
