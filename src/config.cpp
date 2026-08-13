@@ -78,7 +78,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.equilibrationSteps   = j["monte_carlo"].value("equilibrationSteps", cfg.equilibrationSteps);
         cfg.metropolisSteps      = j["monte_carlo"].value("optimizationMCsteps", cfg.metropolisSteps);
         cfg.finalMClog2steps     = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
-        cfg.BFGS_tol             = j["monte_carlo"].value("BFGS_tol", cfg.BFGS_tol);
+        cfg.NLOPT_tol            = j["monte_carlo"].value("NLOPT_tol", cfg.NLOPT_tol);
         cfg.Adam_lr              = j["monte_carlo"].value("Adam_lr", cfg.Adam_lr);
         cfg.Adam_nSteps          = j["monte_carlo"].value("Adam_nSteps", cfg.Adam_nSteps);
         cfg.Adam_min_improvement = j["monte_carlo"].value("Adam_min_improvement", cfg.Adam_min_improvement);

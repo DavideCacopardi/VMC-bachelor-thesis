@@ -34,7 +34,8 @@
 #include "Samplers/energysampler.h"
 #include "Samplers/densitysampler.h"
 #include "VMCOptimizer/VMCOptimizer.h"
-#include "VMCOptimizer/VMCOptimizer_NLOPT.h"
+#include "VMCOptimizer/VMCOptimizer_NLOPT_BFGS.h"
+#include "VMCOptimizer/VMCOptimizer_NLOPT_NELDERMEAD.h"
 #include "VMCOptimizer/VMCOptimizer_Adam.h"
 #include "VMCOptimizer/VMCOptimizer_NN.h"
 
@@ -96,7 +97,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "time Step                 : " << cfg.timeStep << "\n";
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
     globalLog << "optimizationMCsteps       : " << cfg.metropolisSteps << "\n";
-    globalLog << "BFGS_tol                  : " << cfg.BFGS_tol << "\n";
+    globalLog << "NLOPT_tol                 : " << cfg.NLOPT_tol << "\n";
     globalLog << "Adam_lr                   : " << cfg.Adam_lr << "\n";
     globalLog << "Adam_nSteps               : " << cfg.Adam_nSteps << "\n";
     globalLog << "Adam_min_improvement      : " << cfg.Adam_min_improvement << "\n";
@@ -336,8 +337,11 @@ int main(int argc, char* argv[]) {
         if (cfg.optimizer == "Adam") {
             optimizer = make_unique<VMCOptimizer_Adam>(cfg, engine, &logfile, &outfile, &paramsfile);
         }
-        else {  // default to NLOPT
-            optimizer = make_unique<VMCOptimizer_NLOPT>(cfg, engine, &logfile, &outfile, &paramsfile);
+        else if (cfg.optimizer == "NLOPT_NELDERMEAD") {
+            optimizer = make_unique<VMCOptimizer_NLOPT_NELDERMEAD>(cfg, engine, &logfile, &outfile, &paramsfile);
+        }
+        else {  // default to NLOPT_BFGS
+            optimizer = make_unique<VMCOptimizer_NLOPT_BFGS>(cfg, engine, &logfile, &outfile, &paramsfile);
         }
         
         watch_start = chrono::high_resolution_clock::now();

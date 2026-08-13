@@ -53,6 +53,7 @@ def plot3D(x,
     ax_sx.scatter(x[min_idx], y[min_idx], energy[min_idx], color=c_min, s=120, zorder=10, label=label_min, marker=marker_min)
     ax_sx.set_title(r"Energy")
     ax_sx.set_zlabel(r"$E$")
+    # ax_sx.set_zlim(0, 0.22)
     ax_sx.set_xlabel(f"p[0]")
     ax_sx.set_ylabel(f"p[1]")
     # plt.colorbar(plot_obj, ax=ax, shrink=0.5)

@@ -32,6 +32,7 @@ std::vector<double> VMCOptimizer_Adam::optimize(std::vector<double> params, cons
 
         // Adam step
         for (unsigned int i = 0; i < params.size(); i++) {
+            // std::cout << " DEBUG: " << grad[i];
             // Skip froken parameters
             if (optimize_mask.size() == params.size() && !optimize_mask[i]) continue;
 
@@ -44,6 +45,7 @@ std::vector<double> VMCOptimizer_Adam::optimize(std::vector<double> params, cons
 
             params[i] -= m_lr * m_hat / (sqrt(v_hat) + c_epsilon);
         }
+        // std::cout << std::endl;
     }
 
     // Output finale

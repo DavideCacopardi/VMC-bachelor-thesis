@@ -39,7 +39,7 @@ struct runConfig {
     unsigned int equilibrationSteps = 10000;
     unsigned int metropolisSteps = 10000;
     unsigned int finalMClog2steps = 16;
-    double BFGS_tol = 1e-5;
+    double NLOPT_tol = 1e-5;
     double Adam_lr = 1e-5;
     unsigned int Adam_nSteps = 200;
     double Adam_min_improvement = 0.05;

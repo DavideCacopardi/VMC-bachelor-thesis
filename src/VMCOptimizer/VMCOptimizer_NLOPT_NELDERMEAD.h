@@ -4,9 +4,9 @@
 #include "VMCOptimizer.h"
 #include "../common.h"
 
-class VMCOptimizer_NLOPT : public VMCOptimizer {
+class VMCOptimizer_NLOPT_NELDERMEAD : public VMCOptimizer {
 public:
-    VMCOptimizer_NLOPT(
+    VMCOptimizer_NLOPT_NELDERMEAD(
         const runConfig& cfg,
         MCEngine& engine,
         std::ofstream* logfile = nullptr,

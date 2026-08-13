@@ -55,7 +55,6 @@ void DensitySampler::sample(bool acceptedStep, System* system, std::vector<doubl
         }
     }
 
-    m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
     m_watch_end = std::chrono::high_resolution_clock::now();
 }

@@ -43,7 +43,6 @@ protected:
     double m_energySQ = 0;
     double m_variance = 0;
     double m_error = 0;
-    std::vector<double> m_opO;
     std::vector<double> m_covarianceE;
     std::vector<double> m_covarianceE2;
     long double m_cumulativeEnergy = 0;

@@ -2,7 +2,7 @@
 #include <iomanip>
 #include <nlopt.hpp>
 
-#include "VMCOptimizer_NLOPT.h"
+#include "VMCOptimizer_NLOPT_NELDERMEAD.h"
 #include "system.h"
 #include "Samplers/energysampler.h"
 #include "WaveFunctions/ellipticgaussian.h"
@@ -11,7 +11,7 @@
 #include "harmonicoscillator.h"
 #include "Solvers/metropolishastings.h"
 
-VMCOptimizer_NLOPT::VMCOptimizer_NLOPT(
+VMCOptimizer_NLOPT_NELDERMEAD::VMCOptimizer_NLOPT_NELDERMEAD(
      const runConfig& cfg,
     MCEngine& engine,
     std::ofstream* logfile,
@@ -19,9 +19,9 @@ VMCOptimizer_NLOPT::VMCOptimizer_NLOPT(
     std::ofstream* paramsfile
 ) : VMCOptimizer(cfg, engine, logfile, outfile, paramsfile) {}
 
-std::vector<double> VMCOptimizer_NLOPT::optimize(std::vector<double> params, const std::vector<bool>& optimize_mask) {
+std::vector<double> VMCOptimizer_NLOPT_NELDERMEAD::optimize(std::vector<double> params, const std::vector<bool>& optimize_mask) {
     // nlopt setup
-    nlopt::opt lib_optimizer(nlopt::LD_LBFGS, params.size());
+    nlopt::opt lib_optimizer(nlopt::LN_NELDERMEAD, params.size());
     {
         auto tempWaveFunction = m_engine.makeWaveFunction(params);
         auto lb = tempWaveFunction->lowerBounds();
@@ -43,9 +43,12 @@ std::vector<double> VMCOptimizer_NLOPT::optimize(std::vector<double> params, con
 
         lib_optimizer.set_lower_bounds(lb);
         lib_optimizer.set_upper_bounds(ub);
+
+        std::vector<double> initial_step(params.size(), 0.05);
+        lib_optimizer.set_initial_step(initial_step);
     }
     lib_optimizer.set_min_objective(nloptObjective, this);
-    lib_optimizer.set_xtol_rel(m_cfg.BFGS_tol);
+    lib_optimizer.set_xtol_rel(m_cfg.NLOPT_tol);
     lib_optimizer.set_maxeval(400);
     lib_optimizer.set_maxtime(10800.0);
     m_mcCount = 0;
@@ -82,8 +85,8 @@ std::vector<double> VMCOptimizer_NLOPT::optimize(std::vector<double> params, con
     return params;
 }
 
-double VMCOptimizer_NLOPT::nloptObjective(
+double VMCOptimizer_NLOPT_NELDERMEAD::nloptObjective(
     const std::vector<double>& params, std::vector<double>& grad, void* data
 ) {
-    return static_cast<VMCOptimizer_NLOPT*>(data)->computeMC(params, grad);
+    return static_cast<VMCOptimizer_NLOPT_NELDERMEAD*>(data)->computeMC(params, grad);
 }

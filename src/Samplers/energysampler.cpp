@@ -27,7 +27,6 @@ EnergySampler::EnergySampler(
     numberOfMetropolisSteps) {
     m_covarianceE.resize(m_numberOfParameters, 0);
     m_covarianceE2.resize(m_numberOfParameters, 0);
-    m_opO.resize(m_numberOfParameters, 0);
     m_energy = 0;
     m_energySQ = 0;
     m_variance = 0;
@@ -81,7 +80,6 @@ void EnergySampler::sample(bool acceptedStep, System* system, std::vector<double
         m_cumulativeOpOE2[i] += OW[i] * sq(localEnergy);
     }
 
-    m_stepNumber++;
     m_numberOfAcceptedSteps += acceptedStep;
     m_watch_end = std::chrono::high_resolution_clock::now();
 }
@@ -181,8 +179,13 @@ void EnergySampler::computeAverages() {
     m_variance = m_energySQ - sq(m_energy);
     m_error = sqrt(m_variance / (double)m_numberOfMetropolisSteps);
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
-        m_covarianceE[i] = (m_cumulativeOpOE[i] - m_cumulativeOpO[i] * m_energy) / (double)m_numberOfMetropolisSteps;
-        m_covarianceE2[i] = (m_cumulativeOpOE2[i] - m_cumulativeOpO[i] * m_energySQ) / (double)m_numberOfMetropolisSteps;
+        double mean_O = m_cumulativeOpO[i] / (double)m_numberOfMetropolisSteps;
+        double mean_OE = m_cumulativeOpOE[i] / (double)m_numberOfMetropolisSteps;
+        double mean_OE2 = m_cumulativeOpOE2[i] / (double)m_numberOfMetropolisSteps;
+
+        // <OE> - <O><E>
+        m_covarianceE[i] = mean_OE - mean_O * m_energy;
+        m_covarianceE2[i] = mean_OE2 - mean_O * m_energySQ;
     }
 }
 
