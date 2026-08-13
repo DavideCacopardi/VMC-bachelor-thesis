@@ -71,6 +71,30 @@ def plot3D(x,
     # plt.colorbar(plot_obj_var, ax=ax, shrink=0.5)
     return norm_sx, norm_dx
 
+
+def plot4D(x, y, z, c, var, ax_sx, ax_dx):
+    cmap = "viridis"
+    s = 120
+
+    min_idx = np.argmin(c)
+    norm_sx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(c), vmax=np.max(c))
+    ax_sx.scatter(x, y, z, c=c, cmap=cmap, norm=norm_sx, s=s)
+    ax_sx.scatter(x[min_idx], y[min_idx], z[min_idx], c=c[min_idx], s=120, zorder=10, marker='*')
+    ax_sx.set_title(r"Energy")
+    ax_sx.set_xlabel(f"p[0]")
+    ax_sx.set_ylabel(f"p[1]")
+    ax_sx.set_zlabel(f"p[2]")
+
+    min_idx = np.argmin(var)
+    norm_dx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(var), vmax=np.max(var))
+    ax_dx.scatter(x, y, z, c=var, cmap=cmap, norm=norm_dx, s=s)
+    ax_dx.scatter(x[min_idx], y[min_idx], z[min_idx], c=var[min_idx], s=120, zorder=10, marker='*')
+    ax_dx.set_title(r"Variance")
+    ax_dx.set_xlabel(f"p[0]")
+    ax_dx.set_ylabel(f"p[1]")
+    ax_dx.set_zlabel(f"p[2]")
+
+
 def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
     ax = fig.add_subplot(gs[row, 0])
     ax.errorbar(x, energy, err, color='magenta', ecolor='black',
@@ -88,85 +112,59 @@ def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
     ax.set_xlabel(f"p[{parNo}]")
     
 
-def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
-    fdir = "./parameter_mesh"
+def plot_file(fname, talk = True):
+    fdir = "./logs_opt"
     totfname = f"{fdir}/{fname}"
     
     print(f"Loading and plotting: {totfname}")
     try:
-        mesh = np.loadtxt(totfname, delimiter=',')
+        with open(totfname) as file:
+            line = file.readline()
+            nPar = 0
+            idx = line.find("p[")
+            while idx != -1:
+                line = line[idx + 2:]
+                idx = line.find("p[")
+                nPar += 1
+        mesh = np.loadtxt(totfname, delimiter=',', usecols=np.arange(nPar + 3))
     except Exception as e:
         messagebox.showerror("Error", f"Could not load file {fname}:\n{e}")
         return
-    
-    if opt_ifAvailable:
-        fdir_opt = "./logs_opt"
-        totfname_opt = f"{fdir_opt}/{fname}"
-        try:
-            mesh_opt = np.loadtxt(totfname_opt, delimiter=',', usecols=range(0, mesh.shape[1] + 1))
-            plot_opt = True
-        except Exception as e:
-            messagebox.showerror("Error", f"file_opt {fname} not found")
-            plot_opt = False
-    else:
-        plot_opt = False
 
-    nPar = mesh.shape[1] - 2
-
-    if nPar == 1:
+    # if nPar == 1:
+    #     fig = plt.figure(figsize=(12, 6))
+    #     gs = fig.add_gridspec(1, 2)
+    #     rowSubplots2D(mesh[:,0], mesh[:,-3], mesh[:,-1], fname)
+    # elif nPar == 2:
+    #     p_x = 0
+    #     p_y = 1
+    #     fig = plt.figure(figsize=(12, 6))
+    #     gs = fig.add_gridspec(1, 2)
+    #     ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
+    #     ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
+    #     plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-3], mesh[:,-1], ax_sx,ax_dx, False, set_norm=True, s=10, c_min="orange", label_min="min opt", marker_min='*')
+    #     ax_sx.legend()
+    #     ax_dx.legend()
+    if nPar == 3:
+        p_x = 0
+        p_y = 1
+        p_z = 2
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
-        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname)
-    else:
-        countRows = 0
-        if nPar > 2:
-            min_idx = np.argmin(mesh[:,-2])
-            okIdx_arr = []
-            for par in range(nPar):
-                mask = np.ones(mesh.shape[0], dtype=bool)
-                for j in range(nPar):
-                    if j != par:
-                        mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
-                
-                okIdx = np.where(mask)[0]
-                okIdx_arr.append(okIdx)
-                if okIdx.size > 1:
-                    countRows += 1
-        if nPar == 2 or countRows == 2:
-            if nPar == 2:
-                p_x = 0
-                p_y = 1
-            else:
-                varied_params = [par for par, okIdx in enumerate(okIdx_arr) if okIdx.size > 1]
-                p_x, p_y = varied_params[0], varied_params[1]
-            fig = plt.figure(figsize=(12, 6))
-            gs = fig.add_gridspec(1, 2)
-            ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
-            ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
-            norm_sx, norm_dx = plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], ax_sx,ax_dx, plot_surface, c_min="red", label_min="min mesh")
-            if plot_opt:
-                plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*')
-            ax_sx.legend()
-            ax_dx.legend()
-        else:
-            fig = plt.figure(figsize=(12, 6 * countRows))
-            gs = fig.add_gridspec(countRows, 2)
-            it = 0
-            for par in range(nPar):
-                okIdx = okIdx_arr[par]
-                if okIdx.size <= 1:
-                    continue
-                rowSubplots2D(mesh[okIdx,par], mesh[okIdx,-2], mesh[okIdx,-1], fname, fig, gs, par, it)
-                it += 1
-
+        ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
+        ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
+        plot4D(mesh[:,p_x], mesh[:,p_y], mesh[:,p_z], mesh[:,-3], mesh[:,-2], ax_sx,ax_dx)
+        # ax_sx.legend()
+        # ax_dx.legend()
+        
     fig.tight_layout()
     md = readmetadata(f"logs/{fname[:-4]}.log")
-    fig.savefig(f"figs_mesh/plot_{fname[4:len(fname)-4]}.png", dpi=300, metadata=md)
+    fig.savefig(f"figs_opt/plot_{fname[4:len(fname)-4]}.png", dpi=300, metadata=md)
     if talk:
         plt.show() 
 
 
-def on_select(listbox, plot_surface_var, plot_optimization_var, event=None):
+def on_select(listbox, event=None):
     """Triggered when the user clicks the plot button or double-clicks a file."""
     selection = listbox.curselection()
     if not selection:
@@ -175,25 +173,25 @@ def on_select(listbox, plot_surface_var, plot_optimization_var, event=None):
     
     fname = listbox.get(selection[0])
     # Pass the state of the checkbox to the plotting function
-    plot_file(fname, plot_surface_var.get(), plot_optimization_var.get())
+    plot_file(fname)
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
     matplotlib.rcParams.update({"axes.grid": True, "font.size": 15})
 
     if len(sys.argv) > 1 and sys.argv[1] == "all":
-        fdir = "./parameter_mesh"
+        fdir = "./logs_opt"
         if os.path.exists(fdir):
             for file in sorted(os.listdir(fdir)):
                 if file.endswith(".csv"):
-                    plot_file(file, plot_surface=True, opt_ifAvailable=False, talk=False)
+                    plot_file(file, talk=False)
             print("Done!")
         else:
             print("Directory not found!")
         return
 
     root = tk.Tk()
-    root.title("VMC Parameter Mesh Viewer")
+    root.title("VMC Optimization Viewer")
     root.geometry("400x600")
 
     label = tk.Label(root, text="Select a .csv file to plot:", font=("Arial", 12))
@@ -209,19 +207,9 @@ def main():
     listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
     scrollbar.config(command=listbox.yview)
 
-    # checkbutton for 3D surfaces
-    plot_surface_var = tk.BooleanVar(value=True) # Default is True (surface)
-    surface_check = tk.Checkbutton(root, text="Plot 3D Surfaces (Trisurf)", variable=plot_surface_var, font=("Arial", 10))
-    surface_check.pack(pady=5)
+    listbox.bind('<Double-1>', lambda event: on_select(listbox, event))
 
-    # checkbutton for optimization plot
-    plot_optimization_var = tk.BooleanVar(value=False) # Default is False
-    optimization_check = tk.Checkbutton(root, text="Plot Optimization", variable=plot_optimization_var, font=("Arial", 10))
-    optimization_check.pack(pady=10)
-    
-    listbox.bind('<Double-1>', lambda event: on_select(listbox, plot_surface_var, plot_optimization_var, event))
-
-    fdir = "./parameter_mesh"
+    fdir = "./logs_opt"
     if os.path.exists(fdir):
         for file in sorted(os.listdir(fdir)):
             if file.endswith(".csv"):
@@ -231,7 +219,7 @@ def main():
 
     plot_button = tk.Button(root, text="Plot Selected File", font=("Arial", 12, "bold"), 
                             bg="#4CAF50", fg="white", 
-                            command=lambda: on_select(listbox, plot_surface_var, plot_optimization_var))
+                            command=lambda: on_select(listbox))
     plot_button.pack(pady=10)
 
     root.mainloop()
