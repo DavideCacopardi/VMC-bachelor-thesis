@@ -50,7 +50,7 @@ pytorch_test
 # figs_NN/*
 
 #ignore iofiles
-iofiles/*
+iofiles
 
 #ignore report files
 images_backup
