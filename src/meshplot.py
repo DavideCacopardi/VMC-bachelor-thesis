@@ -96,6 +96,7 @@ def plot_slices_3par(mesh, fname):
     # global minimum
     min_idx = np.argmin(mesh[:, -2])
     best_p0, best_p1, best_p2 = mesh[min_idx, 0], mesh[min_idx, 1], mesh[min_idx, 2]
+    print(f"global minimum: ({best_p0}, {best_p1}, {best_p2}) -> {mesh[min_idx,-2]} +- {mesh[min_idx,-1]}")
     
     fig, axs = plt.subplots(n_slices, 2, figsize=(14, 4.5 * n_slices), squeeze=False)
     
