@@ -87,7 +87,61 @@ def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
     ax.set_title(r"Variance")
     ax.set_ylabel(r"Var $E$")
     ax.set_xlabel(f"p[{parNo}]")
+
+
+def plot_slices_3par(mesh, fname):
+    p0_vals = np.unique(mesh[:, 0])
+    n_slices = len(p0_vals)
     
+    # global minimum
+    min_idx = np.argmin(mesh[:, -2])
+    best_p0, best_p1, best_p2 = mesh[min_idx, 0], mesh[min_idx, 1], mesh[min_idx, 2]
+    
+    fig, axs = plt.subplots(n_slices, 2, figsize=(14, 4.5 * n_slices), squeeze=False)
+    
+    # minima
+    vmin_E, vmax_E = np.min(mesh[:, -2]), np.percentile(mesh[:, -2], 85) # outliers
+    vmin_V, vmax_V = np.min(mesh[:, -1]**2), np.percentile(mesh[:, -1]**2, 85)
+
+    for i, p0 in enumerate(p0_vals):
+        mask = mesh[:, 0] == p0
+        p1 = mesh[mask, 1]
+        p2 = mesh[mask, 2]
+        energy = mesh[mask, -2]
+        variance = mesh[mask, -1]**2
+        
+        # Energy
+        ax_E = axs[i, 0]
+        # tricontourf crea la mappa solida interpolata dai punti
+        cf_E = ax_E.tricontourf(p1, p2, energy, levels=40, cmap='viridis_r', vmin=vmin_E, vmax=vmax_E)
+        ax_E.set_ylabel("p[2]")
+        if p0 == best_p0:
+            ax_E.scatter(best_p1, best_p2, color='red', marker='*', s=300, edgecolor='black', label="Global Min")
+            ax_E.set_title(f"Energy at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
+            ax_E.legend()
+        else:
+            ax_E.set_title(f"Energy at p[0] = {p0:.3f}")
+        fig.colorbar(cf_E, ax=ax_E, fraction=0.046, pad=0.04)
+
+        # Plot Varianza (Colonna 1)
+        ax_V = axs[i, 1]
+        cf_V = ax_V.tricontourf(p1, p2, variance, levels=40, cmap='plasma', vmin=vmin_V, vmax=vmax_V)
+        ax_V.set_ylabel("p[2]")
+        if p0 == best_p0:
+            ax_V.scatter(best_p1, best_p2, color='cyan', marker='*', s=300, edgecolor='black')
+            ax_V.set_title(f"Variance at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
+        else:
+            ax_V.set_title(f"Variance at p[0] = {p0:.3f}")
+        fig.colorbar(cf_V, ax=ax_V, fraction=0.046, pad=0.04)
+
+        # Assi X solo in fondo
+        if i == n_slices - 1:
+            ax_E.set_xlabel("p[1]")
+            ax_V.set_xlabel("p[1]")
+
+    fig.suptitle(f"4D Parameter Landscape: {fname}", fontsize=18, y=1.02)
+    return fig
+
 
 def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
     fdir = "./parameter_mesh"
@@ -118,6 +172,8 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
         rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname)
+    elif nPar == 3:
+        fig = plot_slices_3par(mesh, fname)
     else:
         countRows = 0
         if nPar > 2:
