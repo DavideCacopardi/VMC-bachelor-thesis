@@ -173,8 +173,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
         rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname)
-    elif nPar == 3:
-        fig = plot_slices_3par(mesh, fname)
+    
     else:
         countRows = 0
         if nPar > 2:
@@ -206,6 +205,8 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
                 plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*')
             ax_sx.legend()
             ax_dx.legend()
+        elif countRows == 3:
+            fig = plot_slices_3par(mesh, fname)
         else:
             fig = plt.figure(figsize=(12, 6 * countRows))
             gs = fig.add_gridspec(countRows, 2)
@@ -245,6 +246,7 @@ def main():
             for file in sorted(os.listdir(fdir)):
                 if file.endswith(".csv"):
                     plot_file(file, plot_surface=True, opt_ifAvailable=False, talk=False)
+                    plt.close()
             print("Done!")
         else:
             print("Directory not found!")

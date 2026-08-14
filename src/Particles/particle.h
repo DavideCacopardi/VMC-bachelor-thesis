@@ -1,9 +1,11 @@
 #pragma once
 #include <vector>
 
+#define N_FLAVORS 2
 enum Flavor {
     A, B
 };
+
 
 /**
  * @brief Constructs a particle with an initial position.

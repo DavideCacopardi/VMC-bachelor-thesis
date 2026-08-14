@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.colors as mcolors
@@ -31,7 +32,24 @@ def plot_file(fname, talk = True):
     
     print(f"Loading and plotting: {totfname}")
     try:
-        r, rho, drho, p, dp = np.loadtxt(totfname, delimiter=',', unpack=True)
+        # r, rho, drho, p, dp = np.loadtxt(totfname, delimiter=',')
+        mat = np.loadtxt(totfname, delimiter=',')
+        nFlavor = int((mat[0].size - 5) / 4)
+        r = mat[:,0]
+        rho = mat[:,1]
+        drho = mat[:,2]
+        p = mat[:,3+2*nFlavor]
+        dp = mat[:,4+2*nFlavor]
+        if nFlavor > 0:
+            rhoFlav = np.zeros((r.size, nFlavor))
+            drhoFlav = np.zeros((r.size, nFlavor))
+            pFlav = np.zeros((r.size, nFlavor))
+            dpFlav = np.zeros((r.size, nFlavor))
+            for i in range(nFlavor):
+                rhoFlav[:,i] = mat[:,3+2*i]
+                drhoFlav[:,i] = mat[:,4+2*i]
+                pFlav[:,i] = mat[:,5+2*nFlavor+2*i]
+                dpFlav[:,i] = mat[:,6+2*nFlavor+2*i]
     except Exception as e:
         messagebox.showerror("Error", f"Could not load {fname}:\n{e}")
         return
@@ -41,20 +59,28 @@ def plot_file(fname, talk = True):
 
     ax = fig.add_subplot(gs[0, 0])
     ax.errorbar(r, y=rho, yerr=drho, color='magenta', ecolor='black',
-                marker='.', markersize=8, linestyle='-', mfc="tab:blue", mec="tab:blue")
+                marker='.', markersize=8, linestyle='-', mfc="darkblue", mec="darkblue", label="all")
+    for i in range(nFlavor):
+        flav = chr(ord('A') + i)
+        ax.errorbar(r, y=rhoFlav[:,i], yerr=drhoFlav[:,i], ecolor='black',
+                marker='.', markersize=4, linestyle='-', label=flav, alpha=0.5)
     ax.set_title(r"radially averaged density")
     ax.set_ylabel(r"$\rho(r)$")
     ax.set_xlabel(r"$r$")
+    ax.legend()
     ax.text(0.99, 0, fname[4:len(fname)-4], transform=ax.transAxes, fontsize=10, ha="right", va="bottom")
 
     ax = fig.add_subplot(gs[0, 1])
     ax.errorbar(r, y=p, yerr=dp, color='magenta', ecolor='black',
-                marker='.', markersize=8, linestyle='-', mfc="tab:blue", mec="tab:blue")
-    # ax.errorbar(r, y=rad_rho, yerr=drad_rho, color='red', ecolor='black',
-    #             marker='x', markersize=8, linestyle='--', mfc="tab:green", mec="tab:green", alpha=0.4)
+                marker='.', markersize=8, linestyle='-', mfc="darkblue", mec="darkblue", label="all")
+    for i in range(nFlavor):
+        flav = chr(ord('A') + i)
+        ax.errorbar(r, y=pFlav[:,i], yerr=dpFlav[:,i], ecolor='black',
+                marker='*', markersize=4, linestyle='-', label=flav, alpha=0.5)
     ax.set_title(r"radial probability")
     ax.set_ylabel(r"$P(r)$")
     ax.set_xlabel(r"$r$")
+    ax.legend()
 
     fig.tight_layout()
     md = readmetadata(f"logs/{fname[:-4]}.log")
