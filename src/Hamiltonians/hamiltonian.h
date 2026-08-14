@@ -42,5 +42,10 @@ public:
     virtual void set_percStrength(double) {
         throw std::invalid_argument("set_percStrength called on base class hamiltonian");
     }
+
+    static void set_kinetic_factor(double kin_factor) { s_kinetic_factor = kin_factor; }
+    static double get_kinetic_factor() { return s_kinetic_factor; }
+protected:
+    static double s_kinetic_factor;
 };
 

@@ -172,7 +172,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
     if nPar == 1:
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
-        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname)
+        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname, fig, gs, 1, 0)
     
     else:
         countRows = 0

@@ -11,12 +11,14 @@ struct runConfig {
     string waveFunctionTrainType = "EllipticGaussian";
     string waveFunctionType = "LJGaussian";
     string solverType = "MetropolisHastings";
+    bool useUmrigarDrift = false;
     bool preferAnalytic = false;
     unsigned int numberOfThreads = 4;
 
     // [ PHYSICAL PARAMETERS ]
     unsigned int numberOfDimensions = 1;
     unsigned int numberOfParticles = 1;
+    double kinetic_factor = 0.5;
     double min_dist = 1;
     double max_radius = 10000;
     double omega = 1.0;

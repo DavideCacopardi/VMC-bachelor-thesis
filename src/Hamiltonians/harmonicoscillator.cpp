@@ -23,6 +23,6 @@ double HarmonicOscillator::computeLocalEnergy(
     for (unsigned int i = 0; i < particles.size(); i++) {
         potentialEnergy += 0.5 * sq(m_omega) * sqNorm(particles[i]->getPosition());
     }
-    kineticEnergy = -0.5 * waveFunction.spatialNormalizedLaplacian(particles);
+    kineticEnergy = -s_kinetic_factor * waveFunction.spatialNormalizedLaplacian(particles);
     return kineticEnergy + potentialEnergy;
 }

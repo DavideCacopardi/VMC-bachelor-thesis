@@ -10,8 +10,8 @@
 
 using namespace CommonUtils;
 
-SwappingMH::SwappingMH(std::unique_ptr<class Random> rng)
-    : MetropolisHastings(std::move(rng)) {}
+SwappingMH::SwappingMH(std::unique_ptr<class Random> rng, bool useUmrigarDrift)
+    : MetropolisHastings(std::move(rng), useUmrigarDrift) {}
 
 bool SwappingMH::step(double timeStep, class WaveFunction& waveFunction,
     std::vector<std::unique_ptr<Particle>>& particles) {

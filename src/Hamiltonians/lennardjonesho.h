@@ -29,7 +29,6 @@ private:
     double m_alpha; // alpha = enEps_AB / enEps_AA
     static unsigned int s_loc_Ken_method;
 
-    double m_kinetic_factor;    // kinetic_factor = 0.1 * enEps_AA * sigma_AA
     bool m_activate_interactions;
 
     const double c_eps = 1e-9; // prevents numerical errors

@@ -1,6 +1,7 @@
 #include <iostream>
 #include <iomanip>
 #include <nlopt.hpp>
+#include <atomic>
 
 #include "VMCOptimizer.h"
 #include "system.h"
@@ -10,6 +11,8 @@
 #include "Math/random.h"
 #include "harmonicoscillator.h"
 #include "Solvers/metropolishastings.h"
+
+extern std::atomic<bool> g_stop_optimization;
 
 VMCOptimizer::VMCOptimizer(
     const runConfig& cfg,
@@ -24,7 +27,12 @@ VMCOptimizer::VMCOptimizer(
     m_paramsfile(paramsfile) {}
 
 double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<double>& grad) {
+    if (g_stop_optimization) {
+        throw std::runtime_error("User requested graceful stop via Ctrl+C");
+    }
+    
     bool tryAgain;
+    unsigned int count_improvement_tries = 0;
     double energy, variance, error, objectiveValue;
     std::unique_ptr<EnergySampler> sampler;
 
@@ -47,9 +55,13 @@ double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<do
         objectiveValue = energy + m_cfg.varOpt_weight * variance;
 
         // Signal-to-Noise Ratio increment check (every c_wait cycles to avoid forced variance decrease)
-        if (m_mcCount % c_wait == 1 && std::abs(objectiveValue - m_previousObjVal) < 4 * error) {
+        if (m_mcCount % c_wait == 1
+            && count_improvement_tries < c_max_improvement_tries
+            && std::abs(objectiveValue - m_previousObjVal) < 4 * error
+        ) {
             m_cfg.metropolisSteps *= 1.2; // HARD-CODED!
             tryAgain = true;
+            count_improvement_tries++;
         }
     } while (tryAgain);
 

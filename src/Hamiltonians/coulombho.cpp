@@ -63,7 +63,7 @@ double CoulombHO::computeLocalEnergy(
     }
     potentialEnergy += 0.5 * sum; // * m
 
-    kineticEnergy = -0.5 * waveFunction.spatialNormalizedLaplacian(particles);
+    kineticEnergy = -s_kinetic_factor * waveFunction.spatialNormalizedLaplacian(particles);
 
     return kineticEnergy + potentialEnergy;
 }

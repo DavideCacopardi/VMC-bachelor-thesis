@@ -30,6 +30,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.waveFunctionTrainType = j["system"].value("waveFunctionTrainType", cfg.waveFunctionTrainType);
         cfg.waveFunctionType      = j["system"].value("waveFunctionType", cfg.waveFunctionType);
         cfg.solverType            = j["system"].value("solverType", cfg.solverType);
+        cfg.useUmrigarDrift        = j["system"].value("useUmrigarDrift", cfg.useUmrigarDrift);
         cfg.preferAnalytic        = j["system"].value("preferAnalytic", cfg.preferAnalytic);
         cfg.numberOfThreads       = j["system"].value("numberOfThreads", cfg.numberOfThreads);
     }
@@ -38,6 +39,7 @@ runConfig loadConfig(const std::string& filepath) {
     if (j.contains("physics")) {
         cfg.numberOfDimensions          = j["physics"].value("dimensions", cfg.numberOfDimensions);
         cfg.numberOfParticles           = j["physics"].value("particles", cfg.numberOfParticles);
+        cfg.kinetic_factor              = j["physics"].value("kinetic_factor", cfg.kinetic_factor);
         cfg.min_dist                    = j["physics"].value("min_dist", cfg.min_dist);
         cfg.max_radius                  = j["physics"].value("max_radius", cfg.max_radius);
         cfg.omega                       = j["physics"].value("omega", cfg.omega);

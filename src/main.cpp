@@ -7,6 +7,8 @@
 #include <cstring>
 #include <armadillo>
 #include <nlopt.hpp>
+#include <csignal>
+#include <atomic>
 
 #include "system.h"
 #include "common.h"
@@ -27,6 +29,7 @@
 #include "Solvers/metropolis.h"
 #include "Solvers/metropolishastings.h"
 #include "Solvers/swappingmh.h"
+#include "Solvers/swappingmetropolis.h"
 #include "Math/random.h"
 #include "Math/blocker.h"
 #include "Particles/particle.h"
@@ -48,6 +51,18 @@ using SolverFactory = function<unique_ptr<MonteCarlo>(unique_ptr<Random>)>;
 using ActivationFunc = std::function<torch::Tensor(const torch::Tensor&)>;
 using ActivationFuncFactory = std::function<ActivationFunc()>;
 
+std::atomic<bool> g_stop_optimization{ false };
+
+void graceful_stop_handler(int signal) {
+    if (signal == SIGINT) {
+        std::cout << "\n\n[!] Gracefully stop current optimization...\n";
+        g_stop_optimization = true;
+
+        // reset to default signal: if Ctrl+C is pressed again, force exit
+        std::signal(SIGINT, SIG_DFL);
+    }
+}
+
 void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofstream& globalLog, tm* now_tm) {
     globalLog << "=========================================\n";
     globalLog << "               VMC RUN LOG               \n";
@@ -59,11 +74,14 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "WF Train Type             : " << cfg.waveFunctionTrainType << "\n";
     globalLog << "WaveFunction              : " << cfg.waveFunctionType << "\n";
     globalLog << "Solver                    : " << cfg.solverType << "\n";
+    globalLog << "useUmrigarDrift           : " << (cfg.useUmrigarDrift ? "true" : "false") << "\n";
     globalLog << "preferAnalytic            : " << (cfg.preferAnalytic ? "true" : "false") << "\n";
+    globalLog << "numberOfThreads           : " << cfg.numberOfThreads << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PHYSICAL PARAMETERS ]\n";
     globalLog << "dimensions (D)            : " << cfg.numberOfDimensions << "\n";
     globalLog << "particles (N)             : " << cfg.numberOfParticles << "\n";
+    globalLog << "kinetic_factor            : " << cfg.kinetic_factor << "\n";
     globalLog << "min_dist                  : " << cfg.min_dist << "\n";
     globalLog << "max_radius                : " << cfg.max_radius<< "\n";
     globalLog << "omega                     : " << cfg.omega << "\n";
@@ -151,6 +169,8 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
 }
 
 int main(int argc, char* argv[]) {
+    std::signal(SIGINT, graceful_stop_handler);
+    g_stop_optimization = false;
     runConfig cfg = loadConfig("config.json");
 
     chrono::high_resolution_clock::time_point watch_start, watch_end;
@@ -194,75 +214,79 @@ int main(int argc, char* argv[]) {
     LennardJonesHO::set_loc_Ken_method(cfg.LJGaussian_loc_Ken_method);
     Particle::set_min_dist(cfg.repulsive_a_factor > cfg.min_dist ? cfg.repulsive_a_factor : cfg.min_dist);
     Particle::set_max_radius(Particle::s_min_dist > cfg.max_radius ? Particle::s_min_dist : cfg.max_radius);
+    Hamiltonian::set_kinetic_factor(cfg.kinetic_factor);
     HamiltonianFactory hFac = [=]() -> unique_ptr<Hamiltonian> {
-        if (cfg.hamiltonianType == "HarmonicOscillator") {
-            return make_unique<HarmonicOscillator>(cfg.omega);
-        }
-        else if (cfg.hamiltonianType == "CoulombHO") {
-            return make_unique<CoulombHO>(cfg.omega, cfg.omega_z, cfg.maxStrength);
-        }
-        else if (cfg.hamiltonianType == "LennardJonesHO") {
-            return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha);
-        }
-        else if (cfg.hamiltonianType == "LennardJonesHO_noInteraction") {
-            return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, false);
-        }
-        else { // default to Repulsive
-            return make_unique<RepulsiveHO>(cfg.omega, cfg.omega_z, cfg.repulsive_a_factor, cfg.repulsive_strength);
-        }
+            if (cfg.hamiltonianType == "HarmonicOscillator") {
+                return make_unique<HarmonicOscillator>(cfg.omega);
+            }
+            else if (cfg.hamiltonianType == "CoulombHO") {
+                return make_unique<CoulombHO>(cfg.omega, cfg.omega_z, cfg.maxStrength);
+            }
+            else if (cfg.hamiltonianType == "LennardJonesHO") {
+                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha);
+            }
+            else if (cfg.hamiltonianType == "LennardJonesHO_noInteraction" || cfg.hamiltonianType == "LennardJonesHO_noInteractions") {
+                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, false);
+            }
+            else { // default to Repulsive
+                return make_unique<RepulsiveHO>(cfg.omega, cfg.omega_z, cfg.repulsive_a_factor, cfg.repulsive_strength);
+            }
         };
     WaveFunctionFactory wfFac = [=](const vector<double>& p) -> unique_ptr<WaveFunction> {
-        if (cfg.waveFunctionType == "SimpleGaussian")
-            return make_unique<SimpleGaussian>(p[0]);
-        else if (cfg.waveFunctionType == "EllipticGaussian")
-            return make_unique<EllipticGaussian>(p[0], p[1]);
-        else if (cfg.waveFunctionType == "LJGaussian")
-            return make_unique<LJGaussian>(p[0], p[1], p[2]);
-        else if (cfg.waveFunctionType == "NN_envelope")
-            return make_unique<NN_envelope>(cfg.numberOfParticles,
-                cfg.numberOfDimensions,
-                cfg.numberOfParticles * cfg.numberOfDimensions,
-                cfg.Nhid,
-                cfg.helpDecay,
-                p
-            );
-        else // default to Repulsive
-            return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
+            if (cfg.waveFunctionType == "SimpleGaussian")
+                return make_unique<SimpleGaussian>(p[0]);
+            else if (cfg.waveFunctionType == "EllipticGaussian")
+                return make_unique<EllipticGaussian>(p[0], p[1]);
+            else if (cfg.waveFunctionType == "LJGaussian")
+                return make_unique<LJGaussian>(p[0], p[1], p[2]);
+            else if (cfg.waveFunctionType == "NN_envelope")
+                return make_unique<NN_envelope>(cfg.numberOfParticles,
+                    cfg.numberOfDimensions,
+                    cfg.numberOfParticles * cfg.numberOfDimensions,
+                    cfg.Nhid,
+                    cfg.helpDecay,
+                    p
+                );
+            else // default to Repulsive
+                return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
         };
     WaveFunctionFactory wfFacTrain = [=](const vector<double>& p) -> unique_ptr<WaveFunction> {
-        if (cfg.waveFunctionTrainType == "SimpleGaussian")
-            return make_unique<SimpleGaussian>(p[0]);
-        else if (cfg.waveFunctionTrainType == "EllipticGaussian")
-            return make_unique<EllipticGaussian>(p[0], p[1]);
-        else if (cfg.waveFunctionType == "LJGaussian")
-            return make_unique<LJGaussian>(p[0], p[1], p[2]);
-        else // default to Repulsive
-            return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
+            if (cfg.waveFunctionTrainType == "SimpleGaussian")
+                return make_unique<SimpleGaussian>(p[0]);
+            else if (cfg.waveFunctionTrainType == "EllipticGaussian")
+                return make_unique<EllipticGaussian>(p[0], p[1]);
+            else if (cfg.waveFunctionType == "LJGaussian")
+                return make_unique<LJGaussian>(p[0], p[1], p[2]);
+            else // default to Repulsive
+                return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
         };
     SolverFactory solverFac = [=](unique_ptr<Random> rng) -> unique_ptr<MonteCarlo> {
-        if (cfg.solverType == "Metropolis") {
-            return make_unique<Metropolis>(move(rng));
-        }
-        else if (cfg.solverType == "SwappingMH") {
-            return make_unique<SwappingMH>(move(rng));
-        }
-        else // default to Metropolis-Hastings
-            return make_unique<MetropolisHastings>(move(rng));
+            if (cfg.solverType == "Metropolis") {
+                return make_unique<Metropolis>(move(rng));
+            }
+            else if (cfg.solverType == "SwappingMetropolis") {
+                return make_unique<SwappingMH>(move(rng));
+            }
+            else if (cfg.solverType == "SwappingMH") {
+                return make_unique<SwappingMH>(move(rng), cfg.useUmrigarDrift);
+            }
+            else // default to Metropolis-Hastings
+                return make_unique<MetropolisHastings>(move(rng), cfg.useUmrigarDrift);
         };
     ActivationFuncFactory actFun = [=]() -> ActivationFunc {
-        if (cfg.activationFunctionType == "gelu") {
-            return [](const torch::Tensor& t) { return torch::gelu(t); };
-        }
-        else if (cfg.activationFunctionType == "relu") {
-            return [](const torch::Tensor& t) { return torch::relu(t); };
-        }
-        else if (cfg.activationFunctionType == "sigmoid") {
-            return [](const torch::Tensor& t) { return torch::sigmoid(t); };
-        }
-        else {
-            // default to tanh
-            return [](const torch::Tensor& t) { return torch::tanh(t); };
-        }
+            if (cfg.activationFunctionType == "gelu") {
+                return [](const torch::Tensor& t) { return torch::gelu(t); };
+            }
+            else if (cfg.activationFunctionType == "relu") {
+                return [](const torch::Tensor& t) { return torch::relu(t); };
+            }
+            else if (cfg.activationFunctionType == "sigmoid") {
+                return [](const torch::Tensor& t) { return torch::sigmoid(t); };
+            }
+            else {
+                // default to tanh
+                return [](const torch::Tensor& t) { return torch::tanh(t); };
+            }
         };
 
     // --- Actual Code Execution ---

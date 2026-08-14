@@ -17,7 +17,7 @@ unsigned int LennardJonesHO::s_loc_Ken_method = 0;
 
 LennardJonesHO::LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions)
     : m_omega(omega), m_sigma(sigma), m_enEps(enEps),
-m_alpha(alpha), m_kinetic_factor(0.1 * enEps * sq(sigma)), m_activate_interactions(activate_interactions)
+m_alpha(alpha), m_activate_interactions(activate_interactions)
 {
     if (sigma <= 0) throw std::invalid_argument("omega needs to be a positive value");
     if (enEps <= 0) throw std::invalid_argument("enEps needs to be a positive value");
@@ -68,7 +68,7 @@ double LennardJonesHO::computeLocalKineticEnergy(
                 }
                 ptr->set_cachedSum_Laplacian2_lnPsi(sum_Laplacian2_lnPsi);
             }
-            return -0.5 * m_kinetic_factor * sum_Laplacian2_lnPsi;
+            return -0.5 * s_kinetic_factor * sum_Laplacian2_lnPsi;
         }
         else if (method == 2) {
             double sum_SqNorm_GradlnPsi = 0;
@@ -81,10 +81,10 @@ double LennardJonesHO::computeLocalKineticEnergy(
                 }
                 ptr->set_cachedSum_SqNorm_GradlnPsi(sum_SqNorm_GradlnPsi);
             }
-            return m_kinetic_factor * sum_SqNorm_GradlnPsi;
+            return s_kinetic_factor * sum_SqNorm_GradlnPsi;
         }
         // else proceed as with any other wf
     }
     
-    return -m_kinetic_factor * waveFunction.spatialNormalizedLaplacian(particles);
+    return -s_kinetic_factor * waveFunction.spatialNormalizedLaplacian(particles);
 }
