@@ -72,9 +72,9 @@ public:
 
     // to setup initial state
     static double s_min_dist;
-    static void set_min_dist(bool min_dist) { s_min_dist = min_dist; }
+    static void set_min_dist(double min_dist) { s_min_dist = min_dist; }
     static double s_max_radius;
-    static void set_max_radius(bool max_radius) { s_max_radius = max_radius; }
+    static void set_max_radius(double max_radius) { s_max_radius = max_radius; }
 
 private:
     unsigned int m_numberOfDimensions = 0;

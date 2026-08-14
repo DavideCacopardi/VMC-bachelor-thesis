@@ -30,4 +30,6 @@ std::vector<std::pair<double, double>> computeOnebodyDensity(
     unsigned int numberOfMetropolisSteps,
     double rMax,
     unsigned int nBins,
-    std::ofstream* densitiesOut = nullptr);
+    unsigned int numberOfParticleLogs,
+    std::ofstream* densitiesOut = nullptr,
+    std::ofstream* particlesOut = nullptr);

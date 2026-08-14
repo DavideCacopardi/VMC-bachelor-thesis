@@ -52,7 +52,9 @@ public:
         const std::vector<double>& params,
         unsigned int numberOfMetropolisSteps,
         double rMax, 
-        unsigned int nBins);
+        unsigned int nBins,
+        unsigned int numberOfParticleLogs,
+        std::ofstream* particlesOut);
 
     /**
      * @brief Retrieves the repulsive interaction parameter (hard-core diameter).

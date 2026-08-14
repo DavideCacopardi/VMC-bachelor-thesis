@@ -120,6 +120,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.onebodyDensitySteps  = j["observables"].value("onebodyDensitySteps", cfg.onebodyDensitySteps);
         cfg.onebodyDensity_rMax  = j["observables"].value("onebodyDensity_rMax", cfg.onebodyDensity_rMax);
         cfg.onebodyDensity_nBins = j["observables"].value("onebodyDensity_nBins", cfg.onebodyDensity_nBins);
+        cfg.nParticleLogs        = j["observables"].value("nParticleLogs", cfg.nParticleLogs);
     }
 
     // --- [ MISC ] ---

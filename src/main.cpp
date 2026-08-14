@@ -421,16 +421,20 @@ int main(int argc, char* argv[]) {
         watch_start = chrono::high_resolution_clock::now();
         vector<double> params = (!toggles[0] && cfg.use_jsonParams) ? cfg.jsonParams : readVector("./iofiles/params.dat");
         ostringstream filenameStream;
+        ostringstream filenameStream2;
         filenameStream << "./logs_OBD/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+        filenameStream2 << "./logs_particles/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
         ofstream densityfile(filenameStream.str());
+        ofstream particlesfile(filenameStream2.str());
         vector<pair<double, double>> density = computeOnebodyDensity(
             engine, params, cfg.onebodyDensitySteps, cfg.onebodyDensity_rMax,
-            cfg.onebodyDensity_nBins, &densityfile);
+            cfg.onebodyDensity_nBins, cfg.nParticleLogs, &densityfile, &particlesfile);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
         cout << "One-body density done (in " << elapsedTime.count() << " s).\n\n";
         globalLog << "One-body density done (in " << elapsedTime.count() << " s).\n\n";
         densityfile.close();
+        particlesfile.close();
     }
 
     if (toggles[3]) {

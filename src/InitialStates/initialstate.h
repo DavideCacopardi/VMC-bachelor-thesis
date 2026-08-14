@@ -25,5 +25,5 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
     unsigned int numberOfParticles,
     Random& randomEngine,
     double min_dist = Particle::s_min_dist,
-    double max_radius = Particle::s_min_dist
+    double max_radius = Particle::s_max_radius
 );

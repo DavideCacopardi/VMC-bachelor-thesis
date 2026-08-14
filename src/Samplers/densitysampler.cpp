@@ -4,6 +4,8 @@
 #include <fstream>
 #include <cmath>
 #include <vector>
+#include <string>
+#include <format>
 #include <chrono>
 #include "system.h"
 #include "common.h"
@@ -109,4 +111,35 @@ void DensitySampler::computeAverages() {
         }
     }
     m_elapsedTime = m_watch_end - m_watch_start;
+}
+
+void DensitySampler::logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs) {
+    const unsigned int prec = 12, width = 19;
+    outs << std::scientific << std::setprecision(prec);
+    for (unsigned int i = 0; i < m_numberOfParticles; i++) {
+        if (N_FLAVORS > 1) {
+            outs << std::setw(width) << (char)('A' + particles[i]->getFlavor()) << ",";
+        }
+        for (unsigned int d = 0; d < m_numberOfDimensions; d++) {
+            outs << std::setw(width) << particles[i]->getPosition()[d];
+            outs << ((i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions) ? "\n" : ",");
+        }
+    }
+}
+
+void DensitySampler::logParticlesHeader(std::ofstream& outs) {
+    const unsigned int width = 19;
+    outs << '#';
+    std::string str;
+    for (unsigned int i = 0; i < m_numberOfParticles; i++) {
+        if (N_FLAVORS > 1) {
+            str = "p" + std::to_string(i) + " flavor";
+            outs << std::setw(width - (i == 0)) << str << ",";
+        }
+        for (unsigned int d = 0; d < m_numberOfDimensions; d++) {
+            str = "p" + std::to_string(i) + " x" + std::to_string(d);
+            outs << std::setw(width - (N_FLAVORS <= 1 && i == 0)) << str;
+            outs << ((i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions) ? "\n" : ",");
+        }
+    }
 }

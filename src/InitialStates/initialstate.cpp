@@ -1,6 +1,7 @@
 #include <memory>
 #include <iostream>
 #include <cassert>
+#include <string>
 
 #include "initialstate.h"
 #include "../Particles/particle.h"
@@ -32,16 +33,18 @@ std::vector<std::unique_ptr<Particle>> setupRandomUniformInitialState(
                 position[j] = 2 * (rng.nextDouble() - 0.5) * max_radius;
             }
             tooClose = false;
-            for (unsigned int k = 0; k < i; k++) {
-                if (distance(position, particles[k]->getPosition()) <= min_dist) {
+            for (unsigned int k = 0; !tooClose && k < i; k++) {
+                double dist = distance(position, particles[k]->getPosition());
+                if (dist <= min_dist) {
+                    // std::cout << " DEBUG: dist = " << dist << " is less than " << min_dist << std::endl;
                     tooClose = true;
-                    break;
                 }
             }
         } while (tooClose && nIteration < c_max_nIteration);
         if (tooClose) {
-            throw std::runtime_error(
-                "ERR: Particle didn't manage to be randomly setup satisfying the requested conditions in far too many iterations.");
+            std::string errStr = "ERR: Particle " + std::to_string(i);
+            errStr += " didn't manage to be randomly setup satisfying the requested conditions in far too many iterations.";
+            throw std::runtime_error(errStr);
         }
 
         

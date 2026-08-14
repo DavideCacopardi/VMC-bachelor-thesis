@@ -106,7 +106,9 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
     const std::vector<double>& params,
     unsigned int numberOfMetropolisSteps,
     double rMax,
-    unsigned int nBins) {
+    unsigned int nBins,
+    unsigned int numberOfParticleLogs,
+    std::ofstream* particlesOut) {
     auto rng = std::make_unique<Random>(m_cfg.seed == 0
         ? std::chrono::system_clock::now().time_since_epoch().count()
         : m_cfg.seed);
@@ -120,7 +122,7 @@ std::unique_ptr<DensitySampler> MCEngine::runOnebodyDensity(
         std::move(particles));
 
     double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    return system->runMetropolisStepsOnebodyDensity(tuned_timeStep, numberOfMetropolisSteps, rMax, nBins);
+    return system->runMetropolisStepsOnebodyDensity(tuned_timeStep, numberOfMetropolisSteps, rMax, nBins, numberOfParticleLogs, particlesOut);
 }
 
 double MCEngine::getRepulsiveFactor() const {

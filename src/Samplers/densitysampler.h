@@ -24,6 +24,10 @@ public:
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
+
+    void logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs);
+    void logParticlesHeader(std::ofstream& outs);
+
     const std::vector<double>& getDensityProfile() const { return m_densityProfile; }
     const std::vector<std::vector<double>>& getDensityProfileFlavor() const { return m_densityProfileFlavor; }
     const std::vector<double>& getProbabilityProfile() const { return m_probabilityProfile; }

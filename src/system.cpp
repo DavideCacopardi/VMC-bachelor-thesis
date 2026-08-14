@@ -132,7 +132,7 @@ std::unique_ptr<NNsampler> System::runMetropolisSteps_NN_pretrain(double stepPar
 }
 
 std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double stepParameter,
-    unsigned int numberOfMetropolisSteps, double rMax, unsigned int nBins) {
+    unsigned int numberOfMetropolisSteps, double rMax, unsigned int nBins, unsigned int numberOfParticleLogs, std::ofstream* particlesOut) {
     auto sampler = std::make_unique<DensitySampler>(
         m_numberOfParticles,
         m_numberOfDimensions,
@@ -142,13 +142,17 @@ std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double 
         rMax,
         nBins);
 
+    if (particlesOut && numberOfMetropolisSteps / numberOfParticleLogs > 1) {
+        sampler->logParticlesHeader(*particlesOut);
+    }
     for (unsigned int i = 0; i < numberOfMetropolisSteps; i++) {
-        /* Call solver method to do a single Monte-Carlo step.
-         */
         bool acceptedStep = m_solver->step(stepParameter, *m_waveFunction, m_particles);
 
-        // sample 1
         sampler->sample(acceptedStep, this);
+
+        if (particlesOut && ((i + 1) % (numberOfMetropolisSteps / numberOfParticleLogs) == 0)){
+            sampler->logParticles(getParticles(), *particlesOut);
+        }
     }
 
     sampler->computeAverages();
