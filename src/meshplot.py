@@ -41,6 +41,7 @@ def plot3D(x,
            cmap = "viridis"):
     
     min_idx = np.argmin(energy)
+    print(f"global minimum: ({x[min_idx]}, {y[min_idx]}) -> {energy[min_idx]} +- {err[min_idx]}")
 
     if set_norm:
         norm_sx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(energy), vmax=np.max(energy))
