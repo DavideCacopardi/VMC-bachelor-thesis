@@ -38,10 +38,12 @@ def plot3D(x,
            c_min=30,
            label_min = "min",
            marker_min = '.',
-           cmap = "viridis"):
+           cmap = "viridis",
+           plot_opt = False):
     
     min_idx = np.argmin(energy)
-    print(f"global minimum: ({x[min_idx]}, {y[min_idx]}) -> {energy[min_idx]} +- {err[min_idx]}")
+    if not plot_opt:
+        print(f"global minimum: ({x[min_idx]}, {y[min_idx]}) -> {energy[min_idx]} +- {err[min_idx]}")
 
     if set_norm:
         norm_sx = mcolors.PowerNorm(gamma=0.5, vmin=np.min(energy), vmax=np.max(energy))
@@ -73,21 +75,36 @@ def plot3D(x,
     # plt.colorbar(plot_obj_var, ax=ax, shrink=0.5)
     return norm_sx, norm_dx
 
-def rowSubplots2D(x, energy, err, fname, fig, gs, parNo = 0, row = 0):
-    ax = fig.add_subplot(gs[row, 0])
-    ax.errorbar(x, energy, err, color='magenta', ecolor='black',
-                marker='.', markersize=8, linestyle='-', mfc="tab:blue", mec="tab:blue")
-    ax.set_title(r"Energy")
-    ax.set_ylabel(r"$E$")
-    ax.set_xlabel(f"p[{parNo}]")
-    ax.text(0.99, 0, fname[4:len(fname)-4], transform=ax.transAxes, fontsize=10, ha="right", va="bottom")
+def rowSubplots2D(x,
+                  energy,
+                  err,
+                  ax_sx,
+                  ax_dx,
+                  parNo = 0,
+                  c_min=30,
+                  label_min = "min",
+                  marker_min = '.',
+                  plot_opt = False,
+                  ls = '-'):
+    min_idx = np.argmin(energy)
+    if not plot_opt:
+        print(f"global minimum: ({x[min_idx]}) -> {energy[min_idx]} +- {err[min_idx]}")
 
-    ax = fig.add_subplot(gs[row, 1])
-    ax.errorbar(x, err**2, color='magenta', ecolor='black',
-                marker='.', markersize=8, linestyle='-', mfc="tab:blue", mec="tab:blue")
-    ax.set_title(r"Variance")
-    ax.set_ylabel(r"Var $E$")
-    ax.set_xlabel(f"p[{parNo}]")
+    ax_sx.errorbar(x, energy, err, ecolor='black',
+                marker='.', markersize=8, linestyle=ls)
+    ax_sx.errorbar(x[min_idx], energy[min_idx], err[min_idx], color=c_min, ecolor='black',
+                marker=marker_min, markersize=8, label = label_min)
+    ax_sx.set_title(r"Energy")
+    ax_sx.set_ylabel(r"$E$")
+    ax_sx.set_xlabel(f"p[{parNo}]")
+
+    ax_dx.errorbar(x, err**2, ecolor='black',
+                marker='.', markersize=8, linestyle=ls)
+    ax_dx.errorbar(x[min_idx], err[min_idx]**2, color=c_min, ecolor='black',
+                marker=marker_min, markersize=8, label = label_min)
+    ax_dx.set_title(r"Variance")
+    ax_dx.set_ylabel(r"Var $E$")
+    ax_dx.set_xlabel(f"p[{parNo}]")
 
 
 def plot_slices_3par(mesh, fname):
@@ -170,54 +187,55 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
 
     nPar = mesh.shape[1] - 2
 
-    if nPar == 1:
+    countRows = 0
+    if nPar > 2:
+        min_idx = np.argmin(mesh[:,-2])
+        okIdx_arr = []
+        for par in range(nPar):
+            mask = np.ones(mesh.shape[0], dtype=bool)
+            for j in range(nPar):
+                if j != par:
+                    mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
+            
+            okIdx = np.where(mask)[0]
+            okIdx_arr.append(okIdx)
+            if okIdx.size > 1:
+                countRows += 1
+    if nPar == 2 or countRows == 2:
+        if nPar == 2:
+            p_x = 0
+            p_y = 1
+        else:
+            varied_params = [par for par, okIdx in enumerate(okIdx_arr) if okIdx.size > 1]
+            p_x, p_y = varied_params[0], varied_params[1]
         fig = plt.figure(figsize=(12, 6))
         gs = fig.add_gridspec(1, 2)
-        rowSubplots2D(mesh[:,0], mesh[:,-2], mesh[:,-1], fname, fig, gs, 1, 0)
-    
+        ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
+        ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
+        norm_sx, norm_dx = plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], ax_sx,ax_dx, plot_surface, c_min="red", label_min="min mesh")
+        if plot_opt:
+            plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*', plot_opt=True)
+        ax_sx.legend()
+        ax_dx.legend()
+    elif countRows == 3:
+        fig = plot_slices_3par(mesh, fname)
     else:
-        countRows = 0
-        if nPar > 2:
-            min_idx = np.argmin(mesh[:,-2])
-            okIdx_arr = []
-            for par in range(nPar):
-                mask = np.ones(mesh.shape[0], dtype=bool)
-                for j in range(nPar):
-                    if j != par:
-                        mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
-                
-                okIdx = np.where(mask)[0]
-                okIdx_arr.append(okIdx)
-                if okIdx.size > 1:
-                    countRows += 1
-        if nPar == 2 or countRows == 2:
-            if nPar == 2:
-                p_x = 0
-                p_y = 1
-            else:
-                varied_params = [par for par, okIdx in enumerate(okIdx_arr) if okIdx.size > 1]
-                p_x, p_y = varied_params[0], varied_params[1]
-            fig = plt.figure(figsize=(12, 6))
-            gs = fig.add_gridspec(1, 2)
-            ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
-            ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
-            norm_sx, norm_dx = plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], ax_sx,ax_dx, plot_surface, c_min="red", label_min="min mesh")
+        fig = plt.figure(figsize=(12, 6 * countRows))
+        gs = fig.add_gridspec(countRows, 2)
+        it = 0
+        for par in range(nPar):
+            okIdx = okIdx_arr[par]
+            if okIdx.size <= 1:
+                continue
+            ax_sx = fig.add_subplot(gs[it, 0])
+            ax_dx = fig.add_subplot(gs[it, 1])
+            rowSubplots2D(mesh[okIdx,par], mesh[okIdx,-2], mesh[okIdx,-1], ax_sx, ax_dx, par, c_min='red', marker_min='.', label_min="min mesh")
             if plot_opt:
-                plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*')
+                rowSubplots2D(mesh_opt[okIdx,par], mesh_opt[okIdx,-3], mesh_opt[okIdx,-1], ax_sx, ax_dx, par, plot_opt=True, c_min='orange', marker_min='*', label_min="min opt", ls="none")
+            ax_sx.text(0.99, 0, fname[4:len(fname)-4], transform=ax_sx.transAxes, fontsize=10, ha="right", va="bottom")
             ax_sx.legend()
             ax_dx.legend()
-        elif countRows == 3:
-            fig = plot_slices_3par(mesh, fname)
-        else:
-            fig = plt.figure(figsize=(12, 6 * countRows))
-            gs = fig.add_gridspec(countRows, 2)
-            it = 0
-            for par in range(nPar):
-                okIdx = okIdx_arr[par]
-                if okIdx.size <= 1:
-                    continue
-                rowSubplots2D(mesh[okIdx,par], mesh[okIdx,-2], mesh[okIdx,-1], fname, fig, gs, par, it)
-                it += 1
+            it += 1
 
     fig.tight_layout()
     md = readmetadata(f"logs/{fname[:-4]}.log")
