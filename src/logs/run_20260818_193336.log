@@ -1,0 +1,94 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-18 19:33:36
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : EllipticGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 4
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 2
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.027951
+omega_z                   : 0.111803
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 16, 0, 1 ]
+param-optimization mask   : [ true, false, true ]
+use_jsonParams            : true
+json params               : [ 3.47841797, 0, 1.12333984 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_NELDERMEAD
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 8000000
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.02
+Adam_nSteps               : 400
+Adam_min_improvement      : 0.01
+Adam_max_patience         : 20
+varOpt_weight             : 0.05
+Final MC Steps            : 2^27 (134217728)
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 12, 0, 0.8 ]
+upper bounds              : [ 17, 0, 1.5 ]
+number of points          : [ 10, 1, 10 ]
+Mesh MC Steps             : 2^24 (16777216)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 10
+Activation Func           : tanh
+NN Learning Rate          : 0.05
+Pretrain Steps            : 200
+Energy Steps              : 1100
+Adiab Steps               : 100
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.02
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+1bodyDens. Steps          : 10000000
+1bodyDens. rMax           : 5.5
+1bodyDens. nBins          : 100
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, true ]
+=========================================
+
+Initial parameters: 16, 	0, 	1, 	
+Optimal parameters: 15.8683594, 	0, 	1.11064453, 	
+VMC Optimization done (in 472.539366 s).
+
+FinalMC energy: 3.417191766e-02 +- 2.461814263e-06
+Acceptance ratio: 9.087545201e-01
+FinalMC done (in 55.0870345 s).
+
+Blocking_0 energy: 3.417909646e-02 +- 6.926073202e-06
+Blocking_1 energy: 3.416556241e-02 +- 6.795617735e-06
+Blocking_2 energy: 3.417677223e-02 +- 7.085996268e-06
+Blocking_3 energy: 3.416623951e-02 +- 7.045915114e-06
+Final blocking energy: 3.417191766e-02 +- 3.482161445e-06
+Blocking analysis done (in 3.29815788 s).
+
+One-body density done (in 6.97209933 s).
+
+Mesh plot done (in 739.044296 s).
+
+=========================================
