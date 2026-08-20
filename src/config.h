@@ -46,6 +46,7 @@ struct runConfig {
     unsigned int Adam_nSteps = 200;
     double Adam_min_improvement = 0.05;
     unsigned int Adam_max_patience = 25;
+    vector<double> nelderMead_init = { 0.05, 0.05, 0.05 };
     double varOpt_weight = 0.01;
     bool LJ_request_Ekin = true;
 
