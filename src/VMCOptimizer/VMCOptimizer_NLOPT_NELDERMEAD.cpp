@@ -44,11 +44,11 @@ std::vector<double> VMCOptimizer_NLOPT_NELDERMEAD::optimize(std::vector<double> 
         lib_optimizer.set_lower_bounds(lb);
         lib_optimizer.set_upper_bounds(ub);
 
-        std::vector<double> initial_step(params.size());
-        for (unsigned int i = 0; i < initial_step.size(); i++) {
-            initial_step[i] = params[i] != 0 ? params[i] * 0.05 : 0.05;
-        }
-        lib_optimizer.set_initial_step(initial_step);
+        // std::vector<double> initial_step(params.size());
+        // for (unsigned int i = 0; i < initial_step.size(); i++) {
+        //     initial_step[i] = params[i] != 0 ? params[i] * 0.05 : 0.05;
+        // }
+        lib_optimizer.set_initial_step(m_cfg.nelderMead_init);
     }
     lib_optimizer.set_min_objective(nloptObjective, this);
     lib_optimizer.set_xtol_rel(m_cfg.NLOPT_tol);
