@@ -89,7 +89,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.LJ_request_Ekin      = j["monte_carlo"].value("LJ_request_Ekin", cfg.LJ_request_Ekin);
 
         if (j["monte_carlo"].contains("nelderMead_init")) {
-            cfg.nelderMead_init = j["physics"]["nelderMead_init"].get<std::vector<double>>();
+            cfg.nelderMead_init = j["monte_carlo"]["nelderMead_init"].get<std::vector<double>>();
         }
     }
 
