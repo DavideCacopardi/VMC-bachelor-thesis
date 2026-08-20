@@ -88,7 +88,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.varOpt_weight        = j["monte_carlo"].value("varOpt_weight", cfg.varOpt_weight);
         cfg.LJ_request_Ekin      = j["monte_carlo"].value("LJ_request_Ekin", cfg.LJ_request_Ekin);
 
-        if (j["physics"].contains("nelderMead_init")) {
+        if (j["monte_carlo"].contains("nelderMead_init")) {
             cfg.nelderMead_init = j["physics"]["nelderMead_init"].get<std::vector<double>>();
         }
     }
