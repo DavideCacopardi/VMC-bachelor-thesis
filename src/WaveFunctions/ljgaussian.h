@@ -17,7 +17,7 @@ public:
     // ||∇ᵢln(ψ)||²
     double analyticalSqNorm_ParticleGradlnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
 
-    std::vector<double> lowerBounds() const override { return { 0.4, 0, 0 }; }
+    std::vector<double> lowerBounds() const override { return { 1, 0, 0 }; }
     std::vector<double> upperBounds() const override { return { 50, 3, 3 }; }
 
     double get_cachedSum_Laplacian2_lnPsi() { return m_cachedSum_Laplacian2_lnPsi; }
