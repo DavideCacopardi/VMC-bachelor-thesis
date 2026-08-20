@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-08-20 13:37:39
+Date and time             : 2026-08-20 14:25:18
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -73,3 +73,22 @@ Called toggles            : [ true, true, true, true ]
 =========================================
 
 Initial parameters: 16, 	1, 	1, 	
+Optimal parameters: 2.77005518, 	1.12957833, 	1.12675067, 	
+VMC Optimization done (in 8301.86464 s).
+
+FinalMC energy: -1.282160114e-01 +- 2.362132714e-05
+Acceptance ratio: 9.080031738e-01
+FinalMC done (in 428.352165 s).
+
+Blocking_0 energy: -1.283014502e-01 +- 2.030133229e-04
+Blocking_1 energy: -1.283624990e-01 +- 2.046065397e-04
+Blocking_2 energy: -1.279580610e-01 +- 2.060514420e-04
+Blocking_3 energy: -1.282420356e-01 +- 2.018592272e-04
+Final blocking energy: -1.282160114e-01 +- 1.019444057e-04
+Blocking analysis done (in 4.49760188 s).
+
+One-body density done (in 22.4251282 s).
+
+Mesh plot done (in 3415.51293 s).
+
+=========================================

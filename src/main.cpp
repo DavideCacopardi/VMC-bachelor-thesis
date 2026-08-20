@@ -169,7 +169,6 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
 }
 
 int main(int argc, char* argv[]) {
-    std::signal(SIGINT, graceful_stop_handler);
     g_stop_optimization = false;
     runConfig cfg = loadConfig("config.json");
 
@@ -367,11 +366,13 @@ int main(int argc, char* argv[]) {
         else {  // default to NLOPT_BFGS
             optimizer = make_unique<VMCOptimizer_NLOPT_BFGS>(cfg, engine, &logfile, &outfile, &paramsfile);
         }
-        
+
+        std::signal(SIGINT, graceful_stop_handler);
         watch_start = chrono::high_resolution_clock::now();
         vector<double> optimalParams = optimizer->optimize(cfg.initialParams, cfg.optParams_mask);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
+        std::signal(SIGINT, SIG_DFL);
 
         cout << "\nOptimal parameters: " << setprecision(9);
         globalLog << "Optimal parameters: " << setprecision(9);

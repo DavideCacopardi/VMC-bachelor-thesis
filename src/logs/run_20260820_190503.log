@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-08-20 13:34:42
+Date and time             : 2026-08-20 19:05:03
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -14,7 +14,7 @@ numberOfThreads           : 4
 -----------------------------------------
 [ PHYSICAL PARAMETERS ]
 dimensions (D)            : 3
-particles (N)             : 8
+particles (N)             : 2
 kinetic_factor            : 0.1
 min_dist                  : 0.1
 max_radius                : 10
@@ -46,9 +46,9 @@ varOpt_weight             : 0.05
 Final MC Steps            : 2^27 (134217728)
 -----------------------------------------
 [ PARAMETER MESH ]
-lower bounds              : [ 1, 1, 1.3 ]
-upper bounds              : [ 17, 1, 1.3 ]
-number of points          : [ 16, 3, 3 ]
+lower bounds              : [ 1, 1.1, 1.1 ]
+upper bounds              : [ 17, 1.1, 1.1 ]
+number of points          : [ 64, 1, 1 ]
 Mesh MC Steps             : 2^23 (8388608)
 -----------------------------------------
 [ NEURAL NETWORK ]
@@ -69,7 +69,9 @@ helpDecay                 : 0.4
 1bodyDens. nBins          : 100
 Seed                      : 0
 =========================================
-Called toggles            : [ true, true, true, true ]
+Called toggles            : [ false, false, false, true ]
 =========================================
 
-Initial parameters: 16, 	1, 	1, 	
+Mesh plot done (in 191.027486 s).
+
+=========================================
