@@ -72,7 +72,7 @@ public:
      */
     std::unique_ptr<class DensitySampler> runMetropolisStepsOnebodyDensity(
         double stepParameter, unsigned int numberOfMetropolisSteps,
-        double rMax, unsigned int nBins, unsigned int numberOfParticleLogs, std::ofstream* particlesOut);
+        double rMax, unsigned int nBins, bool normalize_by_nParticles, unsigned int numberOfParticleLogs, std::ofstream* particlesOut);
 
     /**
      * @brief Evaluates the local energy \f$E_L = \frac{1}{\Psi} \hat{H} \Psi\f$ for the current configuration.

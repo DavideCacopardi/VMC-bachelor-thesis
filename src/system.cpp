@@ -132,7 +132,13 @@ std::unique_ptr<NNsampler> System::runMetropolisSteps_NN_pretrain(double stepPar
 }
 
 std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double stepParameter,
-    unsigned int numberOfMetropolisSteps, double rMax, unsigned int nBins, unsigned int numberOfParticleLogs, std::ofstream* particlesOut) {
+    unsigned int numberOfMetropolisSteps,
+    double rMax,
+    unsigned int nBins,
+    bool normalize_by_nParticles,
+    unsigned int numberOfParticleLogs,
+    std::ofstream* particlesOut
+) {
     auto sampler = std::make_unique<DensitySampler>(
         m_numberOfParticles,
         m_numberOfDimensions,

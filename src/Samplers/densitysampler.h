@@ -19,7 +19,8 @@ public:
         double stepLength,
         unsigned int numberOfMetropolisSteps,
         double rMax,
-        unsigned int nBins);
+        unsigned int nBins,
+        bool normalize_by_nParticles);
 
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
@@ -42,6 +43,7 @@ private:
     double m_rMax;
     unsigned int m_nBins;
     double m_dr;
+    bool m_normalize_by_nParticles;
     
     std::vector<double> m_histogram;
     std::vector<std::vector<double>> m_histFlavor;

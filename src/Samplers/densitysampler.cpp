@@ -23,9 +23,10 @@ DensitySampler::DensitySampler(
     double stepLength,
     unsigned int numberOfMetropolisSteps,
     double rMax,
-    unsigned int nBins
+    unsigned int nBins,
+    bool normalize_by_nParticles
 ) : Sampler(numberOfParticles, numberOfDimensions, numberOfParameters, stepLength, numberOfMetropolisSteps),
-m_rMax(rMax), m_nBins(nBins) {
+m_rMax(rMax), m_nBins(nBins), m_normalize_by_nParticles(normalize_by_nParticles) {
 
     m_dr = m_rMax / m_nBins;
 
@@ -83,8 +84,9 @@ void DensitySampler::computeAverages() {
 
         if (volume > 0) {
             // 1: density averaged over radius
-            // not dividing by the number of particles, accounting for volume
+            // accounting for volume
             double normalization = m_numberOfMetropolisSteps * volume;
+            if (m_normalize_by_nParticles) normalization /= (double)m_numberOfParticles;
             // Density = bin_counts / normalization
             m_densityProfile[i] = m_histogram[i] / normalization;
             for (unsigned int flav = 0; flav < N_FLAVORS; flav++) {
@@ -96,8 +98,9 @@ void DensitySampler::computeAverages() {
                 m_densityErrorFlavor[i][flav] = sqrt(m_histFlavor[i][flav]) / normalization;
             }
             // 2: radial probability
-            // not dividing by the number of particles, nor by the volume
+            // not dividing by the volume
             normalization = m_numberOfMetropolisSteps * (r_outer - r_inner);
+            if (m_normalize_by_nParticles) normalization /= (double)m_numberOfParticles;
             // Probability = bin_counts / normalization 
             m_probabilityProfile[i] = m_histogram[i] / normalization;
             for (unsigned int flav = 0; flav < N_FLAVORS; flav++) {

@@ -73,6 +73,7 @@ struct runConfig {
     double onebodyDensity_rMax = 3.5;
     unsigned int onebodyDensity_nBins = 50;
     unsigned int nParticleLogs = 50;
+    bool normalize_by_nParticles = false;
 
     // [ MISC ]
     int seed = 0; // Set later
