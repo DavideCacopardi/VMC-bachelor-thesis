@@ -4,12 +4,12 @@
 
 #include "hamiltonian.h"
 
-class LennardJonesHO : public Hamiltonian {
+class LennardJones : public Hamiltonian {
 public:
-    LennardJonesHO(double omega, double sigma, double enEps, double alpha);
-    LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions);
-    LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength);
-    LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength, double percStrength);
+    LennardJones(double sigma, double enEps, double alpha);
+    LennardJones(double sigma, double enEps, double alpha, bool activate_interactions);
+    LennardJones(double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength);
+    LennardJones(double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength, double percStrength);
 
     // --- Configuration ---
     static void set_loc_Ken_method(unsigned int method) { s_loc_Ken_method = method; }
@@ -30,7 +30,6 @@ public:
 
     void set_percStrength(double percStrength) override;
 private:
-    double m_omega;
     double m_sigma; // sigma_AA
     double m_enEps; // enEps_AA
     double m_alpha; // alpha = enEps_AB / enEps_AA

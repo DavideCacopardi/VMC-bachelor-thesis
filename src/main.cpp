@@ -23,6 +23,7 @@
 #include "Hamiltonians/coulombho.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "Hamiltonians/harmonicoscillator.h"
+#include "Hamiltonians/lennardjones.h"
 #include "Hamiltonians/lennardjonesho.h"
 #include "Hamiltonians/repulsiveho.h"
 #include "InitialStates/initialstate.h"
@@ -222,11 +223,14 @@ int main(int argc, char* argv[]) {
             else if (cfg.hamiltonianType == "CoulombHO") {
                 return make_unique<CoulombHO>(cfg.omega, cfg.omega_z, cfg.maxStrength);
             }
+            else if (cfg.hamiltonianType == "LennardJones") {
+                return make_unique<LennardJones>(cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, true, cfg.maxStrength);
+            }
             else if (cfg.hamiltonianType == "LennardJonesHO") {
-                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha);
+                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, true, cfg.maxStrength);
             }
             else if (cfg.hamiltonianType == "LennardJonesHO_noInteraction" || cfg.hamiltonianType == "LennardJonesHO_noInteractions") {
-                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, false);
+                return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, false, cfg.maxStrength);
             }
             else { // default to Repulsive
                 return make_unique<RepulsiveHO>(cfg.omega, cfg.omega_z, cfg.repulsive_a_factor, cfg.repulsive_strength);
@@ -255,7 +259,7 @@ int main(int argc, char* argv[]) {
                 return make_unique<SimpleGaussian>(p[0]);
             else if (cfg.waveFunctionTrainType == "EllipticGaussian")
                 return make_unique<EllipticGaussian>(p[0], p[1]);
-            else if (cfg.waveFunctionType == "LJGaussian")
+            else if (cfg.waveFunctionTrainType == "LJGaussian")
                 return make_unique<LJGaussian>(p[0], p[1], p[2]);
             else // default to Repulsive
                 return make_unique<RepEllipticGaussian>(p[0], p[1], cfg.repulsive_a_factor / sqrt(cfg.omega));
@@ -289,6 +293,7 @@ int main(int argc, char* argv[]) {
             }
         };
 
+    
     // --- Actual Code Execution ---
     if (toggles[0] && cfg.waveFunctionType == "NN_envelope") {
         // --- 1a: Neural-Network optimization ---

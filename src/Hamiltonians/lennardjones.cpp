@@ -6,17 +6,17 @@
 #include <limits>
 
 #include "../common.h"
-#include "lennardjonesho.h"
+#include "lennardjones.h"
 #include "../Particles/particle.h"
 #include "../WaveFunctions/wavefunction.h"
 #include "../WaveFunctions/ljgaussian.h"
 
 using namespace CommonUtils;
 
-unsigned int LennardJonesHO::s_loc_Ken_method = 0;
+unsigned int LennardJones::s_loc_Ken_method = 0;
 
-LennardJonesHO::LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength, double percStrength)
-    : m_omega(omega), m_sigma(sigma), m_enEps(enEps),
+LennardJones::LennardJones(double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength, double percStrength)
+    : m_sigma(sigma), m_enEps(enEps),
 m_alpha(alpha), m_activate_interactions(activate_interactions), m_maxStrength(maxStrength), m_percStrength(percStrength)
 {
     if (sigma <= 0) throw std::invalid_argument("omega needs to be a positive value");
@@ -24,17 +24,17 @@ m_alpha(alpha), m_activate_interactions(activate_interactions), m_maxStrength(ma
     if (alpha < 0) throw std::invalid_argument("alpha needs to be a non-negative value");
 }
 
-LennardJonesHO::LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength)
-    : LennardJonesHO(omega, sigma, enEps, alpha, activate_interactions, maxStrength, 1) {}
+LennardJones::LennardJones(double sigma, double enEps, double alpha, bool activate_interactions, double maxStrength)
+    : LennardJones(sigma, enEps, alpha, activate_interactions, maxStrength, 1) {}
 
-LennardJonesHO::LennardJonesHO(double omega, double sigma, double enEps, double alpha, bool activate_interactions)
-    : LennardJonesHO(omega, sigma, enEps, alpha, activate_interactions, 1) {}
+LennardJones::LennardJones(double sigma, double enEps, double alpha, bool activate_interactions)
+    : LennardJones(sigma, enEps, alpha, activate_interactions, 1) {}
 
-LennardJonesHO::LennardJonesHO(double omega, double sigma, double enEps, double alpha)
-    : LennardJonesHO(omega, sigma, enEps, alpha, true) {}
+LennardJones::LennardJones(double sigma, double enEps, double alpha)
+    : LennardJones(sigma, enEps, alpha, true) {}
 
 
-double LennardJonesHO::computeLocalEnergy(
+double LennardJones::computeLocalEnergy(
     WaveFunction& waveFunction,
     std::vector<std::unique_ptr<Particle>>& particles
 ) {
@@ -53,14 +53,12 @@ double LennardJonesHO::computeLocalEnergy(
             }
             potentialEnergy *= m_maxStrength * m_percStrength;
         }
-        // Harmonic term
-        potentialEnergy += 0.5 * sq(m_omega) * sqNorm(particles[i]->getPosition());
     }
 
     return computeLocalKineticEnergy(waveFunction, particles) + potentialEnergy;
 }
 
-double LennardJonesHO::computeLocalKineticEnergy(
+double LennardJones::computeLocalKineticEnergy(
     WaveFunction& waveFunction,
     std::vector<std::unique_ptr<Particle>>& particles,
     unsigned int method,
@@ -100,12 +98,12 @@ double LennardJonesHO::computeLocalKineticEnergy(
     return -s_kinetic_factor * waveFunction.spatialNormalizedLaplacian(particles);
 }
 
-void LennardJonesHO::set_percStrength(double percStrength) {
+void LennardJones::set_percStrength(double percStrength) {
     if (!(0 <= percStrength && percStrength <= 1))
         throw std::invalid_argument("percStrength needs to be a value within [0,1]");
     m_percStrength = percStrength;
 }
 
-double LennardJonesHO::get_interaction_strength() {
+double LennardJones::get_interaction_strength() {
     return m_percStrength * m_maxStrength;
 }

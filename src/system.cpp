@@ -58,7 +58,7 @@ double System::runEquilibrationSteps(double stepParameter,
         double acceptanceRatio = static_cast<double>(acceptedSteps) / tuneBlockSize;
 
         // tune stepParameter
-        if (acceptanceRatio < target - 0.05) {
+        if (acceptanceRatio < target - 0.05 && acceptanceRatio > 1e-12) {
             stepParameter *= 0.9; // shrink step to increase acceptance
         }
         else if (acceptanceRatio > target + 0.05) {

@@ -61,9 +61,9 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
         setupRandomUniformInitialState(m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng)
     );
     system->setSolver(m_solverFactory(std::move(rng)));
-    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    auto tempsampler = system->runMetropolisSteps(m_cfg.timeStep, m_cfg.metropolisSteps * 10); // trying out non-interacting analytical wavefunction
-    std::cout << "DEBUG: energy found with provided wavefunction = " << tempsampler->getEnergy() << " +- " << tempsampler->getError() << std::endl;
+    double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps * 10);
+    auto tempsampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps * 10, nullptr, m_cfg.LJ_request_Ekin); // trying out non-interacting analytical wavefunction
+    std::cout << "CHECK: energy found with provided wavefunction = " << tempsampler->getEnergy() << " +- " << tempsampler->getError() << std::endl;
     wf_train = std::move(system->setWaveFunction(std::move(wf_nn)));    // swap wavefunctions
     // -------- PRE-TRAINING --------
     // print log header
@@ -83,7 +83,7 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
         std::cout << "\rPretrain step #" << step << std::flush;
 
         std::unique_ptr<NNsampler> sampler =
-            system->runMetropolisSteps_NN_pretrain(m_cfg.timeStep, m_cfg.metropolisSteps, *wf_train);
+            system->runMetropolisSteps_NN_pretrain(tuned_timeStep, m_cfg.metropolisSteps, *wf_train);
         if (m_logfile) sampler->logOutput(*m_logfile);
         std::vector<double> dKdW = sampler->get_dKdW();
         double K = sampler->get_K();
@@ -111,10 +111,13 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
     if (m_logfile) {
         *m_logfile << "\n# TRAINING\n#";
         const unsigned int width = 20;
-        *m_logfile << std::setw(width - 1) << "energy," << std::setw(width) << "variance,"
-        << std::setw(width) << "error," << std::setw(width) << "Hint strength,"
-        << std::setw(width) << "elapsed time," << std::setw(width) << "acceptance ratio "
-        << std::endl;
+        *m_logfile << std::setw(width - 1) << "energy,"
+            << std::setw(width) << "variance,"
+            << std::setw(width) << "error,"
+            << std::setw(width) << "Hint strength,"
+            << std::setw(width) << "elapsed time,"
+            << std::setw(width) << "accept. ratio,"
+            << std::setw(width) << "Monte Carlo steps " << std::endl;
     }
     std::cout << "Running Adam optimization with interactions...\n";
     *m_outfile << "# Running Adam optimization with interactions...\n";
@@ -122,7 +125,7 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
     set_lr(optimizer, m_cfg.NN_lr);
     patience_counter = 0; times_reached_plateau = 0;
     min_improvement = m_cfg.min_improvement; best_val = 0;
-    system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+    tuned_timeStep = system->runEquilibrationSteps(tuned_timeStep, m_cfg.equilibrationSteps);
     for (int step = 0; step < m_cfg.nEnergySteps; step++) {
         // double percStrength = step / (double)m_nEnergySteps;
         if (step <= m_cfg.nAdiabSteps) {
@@ -133,8 +136,8 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
             << "   strength = " << std::scientific
             << system->getHamiltonian().get_interaction_strength() << std::flush;
 
-        system->runEquilibrationSteps(m_cfg.timeStep, 50);
-        auto sampler = system->runMetropolisSteps(m_cfg.timeStep, m_cfg.metropolisSteps);
+        tuned_timeStep = system->runEquilibrationSteps(tuned_timeStep, 210);
+        auto sampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps);
         if (m_logfile) sampler->logOutput(*m_logfile, { system->getHamiltonian().get_interaction_strength() });
         auto dEdW = sampler->get_dEdW();
         double E = sampler->getEnergy();
