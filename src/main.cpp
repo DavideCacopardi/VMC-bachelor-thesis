@@ -154,6 +154,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "helpDecay                 : " << cfg.helpDecay << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ OBSERVABLES & MISC ]\n";
+    globalLog << "Normalize by nParticles   : " << cfg.normalize_by_nParticles << "\n";
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
@@ -169,7 +170,6 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
 }
 
 int main(int argc, char* argv[]) {
-    std::signal(SIGINT, graceful_stop_handler);
     g_stop_optimization = false;
     runConfig cfg = loadConfig("config.json");
 
@@ -367,11 +367,13 @@ int main(int argc, char* argv[]) {
         else {  // default to NLOPT_BFGS
             optimizer = make_unique<VMCOptimizer_NLOPT_BFGS>(cfg, engine, &logfile, &outfile, &paramsfile);
         }
-        
+
+        std::signal(SIGINT, graceful_stop_handler);
         watch_start = chrono::high_resolution_clock::now();
         vector<double> optimalParams = optimizer->optimize(cfg.initialParams, cfg.optParams_mask);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
+        std::signal(SIGINT, SIG_DFL);
 
         cout << "\nOptimal parameters: " << setprecision(9);
         globalLog << "Optimal parameters: " << setprecision(9);
@@ -452,7 +454,8 @@ int main(int argc, char* argv[]) {
         ofstream particlesfile(filenameStream2.str());
         vector<pair<double, double>> density = computeOnebodyDensity(
             engine, params, cfg.onebodyDensitySteps, cfg.onebodyDensity_rMax,
-            cfg.onebodyDensity_nBins, cfg.nParticleLogs, &densityfile, &particlesfile);
+            cfg.onebodyDensity_nBins, cfg.normalize_by_nParticles,
+            cfg.nParticleLogs, &densityfile, &particlesfile);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
         cout << "One-body density done (in " << elapsedTime.count() << " s).\n\n";

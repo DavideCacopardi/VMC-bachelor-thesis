@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-08-20 13:34:46
+Date and time             : 2026-08-20 18:01:30
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -10,11 +10,11 @@ WaveFunction              : LJGaussian
 Solver                    : SwappingMH
 useUmrigarDrift           : true
 preferAnalytic            : true
-numberOfThreads           : 16
+numberOfThreads           : 4
 -----------------------------------------
 [ PHYSICAL PARAMETERS ]
 dimensions (D)            : 3
-particles (N)             : 6
+particles (N)             : 8
 kinetic_factor            : 0.1
 min_dist                  : 0.1
 max_radius                : 10
@@ -27,7 +27,7 @@ LJGaussian_loc_Ken_method : 0
 rep_a_factor              : 0.0043
 rep_strength              : inf
 maxStrength               : 1
-pre-optimization params   : [ 16, 1.1, 1.1 ]
+pre-optimization params   : [ 16, 1, 1 ]
 param-optimization mask   : [ true, true, true ]
 use_jsonParams            : true
 json params               : [ 8, 1.16283293, 1.16611027 ]
@@ -46,8 +46,8 @@ varOpt_weight             : 0.05
 Final MC Steps            : 2^27 (134217728)
 -----------------------------------------
 [ PARAMETER MESH ]
-lower bounds              : [ 1, 1, 1.3 ]
-upper bounds              : [ 17, 1, 1.3 ]
+lower bounds              : [ 1, 1, 1 ]
+upper bounds              : [ 17, 1.3, 1.3 ]
 number of points          : [ 16, 3, 3 ]
 Mesh MC Steps             : 2^23 (8388608)
 -----------------------------------------
@@ -69,7 +69,9 @@ helpDecay                 : 0.4
 1bodyDens. nBins          : 100
 Seed                      : 0
 =========================================
-Called toggles            : [ true, true, true, true ]
+Called toggles            : [ false, false, false, true ]
 =========================================
 
-Initial parameters: 16, 	1.1, 	1.1, 	
+Mesh plot done (in 3158.12502 s).
+
+=========================================

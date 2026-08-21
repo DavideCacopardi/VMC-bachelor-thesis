@@ -53,6 +53,7 @@ public:
         unsigned int numberOfMetropolisSteps,
         double rMax, 
         unsigned int nBins,
+        bool normalize_by_nParticles,
         unsigned int numberOfParticleLogs,
         std::ofstream* particlesOut);
 

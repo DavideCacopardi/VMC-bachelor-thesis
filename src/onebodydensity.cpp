@@ -15,13 +15,16 @@ std::vector<std::pair<double, double>> computeOnebodyDensity(
     unsigned int numberOfMetropolisSteps,
     double rMax,
     unsigned int nBins,
+    bool normalize_by_nParticles,
     unsigned int numberOfParticleLogs,
     std::ofstream* densitiesOut,
     std::ofstream* particlesOut) {
 
     std::cout << "Computing one-body density..." << std::flush;
 
-    std::unique_ptr<DensitySampler> sampler = engine.runOnebodyDensity(params, numberOfMetropolisSteps, rMax, nBins, numberOfParticleLogs, particlesOut);
+    std::unique_ptr<DensitySampler> sampler = engine.runOnebodyDensity(
+        params, numberOfMetropolisSteps, rMax, nBins,
+        normalize_by_nParticles, numberOfParticleLogs, particlesOut);
 
     const std::vector<double>& grid = sampler->getRadialGrid();
     const std::vector<double>& densityProf = sampler->getDensityProfile();
