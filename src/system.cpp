@@ -146,7 +146,8 @@ std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double 
         stepParameter,
         numberOfMetropolisSteps,
         rMax,
-        nBins);
+        nBins,
+        normalize_by_nParticles);
 
     if (particlesOut && numberOfMetropolisSteps / numberOfParticleLogs > 1) {
         sampler->logParticlesHeader(*particlesOut);
