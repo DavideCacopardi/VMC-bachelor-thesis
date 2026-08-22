@@ -16,14 +16,12 @@
 #include "WaveFunctions/ellipticgaussian.h"
 #include "WaveFunctions/ljgaussian.h"
 #include "WaveFunctions/nn_envelope.h"
-#include "WaveFunctions/ljgaussian.h"
 #include "WaveFunctions/repulsiveellipticgaussian.h"
 #include "WaveFunctions/simplegaussian.h"
 #include "WaveFunctions/wavefunction.h"
 #include "Hamiltonians/coulombho.h"
 #include "Hamiltonians/hamiltonian.h"
 #include "Hamiltonians/harmonicoscillator.h"
-#include "Hamiltonians/lennardjones.h"
 #include "Hamiltonians/lennardjonesho.h"
 #include "Hamiltonians/repulsiveho.h"
 #include "InitialStates/initialstate.h"
@@ -222,9 +220,6 @@ int main(int argc, char* argv[]) {
             }
             else if (cfg.hamiltonianType == "CoulombHO") {
                 return make_unique<CoulombHO>(cfg.omega, cfg.omega_z, cfg.maxStrength);
-            }
-            else if (cfg.hamiltonianType == "LennardJones") {
-                return make_unique<LennardJones>(cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, true, cfg.maxStrength);
             }
             else if (cfg.hamiltonianType == "LennardJonesHO") {
                 return make_unique<LennardJonesHO>(cfg.omega, cfg.LJsigma, cfg.LJenEps, cfg.LJalpha, true, cfg.maxStrength);
