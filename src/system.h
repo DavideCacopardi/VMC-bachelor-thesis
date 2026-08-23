@@ -70,7 +70,7 @@ public:
      * @param nBins Number of bins for the radial histogram.
      * @return A DensitySampler containing the radial density histogram.
      */
-    std::unique_ptr<class DensitySampler> runMetropolisStepsOnebodyDensity(
+    std::unique_ptr<class DensitySampler> runMetropolisStepsSpatial(
         double stepParameter, unsigned int numberOfMetropolisSteps,
         double rMax, unsigned int nBins, bool normalize_by_nParticles, unsigned int numberOfParticleLogs, std::ofstream* particlesOut);
 

@@ -131,7 +131,7 @@ std::unique_ptr<NNsampler> System::runMetropolisSteps_NN_pretrain(double stepPar
     return sampler;
 }
 
-std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double stepParameter,
+std::unique_ptr<DensitySampler> System::runMetropolisStepsSpatial(double stepParameter,
     unsigned int numberOfMetropolisSteps,
     double rMax,
     unsigned int nBins,
@@ -149,7 +149,7 @@ std::unique_ptr<DensitySampler> System::runMetropolisStepsOnebodyDensity(double 
         nBins,
         normalize_by_nParticles);
 
-    if (particlesOut && numberOfMetropolisSteps / numberOfParticleLogs > 1) {
+    if (particlesOut && numberOfMetropolisSteps > numberOfParticleLogs) {
         sampler->logParticlesHeader(*particlesOut);
     }
     for (unsigned int i = 0; i < numberOfMetropolisSteps; i++) {

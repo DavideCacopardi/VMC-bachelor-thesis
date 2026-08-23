@@ -32,7 +32,6 @@
 #include "Math/random.h"
 #include "Math/blocker.h"
 #include "Particles/particle.h"
-#include "onebodydensity.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/densitysampler.h"
 #include "VMCOptimizer/VMCOptimizer.h"
@@ -121,6 +120,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "Adam_max_patience         : " << cfg.Adam_max_patience << "\n";
     globalLog << "varOpt_weight             : " << cfg.varOpt_weight << "\n";
     globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
+    globalLog << "LJ_request_Ekin           : " << (cfg.LJ_request_Ekin ? "true" : "false") << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PARAMETER MESH ]\n";
     globalLog << "lower bounds              : [ " << setprecision(9);
@@ -153,7 +153,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "helpDecay                 : " << cfg.helpDecay << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ OBSERVABLES & MISC ]\n";
-    globalLog << "Normalize by nParticles   : " << cfg.normalize_by_nParticles << "\n";
+    globalLog << "Normalize by nParticles   : " << (cfg.normalize_by_nParticles ? "true" : "false") << "\n";
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
@@ -443,8 +443,9 @@ int main(int argc, char* argv[]) {
     }
 
     if (toggles[2]) {
-        // --- 3: One-body density ---
-        watch_start = chrono::high_resolution_clock::now();
+        // --- 3: Spatial distribution ---
+        cout << "Computing spatial distributions..." << flush;
+
         vector<double> params = (!toggles[0] && cfg.use_jsonParams) ? cfg.jsonParams : readVector("./iofiles/params.dat");
         ostringstream filenameStream;
         ostringstream filenameStream2;
@@ -452,14 +453,17 @@ int main(int argc, char* argv[]) {
         filenameStream2 << "./logs_particles/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
         ofstream densityfile(filenameStream.str());
         ofstream particlesfile(filenameStream2.str());
-        vector<pair<double, double>> density = computeOnebodyDensity(
-            engine, params, cfg.onebodyDensitySteps, cfg.onebodyDensity_rMax,
-            cfg.onebodyDensity_nBins, cfg.normalize_by_nParticles,
-            cfg.nParticleLogs, &densityfile, &particlesfile);
+
+        watch_start = chrono::high_resolution_clock::now();
+        std::unique_ptr<DensitySampler> sampler = engine.runSpatial(params, &particlesfile);
+        sampler->logDensityHeader(densityfile);
+        sampler->logDensity(densityfile);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
-        cout << "One-body density done (in " << elapsedTime.count() << " s).\n\n";
-        globalLog << "One-body density done (in " << elapsedTime.count() << " s).\n\n";
+
+        cout << "\r                                  " << flush;
+        cout << "\nSpatial distribution done (in " << elapsedTime.count() << " s).\n\n";
+        globalLog << "Spatial distribution done (in " << elapsedTime.count() << " s).\n\n";
         densityfile.close();
         particlesfile.close();
     }

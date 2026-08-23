@@ -26,34 +26,45 @@ public:
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
 
-    void logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs);
-    void logParticlesHeader(std::ofstream& outs);
+    void logDensity(std::ofstream& outs) const;
+    void logDensityHeader(std::ofstream& outs) const;
 
-    const std::vector<double>& getDensityProfile() const { return m_densityProfile; }
-    const std::vector<std::vector<double>>& getDensityProfileFlavor() const { return m_densityProfileFlavor; }
-    const std::vector<double>& getProbabilityProfile() const { return m_probabilityProfile; }
-    const std::vector<std::vector<double>>& getProbabilityProfileFlavor() const { return m_probabilityProfileFlavor; }
+    void logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs) const;
+    void logParticlesHeader(std::ofstream& outs) const;
+
     const std::vector<double>& getRadialGrid() const { return m_rGrid; }
-    const std::vector<double>& getDensityError() const { return m_densityError; }
-    const std::vector<std::vector<double>>& getDensityErrorFlavor() const { return m_densityErrorFlavor; }
-    const std::vector<double>& getProbabilityError() const { return m_probabilityError; }
-    const std::vector<std::vector<double>>& getProbabilityErrorFlavor() const { return m_probabilityErrorFlavor; }
 
 private:
     double m_rMax;
     unsigned int m_nBins;
-    double m_dr;
     bool m_normalize_by_nParticles;
     
-    std::vector<double> m_histogram;
-    std::vector<std::vector<double>> m_histFlavor;
-    std::vector<double> m_densityProfile;
-    std::vector<std::vector<double>> m_densityProfileFlavor;
-    std::vector<double> m_probabilityProfile;
-    std::vector<std::vector<double>> m_probabilityProfileFlavor;
-    std::vector<double> m_densityError;
-    std::vector<std::vector<double>> m_densityErrorFlavor;
-    std::vector<double> m_probabilityError;
-    std::vector<std::vector<double>> m_probabilityErrorFlavor;
+    double m_dr;
+    int m_nAlike = -1;
+    int m_nUnlike = -1;
+    bool m_nAlike_nUnlike_haveChanged = false;
     std::vector<double> m_rGrid;
+
+    std::vector<unsigned int> m_histogram;
+    std::vector<std::vector<unsigned int>> m_histFlavor;
+    std::vector<unsigned int> m_histAlike;
+    std::vector<unsigned int> m_histUnlike;
+
+    std::vector<double> m_dens;
+    std::vector<double> m_dens_err;
+    std::vector<std::vector<double>> m_dens_f;
+    std::vector<std::vector<double>> m_dens_err_f;
+    std::vector<double> m_dens_alike;
+    std::vector<double> m_dens_err_alike;
+    std::vector<double> m_dens_unlike;
+    std::vector<double> m_dens_err_unlike;
+
+    std::vector<double> m_prob;
+    std::vector<double> m_prob_err;
+    std::vector<std::vector<double>> m_prob_f;
+    std::vector<std::vector<double>> m_prob_err_f;
+    std::vector<double> m_prob_alike;
+    std::vector<double> m_prob_err_alike;
+    std::vector<double> m_prob_unlike;
+    std::vector<double> m_prob_err_unlike;
 };

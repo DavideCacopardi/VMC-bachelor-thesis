@@ -43,19 +43,10 @@ public:
     /**
      * @brief Executes a VMC simulation uniquely dedicated to the one-body density.
      * @param params Optimal variational parameters to utilize.
-     * @param numberOfMetropolisSteps How many Metropolis steps to generate.
-     * @param rMax Maximum radius of the histogram.
-     * @param nBins Number of histogram subdivisions.
+     * @param particlesOut Output stream where to log particle positions.
      * @return A DensitySampler object containing the calculated density profile.
      */
-    std::unique_ptr<class DensitySampler> runOnebodyDensity(
-        const std::vector<double>& params,
-        unsigned int numberOfMetropolisSteps,
-        double rMax, 
-        unsigned int nBins,
-        bool normalize_by_nParticles,
-        unsigned int numberOfParticleLogs,
-        std::ofstream* particlesOut);
+    std::unique_ptr<class DensitySampler> runSpatial(const std::vector<double>& params, std::ofstream* particlesOut);
 
     /**
      * @brief Retrieves the repulsive interaction parameter (hard-core diameter).
