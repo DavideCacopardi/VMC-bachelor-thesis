@@ -1,0 +1,108 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-23 15:14:17
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO_noInteraction
+WF Train Type             : LJGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 6
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.027951
+omega_z                   : 0.111803
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 0.05
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 16, 0, 0 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 4, 0, 0 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_BFGS
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 10000000
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.03
+Adam_nSteps               : 200
+Adam_min_improvement      : 0.0001
+Adam_max_patience         : 30
+varOpt_weight             : 0.05
+Final MC Steps            : 2^27 (134217728)
+LJ_request_Ekin           : false
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 15, 0, 0 ]
+upper bounds              : [ 18, 0, 0 ]
+number of points          : [ 6, 1, 1 ]
+Mesh MC Steps             : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 1000
+Energy Steps              : 4000
+Adiab Steps               : 1500
+Adam_ktol                 : 0.99
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.05
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, true ]
+=========================================
+
+Initial parameters: 16, 	0, 	0, 	
+Optimal parameters: 16, 	0, 	0, 	
+VMC Optimization done (in 342.442794 s).
+
+FinalMC energy: 1.125006050e-01 +- 1.741199709e-11
+Acceptance ratio: 9.021084309e-01
+FinalMC done (in 125.205348 s).
+
+Blocking_0 energy: 1.125006052e-01 +- 5.241064662e-10
+Blocking_1 energy: 1.125006047e-01 +- 5.105849816e-10
+Blocking_2 energy: 1.125006053e-01 +- 5.333288867e-10
+Blocking_3 energy: 1.125006053e-01 +- 4.922391956e-10
+Blocking_4 energy: 1.125006041e-01 +- 5.002188990e-10
+Blocking_5 energy: 1.125006053e-01 +- 5.190081659e-10
+Blocking_6 energy: 1.125006061e-01 +- 5.294858436e-10
+Blocking_7 energy: 1.125006046e-01 +- 5.272606910e-10
+Blocking_8 energy: 1.125006044e-01 +- 5.001116502e-10
+Blocking_9 energy: 1.125006043e-01 +- 5.169711755e-10
+Blocking_10 energy: 1.125006048e-01 +- 5.377306005e-10
+Blocking_11 energy: 1.125006047e-01 +- 5.105779954e-10
+Blocking_12 energy: 1.125006045e-01 +- 5.098163243e-10
+Blocking_13 energy: 1.125006060e-01 +- 5.097783735e-10
+Blocking_14 energy: 1.125006058e-01 +- 5.326967331e-10
+Blocking_15 energy: 1.125006043e-01 +- 5.286764480e-10
+Final blocking energy: 1.125006050e-01 +- 1.294570614e-10
+Blocking analysis done (in 1.16594166 s).
+
+Spatial distribution done (in 14.7404043 s).
+
+Mesh plot done (in 75.2784154 s).
+
+=========================================
