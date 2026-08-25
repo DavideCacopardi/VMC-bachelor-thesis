@@ -113,13 +113,18 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "time Step                 : " << cfg.timeStep << "\n";
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
     globalLog << "optimizationMCsteps       : " << cfg.metropolisSteps << "\n";
+    globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
     globalLog << "NLOPT_tol                 : " << cfg.NLOPT_tol << "\n";
     globalLog << "Adam_lr                   : " << cfg.Adam_lr << "\n";
     globalLog << "Adam_nSteps               : " << cfg.Adam_nSteps << "\n";
     globalLog << "Adam_min_improvement      : " << cfg.Adam_min_improvement << "\n";
     globalLog << "Adam_max_patience         : " << cfg.Adam_max_patience << "\n";
+    globalLog << "NelderMead first guess    : + [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.initialParams.size(); i++) {
+        globalLog << cfg.initialParams[i];
+        globalLog << ((i + 1 == cfg.initialParams.size()) ? " ]\n" : ", ");
+    }
     globalLog << "varOpt_weight             : " << cfg.varOpt_weight << "\n";
-    globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
     globalLog << "LJ_request_Ekin           : " << (cfg.LJ_request_Ekin ? "true" : "false") << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PARAMETER MESH ]\n";
