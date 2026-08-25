@@ -55,10 +55,10 @@ def plot3D(x,
                     fmt='none', ecolor='black', alpha=0.3, lw=1.0, zorder=4)
     ax_sx.scatter(x[min_idx], y[min_idx], energy[min_idx], color=c_min, s=120, zorder=10, label=label_min, marker=marker_min)
     ax_sx.set_title(r"Energy")
-    ax_sx.set_zlabel(r"$E$")
+    ax_sx.set_zlabel(r"$E$", c="brown", zorder=10)
     # ax_sx.set_zlim(0, 0.22)
-    ax_sx.set_xlabel(f"p[0]")
-    ax_sx.set_ylabel(f"p[1]")
+    ax_sx.set_xlabel(f"p[0]", c="brown", zorder=10)
+    ax_sx.set_ylabel(f"p[1]", c="brown", zorder=10)
     # plt.colorbar(plot_obj, ax=ax, shrink=0.5)
 
     if set_norm:
@@ -69,9 +69,9 @@ def plot3D(x,
         plot_obj_var = ax_dx.scatter(x, y, err**2, c=err**2, cmap=cmap, norm=norm_dx, s=s)
     ax_dx.scatter(x[min_idx], y[min_idx], err[min_idx]**2, color=c_min, s=120, zorder=10, label=label_min, marker=marker_min)
     ax_dx.set_title(r"Variance")
-    ax_dx.set_zlabel(r"Var $E$")
-    ax_dx.set_xlabel(f"p[0]")
-    ax_dx.set_ylabel(f"p[1]")
+    ax_dx.set_zlabel(r"Var $E$", c="brown", zorder=10)
+    ax_dx.set_xlabel(f"p[0]", c="brown", zorder=10)
+    ax_dx.set_ylabel(f"p[1]", c="brown", zorder=10)
     # plt.colorbar(plot_obj_var, ax=ax, shrink=0.5)
     return norm_sx, norm_dx
 
@@ -131,7 +131,7 @@ def plot_slices_3par(mesh, fname):
         
         # Energy
         ax_E = axs[i, 0]
-        # tricontourf crea la mappa solida interpolata dai punti
+        # tricontourf
         cf_E = ax_E.tricontourf(p1, p2, energy, levels=40, cmap='viridis_r', vmin=vmin_E, vmax=vmax_E)
         ax_E.set_ylabel("p[2]")
         if p0 == best_p0:
@@ -142,7 +142,6 @@ def plot_slices_3par(mesh, fname):
             ax_E.set_title(f"Energy at p[0] = {p0:.3f}")
         fig.colorbar(cf_E, ax=ax_E, fraction=0.046, pad=0.04)
 
-        # Plot Varianza (Colonna 1)
         ax_V = axs[i, 1]
         cf_V = ax_V.tricontourf(p1, p2, variance, levels=40, cmap='plasma', vmin=vmin_V, vmax=vmax_V)
         ax_V.set_ylabel("p[2]")
@@ -153,7 +152,6 @@ def plot_slices_3par(mesh, fname):
             ax_V.set_title(f"Variance at p[0] = {p0:.3f}")
         fig.colorbar(cf_V, ax=ax_V, fraction=0.046, pad=0.04)
 
-        # Assi X solo in fondo
         if i == n_slices - 1:
             ax_E.set_xlabel("p[1]")
             ax_V.set_xlabel("p[1]")
@@ -212,9 +210,19 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
         gs = fig.add_gridspec(1, 2)
         ax_sx = fig.add_subplot(gs[0, 0], projection='3d')
         ax_dx = fig.add_subplot(gs[0, 1], projection='3d')
+        formatter = matplotlib.ticker.ScalarFormatter(useMathText=True)
+        formatter.set_scientific(True)
+        formatter.set_powerlimits((0, 0))
+        for ax in (ax_sx, ax_dx):
+            for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+                axis.set_major_formatter(formatter)
         norm_sx, norm_dx = plot3D(mesh[:,p_x], mesh[:,p_y], mesh[:,-2], mesh[:,-1], ax_sx,ax_dx, plot_surface, c_min="red", label_min="min mesh")
         if plot_opt:
             plot3D(mesh_opt[:,p_x], mesh_opt[:,p_y], mesh_opt[:,-3], mesh_opt[:,-1], ax_sx,ax_dx, False, False, norm_sx, norm_dx, s=10, c_min="orange", label_min="min opt", marker_min='*', plot_opt=True)
+        ax_sx.tick_params(axis='both', which='major', labelsize=9.5)
+        ax_sx.tick_params(axis='z', which='major', labelsize=9.5, labelrotation=45)
+        ax_dx.tick_params(axis='both', which='major', labelsize=9.5)
+        ax_dx.tick_params(axis='z', which='major', labelsize=9.5, labelrotation=45)
         ax_sx.legend()
         ax_dx.legend()
     elif countRows == 3:
@@ -237,7 +245,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
             ax_dx.legend()
             it += 1
 
-    fig.tight_layout()
+    fig.tight_layout(pad = 2)
     md = readmetadata(f"logs/{fname[:-4]}.log")
     fig.savefig(f"figs_mesh/plot_{fname[4:len(fname)-4]}.png", dpi=300, metadata=md)
     if talk:
