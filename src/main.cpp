@@ -120,9 +120,9 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "Adam_min_improvement      : " << cfg.Adam_min_improvement << "\n";
     globalLog << "Adam_max_patience         : " << cfg.Adam_max_patience << "\n";
     globalLog << "NelderMead first guess    : + [ " << setprecision(9);
-    for (unsigned int i = 0; i < cfg.initialParams.size(); i++) {
-        globalLog << cfg.initialParams[i];
-        globalLog << ((i + 1 == cfg.initialParams.size()) ? " ]\n" : ", ");
+    for (unsigned int i = 0; i < cfg.nelderMead_init.size(); i++) {
+        globalLog << cfg.nelderMead_init[i];
+        globalLog << ((i + 1 == cfg.nelderMead_init.size()) ? " ]\n" : ", ");
     }
     globalLog << "varOpt_weight             : " << cfg.varOpt_weight << "\n";
     globalLog << "LJ_request_Ekin           : " << (cfg.LJ_request_Ekin ? "true" : "false") << "\n";
