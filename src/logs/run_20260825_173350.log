@@ -1,0 +1,106 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-25 17:33:50
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : LJGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 6
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.027951
+omega_z                   : 0.111803
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 0.4
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 13, 1.1, 1 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 4, 0, 0 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_NELDERMEAD
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 8000000
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.03
+Adam_nSteps               : 200
+Adam_min_improvement      : 0.0001
+Adam_max_patience         : 30
+varOpt_weight             : 0.05
+Final MC Steps            : 2^27 (134217728)
+LJ_request_Ekin           : false
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 12, 1, 1 ]
+upper bounds              : [ 14, 1.2, 1.2 ]
+number of points          : [ 8, 5, 5 ]
+Mesh MC Steps             : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 1000
+Energy Steps              : 4000
+Adiab Steps               : 1500
+Adam_ktol                 : 0.99
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.05
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, false ]
+=========================================
+
+Initial parameters: 13, 	1.1, 	1, 	
+Optimal parameters: 13.7159834, 	1.11075726, 	1.06458358, 	
+VMC Optimization done (in 3982.65902 s).
+
+FinalMC energy: 9.645671142e-02 +- 9.222404134e-06
+Acceptance ratio: 9.055924490e-01
+FinalMC done (in 100.680932 s).
+
+Blocking_0 energy: 9.645239807e-02 +- 8.106400894e-05
+Blocking_1 energy: 9.635722348e-02 +- 8.259805206e-05
+Blocking_2 energy: 9.650759360e-02 +- 7.895636692e-05
+Blocking_3 energy: 9.651729179e-02 +- 9.927923861e-05
+Blocking_4 energy: 9.653830354e-02 +- 8.072084681e-05
+Blocking_5 energy: 9.653830354e-02 +- 8.072084681e-05
+Blocking_6 energy: 9.657022966e-02 +- 8.492291995e-05
+Blocking_7 energy: 9.629527815e-02 +- 8.949478649e-05
+Blocking_8 energy: 9.646587852e-02 +- 8.202711738e-05
+Blocking_9 energy: 9.631948791e-02 +- 8.915858346e-05
+Blocking_10 energy: 9.642136579e-02 +- 7.855218944e-05
+Blocking_11 energy: 9.647949899e-02 +- 8.504838633e-05
+Blocking_12 energy: 9.658135647e-02 +- 8.593018104e-05
+Blocking_13 energy: 9.642282125e-02 +- 8.058106559e-05
+Blocking_14 energy: 9.640193832e-02 +- 8.260283529e-05
+Blocking_15 energy: 9.643841367e-02 +- 8.908660732e-05
+Final blocking energy: 9.645671142e-02 +- 2.114454974e-05
+Blocking analysis done (in 1.02640381 s).
+
+Spatial distribution done (in 12.8469816 s).
+
+=========================================
