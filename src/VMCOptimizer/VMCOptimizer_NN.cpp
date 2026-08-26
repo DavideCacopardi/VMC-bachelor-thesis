@@ -127,8 +127,7 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
     min_improvement = m_cfg.min_improvement; best_val = 0;
     tuned_timeStep = system->runEquilibrationSteps(tuned_timeStep, m_cfg.equilibrationSteps);
     for (int step = 0; step < m_cfg.nEnergySteps; step++) {
-        // double percStrength = step / (double)m_nEnergySteps;
-        if (step <= m_cfg.nAdiabSteps) {
+        if (step <= m_cfg.nAdiabSteps) {    // adiabatic increase
             double percStrength = (double)step / (double)m_cfg.nAdiabSteps;
             system->getHamiltonian().set_percStrength(percStrength);
         }
@@ -137,12 +136,20 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
             << system->getHamiltonian().get_interaction_strength() << std::flush;
 
         tuned_timeStep = system->runEquilibrationSteps(tuned_timeStep, 210);
-        auto sampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps);
+        std::unique_ptr<EnergySampler> sampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps);
         if (m_logfile) sampler->logOutput(*m_logfile, { system->getHamiltonian().get_interaction_strength() });
-        auto dEdW = sampler->get_dEdW();
+
+        vector<double> dEdW = sampler->get_dEdW();
+        vector<double> dVardW = sampler->get_dVardW();
+        vector<double> objGrad(dEdW.size());
+        for (unsigned int i = 0; i < objGrad.size(); i++)
+            objGrad[i] = dEdW[i] + m_cfg.varOpt_weight * dVardW[i];
+
         double E = sampler->getEnergy();
-        if (step == m_cfg.nAdiabSteps) best_val = E;
-        if (step > m_cfg.nAdiabSteps && checkPlateau(E, best_val, patience_counter, min_improvement, false)) {
+        double VarE = sampler->getVariance();
+        double obj = E + m_cfg.varOpt_weight * VarE;
+        if (step == m_cfg.nAdiabSteps) best_val = obj;
+        else if (step > m_cfg.nAdiabSteps && checkPlateau(obj, best_val, patience_counter, min_improvement, false)) {
             min_improvement *= 0.1;
             double new_lr = m_cfg.NN_lr * pow(10, -(++times_reached_plateau));
             set_lr(optimizer, new_lr);
@@ -151,7 +158,7 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
         }
         // proceed with optimization
         optimizer.zero_grad();
-        nnptr->setGrads(dEdW);
+        nnptr->setGrads(objGrad);
         torch::nn::utils::clip_grad_norm_(nnptr->parameters(), 10);  // for stability
         optimizer.step();
     }

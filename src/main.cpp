@@ -248,7 +248,6 @@ int main(int argc, char* argv[]) {
                     cfg.numberOfDimensions,
                     cfg.numberOfParticles * cfg.numberOfDimensions,
                     cfg.Nhid,
-                    cfg.helpDecay,
                     p
                 );
             else // default to Repulsive
