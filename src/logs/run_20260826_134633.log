@@ -1,0 +1,102 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-26 13:46:33
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : LJGaussian
+WaveFunction              : NN_envelope
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 2
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.027951
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 0.4
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 16, 0, 0 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 4, 0, 0 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_NELDERMEAD
+time Step                 : 0.1
+Equilibr. Steps           : 500
+optimizationMCsteps       : 3000
+Final MC Steps            : 2^20 (1048576)
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.03
+Adam_nSteps               : 200
+Adam_min_improvement      : 0.0001
+Adam_max_patience         : 30
+NelderMead first guess    : + [ 0.5, 0.05, 0.05 ]
+varOpt_weight             : 0.05
+LJ_request_Ekin           : false
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 10, 1, 1 ]
+upper bounds              : [ 14, 1.2, 1.2 ]
+number of points          : [ 8, 5, 5 ]
+Mesh MC Steps             : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 8
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 500
+Energy Steps              : 1500
+Adiab Steps               : 500
+Adam_ktol                 : 0.999
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.03
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, false ]
+=========================================
+
+Initial parameters for psi_train: 16, 	0, 	0, 	
+Optimal parameters: 0.0189150227, 	1.99265543, 	3.98853494, 	-3.49389465, 	-2.39219676, 	-1.21739669, 	-0.776301753, 	-1.26963373, 	-4.63098446, 	0.518016312, 	-0.101633645, 	-0.627184441, 	-0.782578166, 	0.320637235, 	-0.106728126, 	-0.372828402, 	-1.24472451, 	0.0199016991, 	-2.28316032, 	2.04619679, 	2.4055123, 	1.50414631, 	0.178298577, 	0.840323899, 	3.52236666, 	-1.14438686, 	-3.94291902, 	3.54886239, 	1.71442199, 	1.94783014, 	1.11731671, 	1.01601282, 	2.63472677, 	-1.23088429, 	-1.93318466, 	-1.20621902, 	-0.0831626469, 	-0.139777086, 	-0.8169399, 	0.211330579, 	0.599516363, 	1.84736193, 	2.80809413, 	-1.75184578, 	-0.342545485, 	0.252020844, 	-0.985721103, 	-0.851798495, 	-1.23902667, 	1.91275296, 	-2.29044493, 	3.34350891, 	2.62129822, 	2.19731266, 	0.0944565494, 	-3.11827978, 	-1.74988355, 	-1.03227888, 	-1.74006285, 	1.64526469, 	1.61870601, 	0.450395801, 	0.332770015, 	2.02477227, 	0.938873634, 	
+NN_VMC Optimization done (in 2386.84745 s).
+
+FinalMC energy: 7.916937454e-02 +- 6.550089816e-04
+Acceptance ratio: 9.990205765e-01
+FinalMC done (in 180.281377 s).
+
+Blocking_0 energy: 7.777362032e-02 +- 4.081565685e-03
+Blocking_1 energy: 7.879366043e-02 +- 2.999876170e-03
+Blocking_2 energy: 7.476545565e-02 +- 3.357924785e-03
+Blocking_3 energy: 7.718909545e-02 +- 4.266696889e-03
+Blocking_4 energy: 7.801684772e-02 +- 4.739346044e-03
+Blocking_5 energy: 7.879366043e-02 +- 2.999876170e-03
+Blocking_6 energy: 8.462444949e-02 +- 4.507261148e-03
+Blocking_7 energy: 7.777362032e-02 +- 4.081565685e-03
+Blocking_8 energy: 8.209311654e-02 +- 4.030649958e-03
+Blocking_9 energy: 7.079309797e-02 +- 3.927208054e-03
+Blocking_10 energy: 7.197260406e-02 +- 3.114135197e-03
+Blocking_11 energy: 9.412007788e-02 +- 1.474755634e-02
+Blocking_12 energy: 7.785826859e-02 +- 4.260859307e-03
+Blocking_13 energy: 8.094327799e-02 +- 3.251315928e-03
+Blocking_14 energy: 7.454962833e-02 +- 3.518588640e-03
+Blocking_15 energy: 8.664951152e-02 +- 4.315959986e-03
+Final blocking energy: 7.916937454e-02 +- 1.314233005e-03

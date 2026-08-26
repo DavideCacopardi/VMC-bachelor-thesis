@@ -1,0 +1,109 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-25 19:44:11
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : LJGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 6
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 3.5038, 1.1241, 1.1228 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 4, 0, 0 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_NELDERMEAD
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 10000000
+Final MC Steps            : 2^27 (134217728)
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.03
+Adam_nSteps               : 200
+Adam_min_improvement      : 0.0001
+Adam_max_patience         : 30
+NelderMead first guess    : + [ 0.5, 0.05, 0.05 ]
+varOpt_weight             : 0.05
+LJ_request_Ekin           : false
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 1, 1, 1 ]
+upper bounds              : [ 21, 1.2, 1.2 ]
+number of points          : [ 30, 5, 5 ]
+Mesh MC Steps             : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 1000
+Energy Steps              : 4000
+Adiab Steps               : 1500
+Adam_ktol                 : 0.99
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.05
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, true ]
+=========================================
+
+Initial parameters: 3.5038, 	1.1241, 	1.1228, 	
+Optimal parameters: 3.78377806, 	1.12204259, 	1.11835302, 	
+VMC Optimization done (in 1085.27014 s).
+
+FinalMC energy: -1.927832155e-02 +- 1.710652855e-05
+Acceptance ratio: 9.023186713e-01
+FinalMC done (in 101.189874 s).
+
+Blocking_0 energy: -1.915983833e-02 +- 2.323243743e-04
+Blocking_1 energy: -1.941337823e-02 +- 2.278973026e-04
+Blocking_2 energy: -1.955236261e-02 +- 2.376086253e-04
+Blocking_3 energy: -1.940385660e-02 +- 1.623449489e-04
+Blocking_4 energy: -1.913711862e-02 +- 2.515217734e-04
+Blocking_5 energy: -1.932430760e-02 +- 2.388903173e-04
+Blocking_6 energy: -1.939404012e-02 +- 2.380406272e-04
+Blocking_7 energy: -1.920236208e-02 +- 2.354074768e-04
+Blocking_8 energy: -1.936866554e-02 +- 2.347654411e-04
+Blocking_9 energy: -1.893605296e-02 +- 2.480626403e-04
+Blocking_10 energy: -1.928239591e-02 +- 2.254964497e-04
+Blocking_11 energy: -1.920860677e-02 +- 2.308989223e-04
+Blocking_12 energy: -1.925497666e-02 +- 2.361541250e-04
+Blocking_13 energy: -1.932677180e-02 +- 2.295505303e-04
+Blocking_14 energy: -1.930460254e-02 +- 2.279050937e-04
+Blocking_15 energy: -1.918380842e-02 +- 2.278809178e-04
+Final blocking energy: -1.927832155e-02 +- 5.776713934e-05
+Blocking analysis done (in 1.03103543 s).
+
+Spatial distribution done (in 13.2955746 s).
+
+Mesh plot done (in 5817.8136 s).
+
+=========================================
