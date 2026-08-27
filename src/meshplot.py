@@ -116,7 +116,7 @@ def plot_slices_3par(mesh, fname):
     best_p0, best_p1, best_p2 = mesh[min_idx, 0], mesh[min_idx, 1], mesh[min_idx, 2]
     print(f"global minimum: ({best_p0}, {best_p1}, {best_p2}) -> {mesh[min_idx,-2]} +- {mesh[min_idx,-1]}")
     
-    fig, axs = plt.subplots(n_slices, 2, figsize=(14, 7 * n_slices), squeeze=False)
+    fig, axs = plt.subplots(n_slices, 2, figsize=(14, 6 * n_slices), squeeze=False)
     
     # minima
     vmin_E, vmax_E = np.min(mesh[:, -2]), np.percentile(mesh[:, -2], 85) # outliers
@@ -136,21 +136,33 @@ def plot_slices_3par(mesh, fname):
         ax_E.set_ylabel("p[2]")
         if p0 == best_p0:
             ax_E.scatter(best_p1, best_p2, color='red', marker='*', s=300, edgecolor='black', label="Global Min")
-            ax_E.set_title(f"Energy at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
             ax_E.legend()
+            if len(p0_vals) > 1:
+                ax_E.set_title(f"Energy at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
+            else:
+                ax_E.set_title(f"Energy at p[0] = {p0:.3f}")
         else:
             ax_E.set_title(f"Energy at p[0] = {p0:.3f}")
-        fig.colorbar(cf_E, ax=ax_E, fraction=0.046, pad=0.04)
+        cb = fig.colorbar(cf_E, ax=ax_E, fraction=0.046, pad=0.04)
+        cb.formatter.set_scientific(True)
+        cb.formatter.set_powerlimits((0, 0))
+        cb.update_ticks()
 
         ax_V = axs[i, 1]
         cf_V = ax_V.tricontourf(p1, p2, variance, levels=40, cmap='plasma', vmin=vmin_V, vmax=vmax_V)
         ax_V.set_ylabel("p[2]")
         if p0 == best_p0:
             ax_V.scatter(best_p1, best_p2, color='cyan', marker='*', s=300, edgecolor='black')
-            ax_V.set_title(f"Variance at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
+            if len(p0_vals) > 1:
+                ax_V.set_title(f"Variance at p[0] = {p0:.3f} (MINIMUM)", fontweight='bold')
+            else:
+                ax_V.set_title(f"Variance at p[0] = {p0:.3f}")
         else:
             ax_V.set_title(f"Variance at p[0] = {p0:.3f}")
-        fig.colorbar(cf_V, ax=ax_V, fraction=0.046, pad=0.04)
+        cb = fig.colorbar(cf_V, ax=ax_V, fraction=0.046, pad=0.04)
+        cb.formatter.set_scientific(True)
+        cb.formatter.set_powerlimits((0, 0))
+        cb.update_ticks()
 
         if i == n_slices - 1:
             ax_E.set_xlabel("p[1]")
