@@ -28,13 +28,18 @@ def readmetadata(fname):
     meta_dict["Description"] = lines
     return meta_dict
 
-def plot_files(fnames, custom_save_name, talk=True):
+def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
     fdir = "./logs_OBD"
     
     fig1, axs1 = plt.subplots(1, 2, figsize=(12, 6))
+    axs1[0].ticklabel_format(style="sci", scilimits=(0,0))
+    axs1[1].ticklabel_format(style="sci", scilimits=(0,0))
     fig2, axs2 = plt.subplots(1, 2, figsize=(12, 6))
+    axs2[0].ticklabel_format(style="sci", scilimits=(0,0))
+    axs2[1].ticklabel_format(style="sci", scilimits=(0,0))
     
-    cmap_colors = plt.cm.tab10(np.linspace(0, 1, max(10, len(fnames))))
+    cmap_colors = matplotlib.colormaps.get_cmap("tab20c")
+    cmap_colors = [cmap_colors.colors[i] for i in range(20)]
     has_pcorr = False
     
     for i, fname in enumerate(fnames):
@@ -60,43 +65,54 @@ def plot_files(fnames, custom_save_name, talk=True):
             continue
             
         r = df['r']
-        # e.g. '20260819_234333'
-        label = fname[4:-4]
-        base_color = cmap_colors[i % 10]
+        if legend_labels is None or legend_labels[i] == '':
+            # e.g. '20260819_234333'
+            label = fname[4:-4]
+        else:
+            label = legend_labels[i]
+        base_color = cmap_colors[(4 * i)%20]
+        base_color_A = cmap_colors[(4 * i + 4)%20]
+        base_color_B = cmap_colors[(4 * i + 8)%20]
+        sec_color = cmap_colors[(4 * i + 2)%20]
         
         # FIGURE 1: One-Body Density
         if 'dens_tot' in df.columns:
             err_col = 'dens_err_' if 'dens_err_' in df.columns else df.columns[2]
+            
             axs1[0].errorbar(r, df['dens_tot'], yerr=df[err_col], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=f"{label} (tot)")
+                             color=base_color, marker='.', markersize=6, linestyle='-', label=rf"{label} (tot)")
             
             if 'dens_A' in df.columns and len(fnames) == 1:
-                axs1[0].plot(r, df['dens_A'], color=base_color, linestyle='--', alpha=0.5, label='A')
+                err_col = 'dens_err_A' if 'dens_err_A' in df.columns else df.columns[4]
+                axs1[0].errorbar(r, df['dens_A'], yerr=df[err_col], marker='.', markersize=4, color=base_color_A, linestyle='-', alpha=0.4, label='A')
             if 'dens_B' in df.columns and len(fnames) == 1:
-                axs1[0].plot(r, df['dens_B'], color=base_color, linestyle=':', alpha=0.5, label='B')
+                err_col = 'dens_err_B' if 'dens_err_B' in df.columns else df.columns[6]
+                axs1[0].errorbar(r, df['dens_B'], yerr=df[err_col], marker='s', mfc="none", markersize=4, color=base_color_B, linestyle='--', alpha=0.6, label='B')
                 
         if 'prob_tot' in df.columns:
             err_col_prob = 'prob_err_' if 'prob_err_' in df.columns else [c for c in df.columns if 'prob_err' in c][0]
             axs1[1].errorbar(r, df['prob_tot'], yerr=df[err_col_prob], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=f"{label} (tot)")
+                             color=base_color, marker='.', markersize=6, linestyle='-', label=rf"{label} (tot)")
                              
             if 'prob_A' in df.columns and len(fnames) == 1:
-                axs1[1].plot(r, df['prob_A'], color=base_color, linestyle='--', alpha=0.5, label='A')
+                err_col = 'prob_err_A' if 'prob_err_A' in df.columns else [c for c in df.columns if 'prob_err' in c][1]
+                axs1[1].errorbar(r, df['prob_A'], yerr=df[err_col], marker='.', markersize=4, color=base_color_A, linestyle='-', alpha=0.4, label='A')
             if 'prob_B' in df.columns and len(fnames) == 1:
-                axs1[1].plot(r, df['prob_B'], color=base_color, linestyle=':', alpha=0.5, label='B')
+                err_col = 'prob_err_B' if 'prob_err_B' in df.columns else [c for c in df.columns if 'prob_err' in c][2]
+                axs1[1].errorbar(r, df['prob_B'], yerr=df[err_col], marker='s', mfc="none", markersize=4, color=base_color_B, linestyle='--', alpha=0.6, label='B')
 
         # FIGURE 2: Pair Correlation (alike / unlike)
         if 'dens_alike' in df.columns:
             has_pcorr = True
             axs2[0].errorbar(r, df['dens_alike'], yerr=df['dens_alike_err'], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=f"{label} (alike)")
+                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
             axs2[0].errorbar(r, df['dens_unlike'], yerr=df['dens_unlike_err'], 
-                             color=base_color, marker='x', markersize=6, linestyle='--', label=f"{label} (unlike)")
+                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
             
             axs2[1].errorbar(r, df['prob_alike'], yerr=df['prob_alike_err'], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=f"{label} (alike)")
+                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
             axs2[1].errorbar(r, df['prob_unlike'], yerr=df['prob_unlike_err'], 
-                             color=base_color, marker='x', markersize=6, linestyle='--', label=f"{label} (unlike)")
+                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
 
 
     axs1[0].set_title("One-Body Density")
@@ -129,7 +145,7 @@ def plot_files(fnames, custom_save_name, talk=True):
     if has_pcorr:
         os.makedirs("figs_pcorr", exist_ok=True)
         
-    if len(fnames) == 1:
+    if len(fnames) == 1 and custom_save_name == "":
         save_base = fnames[0][4:-4] # e.g. 20260819_234333
     else:
         save_base = custom_save_name.strip()
@@ -146,7 +162,7 @@ def plot_files(fnames, custom_save_name, talk=True):
     if talk:
         plt.show()
 
-def on_select(listbox, entry_save_name, event=None):
+def on_select(listbox, entry_save_name, entry_legend_name, event=None):
     selection = listbox.curselection()
     if not selection:
         messagebox.showwarning("Warning", "Please select at least one file.")
@@ -154,11 +170,22 @@ def on_select(listbox, entry_save_name, event=None):
     
     fnames = [listbox.get(i) for i in selection]
     custom_save_name = entry_save_name.get()
-    plot_files(fnames, custom_save_name)
+    
+    entry_legend_name = entry_legend_name.get()
+    if type(entry_legend_name) is str and len(entry_legend_name) > 0:
+        legend_labels = entry_legend_name.split("€")
+        print(legend_labels)
+        if legend_labels is None:
+            legend_labels = [entry_legend_name]
+        while len(legend_labels) < len(fnames):
+            legend_labels.append('')
+        plot_files(fnames, custom_save_name, legend_labels)
+    else:
+        plot_files(fnames, custom_save_name)
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    matplotlib.rcParams.update({"axes.grid": True, "font.size": 13})
+    matplotlib.rcParams.update({"axes.grid": True, "font.size": 15})
 
     if len(sys.argv) > 1 and sys.argv[1] == "all":
         fdir = "./logs_OBD"
@@ -174,7 +201,7 @@ def main():
 
     root = tk.Tk()
     root.title("VMC Density & Pair Correlation Viewer")
-    root.geometry("450x550")
+    root.geometry("500x600")
 
     label = tk.Label(root, text="Select .csv file(s) from logs_OBD:\n(Use Ctrl/Shift for multiple)", font=("Arial", 11))
     label.pack(pady=10)
@@ -197,18 +224,25 @@ def main():
     else:
         listbox.insert(tk.END, "logs_OBD directory not found!")
 
-    save_label = tk.Label(root, text="Save PNG as (for multi-select only):", font=("Arial", 10))
+    save_label = tk.Label(root, text="Save PNG as:", font=("Arial", 10))
     save_label.pack(pady=(10, 0))
     
     save_name_var = tk.StringVar()
     save_entry = tk.Entry(root, textvariable=save_name_var, width=30)
     save_entry.pack(pady=5)
 
-    listbox.bind('<Double-1>', lambda event: on_select(listbox, save_entry, event))
+    legend_label = tk.Label(root, text="Legend labels sep. with '€':", font=("Arial", 10))
+    legend_label.pack(pady=(10, 0))
+    
+    legend_name_var = tk.StringVar()
+    legend_entry = tk.Entry(root, textvariable=legend_name_var, width=30)
+    legend_entry.pack(pady=5)
+
+    listbox.bind('<Double-1>', lambda event: on_select(listbox, save_entry, legend_entry, event))
 
     plot_button = tk.Button(root, text="Plot Data", font=("Arial", 12, "bold"), 
                             bg="#2196F3", fg="white", 
-                            command=lambda: on_select(listbox, save_entry))
+                            command=lambda: on_select(listbox, save_entry, legend_entry))
     plot_button.pack(pady=15)
 
     root.mainloop()

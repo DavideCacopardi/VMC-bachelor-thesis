@@ -116,7 +116,7 @@ def plot_slices_3par(mesh, fname):
     best_p0, best_p1, best_p2 = mesh[min_idx, 0], mesh[min_idx, 1], mesh[min_idx, 2]
     print(f"global minimum: ({best_p0}, {best_p1}, {best_p2}) -> {mesh[min_idx,-2]} +- {mesh[min_idx,-1]}")
     
-    fig, axs = plt.subplots(n_slices, 2, figsize=(14, 4.5 * n_slices), squeeze=False)
+    fig, axs = plt.subplots(n_slices, 2, figsize=(14, 7 * n_slices), squeeze=False)
     
     # minima
     vmin_E, vmax_E = np.min(mesh[:, -2]), np.percentile(mesh[:, -2], 85) # outliers
@@ -156,11 +156,11 @@ def plot_slices_3par(mesh, fname):
             ax_E.set_xlabel("p[1]")
             ax_V.set_xlabel("p[1]")
 
-    fig.suptitle(f"4D Parameter Landscape: {fname}", fontsize=18, y=1.02)
+    # fig.suptitle(f"4D Parameter Landscape: {fname}", fontsize=18, y=1.02)
     return fig
 
 
-def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
+def plot_file(fname, plot_surface, force_slices, opt_ifAvailable, talk = True):
     fdir = "./parameter_mesh"
     totfname = f"{fdir}/{fname}"
     
@@ -199,7 +199,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
             okIdx_arr.append(okIdx)
             if okIdx.size > 1:
                 countRows += 1
-    if nPar == 2 or countRows == 2:
+    if not force_slices and (nPar == 2 or countRows == 2):
         if nPar == 2:
             p_x = 0
             p_y = 1
@@ -225,7 +225,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
         ax_dx.tick_params(axis='z', which='major', labelsize=9.5, labelrotation=45)
         ax_sx.legend()
         ax_dx.legend()
-    elif countRows == 3:
+    elif countRows == 3 or (force_slices and (nPar == 2 or countRows == 2)):
         fig = plot_slices_3par(mesh, fname)
     else:
         fig = plt.figure(figsize=(12, 6 * countRows))
@@ -252,7 +252,7 @@ def plot_file(fname, plot_surface, opt_ifAvailable, talk = True):
         plt.show() 
 
 
-def on_select(listbox, plot_surface_var, plot_optimization_var, event=None):
+def on_select(listbox, plot_surface_var, force_slices_var, plot_optimization_var, event=None):
     """Triggered when the user clicks the plot button or double-clicks a file."""
     selection = listbox.curselection()
     if not selection:
@@ -261,7 +261,7 @@ def on_select(listbox, plot_surface_var, plot_optimization_var, event=None):
     
     fname = listbox.get(selection[0])
     # Pass the state of the checkbox to the plotting function
-    plot_file(fname, plot_surface_var.get(), plot_optimization_var.get())
+    plot_file(fname, plot_surface_var.get(), force_slices_var.get(), plot_optimization_var.get())
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
@@ -272,7 +272,7 @@ def main():
         if os.path.exists(fdir):
             for file in sorted(os.listdir(fdir)):
                 if file.endswith(".csv"):
-                    plot_file(file, plot_surface=True, opt_ifAvailable=False, talk=False)
+                    plot_file(file, plot_surface=True, force_slices=False, opt_ifAvailable=False, talk=False)
                     plt.close()
             print("Done!")
         else:
@@ -301,12 +301,17 @@ def main():
     surface_check = tk.Checkbutton(root, text="Plot 3D Surfaces (Trisurf)", variable=plot_surface_var, font=("Arial", 10))
     surface_check.pack(pady=5)
 
+    # checkbutton for force_slices
+    force_slices_var = tk.BooleanVar(value=False) # Default is False
+    force_slices = tk.Checkbutton(root, text="Force slices when 2 parameters are optimized", variable=force_slices_var, font=("Arial", 10))
+    force_slices.pack(pady=5)
+
     # checkbutton for optimization plot
     plot_optimization_var = tk.BooleanVar(value=False) # Default is False
     optimization_check = tk.Checkbutton(root, text="Plot Optimization", variable=plot_optimization_var, font=("Arial", 10))
     optimization_check.pack(pady=10)
     
-    listbox.bind('<Double-1>', lambda event: on_select(listbox, plot_surface_var, plot_optimization_var, event))
+    listbox.bind('<Double-1>', lambda event: on_select(listbox, plot_surface_var, force_slices_var, plot_optimization_var, event))
 
     fdir = "./parameter_mesh"
     if os.path.exists(fdir):
@@ -318,7 +323,7 @@ def main():
 
     plot_button = tk.Button(root, text="Plot Selected File", font=("Arial", 12, "bold"), 
                             bg="#4CAF50", fg="white", 
-                            command=lambda: on_select(listbox, plot_surface_var, plot_optimization_var))
+                            command=lambda: on_select(listbox, plot_surface_var,  force_slices_var, plot_optimization_var))
     plot_button.pack(pady=10)
 
     root.mainloop()
