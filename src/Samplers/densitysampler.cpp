@@ -218,7 +218,6 @@ void DensitySampler::logDensity(std::ofstream& outs) const {
 }
 
 void DensitySampler::logDensityHeader(std::ofstream& outs) const {
-    outs << '#';
     print_colTitle(outs, "r", true, false);
     print_colTitle(outs, "dens_tot");
     print_colTitle(outs, "dens_err");

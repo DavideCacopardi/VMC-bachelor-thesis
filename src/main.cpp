@@ -30,7 +30,7 @@
 #include "Solvers/swappingmh.h"
 #include "Solvers/swappingmetropolis.h"
 #include "Math/random.h"
-#include "Math/blocker.h"
+#include "Math/blocker2.h"
 #include "Particles/particle.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/densitysampler.h"
@@ -126,6 +126,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     }
     globalLog << "varOpt_weight             : " << cfg.varOpt_weight << "\n";
     globalLog << "LJ_request_Ekin           : " << (cfg.LJ_request_Ekin ? "true" : "false") << "\n";
+    globalLog << "log_blocking              : " << (cfg.log_blocking ? "true" : "false") << "\n";
     globalLog << "-----------------------------------------\n";
     globalLog << "[ PARAMETER MESH ]\n";
     globalLog << "lower bounds              : [ " << setprecision(9);
@@ -423,8 +424,21 @@ int main(int argc, char* argv[]) {
             watch_start = chrono::high_resolution_clock::now();
             double cumulative_E = 0;
             double cumulative_var = 0;
+
+            ofstream blockinglogfile;
+            if (cfg.log_blocking) {
+                ostringstream filenameStream;
+                filenameStream << "./logs_blocking/run_" << put_time(now_tm, "%Y%m%d_%H%M%S") << ".csv";
+                blockinglogfile.open(filenameStream.str());
+            }
             for (unsigned int i = 0; i < rawEnergiesData.size(); i++) {
-                Blocker block(rawEnergiesData[i]);
+                Blocker2 block(rawEnergiesData[i]);
+                if (cfg.log_blocking) {
+                    if (i == 0) {
+                        block.logHeader(blockinglogfile);
+                    }
+                    block.logResults(blockinglogfile, i);
+                }
                 // block.printResults("./iofiles/blocking_results.csv");
                 cout << "Blocking_" << i << scientific << setprecision(9) << " energy: " << block.mean
                     << " +- " << block.stdErr << endl << defaultfloat;
@@ -433,6 +447,8 @@ int main(int argc, char* argv[]) {
                 cumulative_E += block.mean;
                 cumulative_var += sq(block.stdErr);
             }
+            if (cfg.log_blocking)
+                blockinglogfile.close();
             cout << scientific << setprecision(9) << "Final blocking energy: "
                 << cumulative_E / (double)rawEnergiesData.size()
                 << " +- " << sqrt(cumulative_var) / (double)rawEnergiesData.size() << endl << defaultfloat;
@@ -513,7 +529,7 @@ int main(int argc, char* argv[]) {
             else {  // The number of MC cycles is a power of 2. Blocking can be calculated.
                 double cumulative_var = 0;
                 for (unsigned int i = 0; i < rawEnergiesData.size(); i++) {
-                    Blocker block(rawEnergiesData[i]);
+                    Blocker2 block(rawEnergiesData[i]);
                     cumulative_var += sq(block.stdErr);
                 }
                 err = sqrt(cumulative_var) / (double)rawEnergiesData.size();

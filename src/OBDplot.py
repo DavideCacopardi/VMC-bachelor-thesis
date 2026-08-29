@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import matplotlib
 import tkinter as tk
 from tkinter import messagebox
+import scipy as sp
 
 def readmetadata(fname):
     meta_dict = {"Description": ""}
@@ -104,9 +105,41 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         # FIGURE 2: Pair Correlation (alike / unlike)
         if 'dens_alike' in df.columns:
             has_pcorr = True
-            axs2[0].errorbar(r, df['dens_alike'], yerr=df['dens_alike_err'], 
+
+            def gauss_obd(x, A, alpha):
+                return A * np.exp(-x**2/alpha)
+            
+            try:
+                popt, pcov = sp.optimize.curve_fit(gauss_obd, r, df['dens_tot'], p0=[df['dens_tot'][0], 4.0])
+                alpha = popt[1]
+                print(f"[{label}] OBD empirical gaussian width squared: {alpha:.4f}")
+            except:
+                print(f"[{label}] Fit failed, fallback to alpha=4.0")
+                alpha = 4.0
+            # alpha = 4
+            
+            # Note: in the convolution of two exp(-r^2/alpha), the exponent for r_rel becomes exp(-r_rel^2 / (2*alpha))
+            
+            r_mask = r < (2.5 * np.sqrt(abs(alpha))) # remove noise
+            r_mask = r < (80 * np.sqrt(abs(alpha)))
+            r_valid = r[r_mask]
+            
+        
+            macro_envelope = np.exp(- (r_valid**2) / (2 * abs(alpha)))
+            
+            g_alike = df['dens_alike'][r_mask] / macro_envelope
+            g_unlike = df['dens_unlike'][r_mask] / macro_envelope
+            
+            # Normalizziamo l'altezza in modo che l'asintoto sia 1.0
+            # tail_alike = g_alike.iloc[-30:].mean() if len(g_alike) > 30 else 1.0
+            # tail_unlike = g_unlike.iloc[-30:].mean() if len(g_unlike) > 30 else 1.0
+            
+            # g_alike = g_alike / tail_alike
+            # g_unlike = g_unlike / tail_unlike
+
+            axs2[0].errorbar(r_valid, g_alike,  
                              color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
-            axs2[0].errorbar(r, df['dens_unlike'], yerr=df['dens_unlike_err'], 
+            axs2[0].errorbar(r_valid, g_unlike,
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
             
             axs2[1].errorbar(r, df['prob_alike'], yerr=df['prob_alike_err'], 

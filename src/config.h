@@ -49,6 +49,7 @@ struct runConfig {
     vector<double> nelderMead_init = { 0.05, 0.05, 0.05 };
     double varOpt_weight = 0.01;
     bool LJ_request_Ekin = true;
+    bool log_blocking = true;
 
     // [ PARAMETER MESH ]
     unsigned int mesh_MClog2steps = 16;
