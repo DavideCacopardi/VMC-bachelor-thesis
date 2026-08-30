@@ -6,7 +6,6 @@ import matplotlib.pyplot as plt
 import matplotlib
 import tkinter as tk
 from tkinter import messagebox
-import scipy as sp
 
 def readmetadata(fname):
     meta_dict = {"Description": ""}
@@ -35,9 +34,7 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
     fig1, axs1 = plt.subplots(1, 2, figsize=(12, 6))
     axs1[0].ticklabel_format(style="sci", scilimits=(0,0))
     axs1[1].ticklabel_format(style="sci", scilimits=(0,0))
-    fig2, axs2 = plt.subplots(1, 2, figsize=(12, 6))
-    axs2[0].ticklabel_format(style="sci", scilimits=(0,0))
-    axs2[1].ticklabel_format(style="sci", scilimits=(0,0))
+    
     
     cmap_colors = matplotlib.colormaps.get_cmap("tab20c")
     cmap_colors = [cmap_colors.colors[i] for i in range(20)]
@@ -104,49 +101,41 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
 
         # FIGURE 2: Pair Correlation (alike / unlike)
         if 'dens_alike' in df.columns:
+            fig2, axs2 = plt.subplots(1, 2, figsize=(12, 6))
+            axs2[0].ticklabel_format(style="sci", scilimits=(0,0))
+            axs2[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr = True
 
-            def gauss_obd(x, A, alpha):
-                return A * np.exp(-x**2/alpha)
-            
-            try:
-                popt, pcov = sp.optimize.curve_fit(gauss_obd, r, df['dens_tot'], p0=[df['dens_tot'][0], 4.0])
-                alpha = popt[1]
-                print(f"[{label}] OBD empirical gaussian width squared: {alpha:.4f}")
-            except:
-                print(f"[{label}] Fit failed, fallback to alpha=4.0")
-                alpha = 4.0
-            # alpha = 4
-            
-            # Note: in the convolution of two exp(-r^2/alpha), the exponent for r_rel becomes exp(-r_rel^2 / (2*alpha))
-            
-            r_mask = r < (2.5 * np.sqrt(abs(alpha))) # remove noise
-            r_mask = r < (80 * np.sqrt(abs(alpha)))
-            r_valid = r[r_mask]
-            
-        
-            macro_envelope = np.exp(- (r_valid**2) / (2 * abs(alpha)))
-            
-            g_alike = df['dens_alike'][r_mask] / macro_envelope
-            g_unlike = df['dens_unlike'][r_mask] / macro_envelope
-            
-            # Normalizziamo l'altezza in modo che l'asintoto sia 1.0
-            # tail_alike = g_alike.iloc[-30:].mean() if len(g_alike) > 30 else 1.0
-            # tail_unlike = g_unlike.iloc[-30:].mean() if len(g_unlike) > 30 else 1.0
-            
-            # g_alike = g_alike / tail_alike
-            # g_unlike = g_unlike / tail_unlike
-
-            axs2[0].errorbar(r_valid, g_alike,  
+            err = df['dens_err_alike'] if 'dens_err_alike' in df.columns else df['dens_alike_err']
+            axs2[0].errorbar(r, df['dens_alike'], yerr=err, 
                              color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
-            axs2[0].errorbar(r_valid, g_unlike,
+            err = df['dens_err_unlike'] if 'dens_err_unlike' in df.columns else df['dens_unlike_err']
+            axs2[0].errorbar(r, df['dens_unlike'], yerr=err, 
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
             
-            axs2[1].errorbar(r, df['prob_alike'], yerr=df['prob_alike_err'], 
+            err = df['prob_err_alike'] if 'prob_err_alike' in df.columns else df['prob_alike_err']
+            axs2[1].errorbar(r, df['prob_alike'], yerr=err, 
                              color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
-            axs2[1].errorbar(r, df['prob_unlike'], yerr=df['prob_unlike_err'], 
+            err = df['prob_err_unlike'] if 'prob_err_unlike' in df.columns else df['prob_unlike_err']
+            axs2[1].errorbar(r, df['prob_unlike'], yerr=err, 
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
 
+        # FIGURE 3: Normalized Pair Correlation (alike / unlike)
+        if 'dens_alike_n' in df.columns:
+            fig3, axs3 = plt.subplots(1, 2, figsize=(12, 6))
+            axs3[0].ticklabel_format(style="sci", scilimits=(0,0))
+            axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
+            has_pcorr_norm = True
+
+            axs3[0].errorbar(r, df['dens_alike_n'], yerr=df['dens_err_alike_n'], 
+                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")            
+            axs3[0].errorbar(r, df['dens_unlike_n'], yerr=df['dens_err_unlike_n'], 
+                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+            
+            axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
+                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
+            axs3[1].errorbar(r, df['prob_unlike_n'], yerr=df['prob_err_unlike_n'], 
+                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
 
     axs1[0].set_title("One-Body Density")
     axs1[0].set_ylabel(r"$\rho(r)$")
@@ -170,12 +159,22 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         axs2[1].set_xlabel(r"$r$")
         axs2[1].legend()
         fig2.tight_layout()
-    else:
-        plt.close(fig2) 
+
+    if has_pcorr_norm:
+        axs3[0].set_title("Pair Correlation Density")
+        axs3[0].set_ylabel(r"$g(r)$")
+        axs3[0].set_xlabel(r"$r$")
+        axs3[0].legend()
+        
+        axs3[1].set_title("Pair Correlation Radial Probability")
+        axs3[1].set_ylabel(r"$P_{g}(r)$")
+        axs3[1].set_xlabel(r"$r$")
+        axs3[1].legend()
+        fig3.tight_layout()
 
     # --- save ---
     os.makedirs("figs_OBD", exist_ok=True)
-    if has_pcorr:
+    if has_pcorr or has_pcorr_norm:
         os.makedirs("figs_pcorr", exist_ok=True)
         
     if len(fnames) == 1 and custom_save_name == "":
@@ -191,6 +190,9 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
     if has_pcorr:
         fig2.savefig(f"figs_pcorr/pcorr_{save_base}.png", dpi=300, metadata=md)
         print(f"Saved Pair Correlation plot to figs_pcorr/pcorr_{save_base}.png")
+    if has_pcorr_norm:
+        fig3.savefig(f"figs_pcorr/pcorr_norm_{save_base}.png", dpi=300, metadata=md)
+        print(f"Saved Normalized Pair Correlation plot to figs_pcorr/pcorr_norm_{save_base}.png")
         
     if talk:
         plt.show()

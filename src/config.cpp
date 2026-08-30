@@ -76,6 +76,7 @@ runConfig loadConfig(const std::string& filepath) {
     // --- [ MONTE CARLO ] ---
     if (j.contains("monte_carlo")) {
         cfg.optimizer            = j["monte_carlo"].value("optimizer", cfg.optimizer);
+        cfg.log_grads            = j["monte_carlo"].value("log_grads", cfg.log_grads);
         cfg.timeStep             = j["monte_carlo"].value("timeStep", cfg.timeStep);
         cfg.equilibrationSteps   = j["monte_carlo"].value("equilibrationSteps", cfg.equilibrationSteps);
         cfg.metropolisSteps      = j["monte_carlo"].value("optimizationMCsteps", cfg.metropolisSteps);
@@ -125,10 +126,14 @@ runConfig loadConfig(const std::string& filepath) {
     // --- [ OBSERVABLES ] ---
     if (j.contains("observables")) {
         cfg.normalize_by_nParticles= j["observables"].value("normalize_by_nParticles", cfg.normalize_by_nParticles);
+        cfg.calc_normalized_PCF    = j["observables"].value("calc_normalized_PCF", cfg.calc_normalized_PCF);
         cfg.onebodyDensitySteps    = j["observables"].value("onebodyDensitySteps", cfg.onebodyDensitySteps);
         cfg.onebodyDensity_rMax    = j["observables"].value("onebodyDensity_rMax", cfg.onebodyDensity_rMax);
         cfg.onebodyDensity_nBins   = j["observables"].value("onebodyDensity_nBins", cfg.onebodyDensity_nBins);
         cfg.nParticleLogs          = j["observables"].value("nParticleLogs", cfg.nParticleLogs);
+        if (j["observables"].contains("referenceParams")) {
+            cfg.referenceParams = j["observables"]["referenceParams"].get<std::vector<double>>();
+        }
     }
 
     // --- [ MISC ] ---

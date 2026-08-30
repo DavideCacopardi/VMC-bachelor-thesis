@@ -4,6 +4,7 @@
 
 #include "VMCOptimizer_NN.h"
 #include "system.h"
+#include "common.h"
 #include "Particles/particle.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/NNsampler.h"
@@ -15,6 +16,7 @@
 #include "Math/random.h"
 #include "Solvers/metropolishastings.h"
 
+using namespace CommonUtils;
 
 VMCOptimizer_NN::VMCOptimizer_NN(
     const runConfig& cfg,
@@ -62,17 +64,16 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
     );
     system->setSolver(m_solverFactory(std::move(rng)));
     double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps * 10);
-    auto tempsampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps * 10, nullptr, m_cfg.LJ_request_Ekin); // trying out non-interacting analytical wavefunction
+    auto tempsampler = system->runMetropolisSteps(tuned_timeStep, m_cfg.metropolisSteps * 10, nullptr, false, m_cfg.LJ_request_Ekin); // trying out non-interacting analytical wavefunction
     std::cout << "CHECK: energy found with provided wavefunction = " << tempsampler->getEnergy() << " +- " << tempsampler->getError() << std::endl;
     wf_train = std::move(system->setWaveFunction(std::move(wf_nn)));    // swap wavefunctions
     // -------- PRE-TRAINING --------
     // print log header
     if (m_logfile) {
-        *m_logfile << "# PRETRAINING\n#";
-        const unsigned int width = 20;
-        *m_logfile << std::setw(width - 1) << "K,"
-            << std::setw(width) << "elapsed time,"
-            << std::setw(width) << "acceptance ratio " << std::endl;
+        *m_logfile << "# PRETRAINING\n";
+        print_colTitle(*m_logfile, "K", true, false);
+        print_colTitle(*m_logfile, "elapsed time");
+        print_colTitle(*m_logfile, "acceptance ratio", false, true);
     }
     std::cout << "Running Adam optimization without interactions...\n";
     *m_outfile << "# Running Adam optimization without interactions...\n";
@@ -109,15 +110,14 @@ std::vector<double> VMCOptimizer_NN::optimize(std::unique_ptr<WaveFunction> wf_t
     // -------- TRAINING --------
     // PRINT new header
     if (m_logfile) {
-        *m_logfile << "\n# TRAINING\n#";
-        const unsigned int width = 20;
-        *m_logfile << std::setw(width - 1) << "energy,"
-            << std::setw(width) << "variance,"
-            << std::setw(width) << "error,"
-            << std::setw(width) << "Hint strength,"
-            << std::setw(width) << "elapsed time,"
-            << std::setw(width) << "accept. ratio,"
-            << std::setw(width) << "Monte Carlo steps " << std::endl;
+        *m_logfile << "\n# TRAINING\n";
+        print_colTitle(*m_logfile, "energy", true, false);
+        print_colTitle(*m_logfile, "variance");
+        print_colTitle(*m_logfile, "error");
+        print_colTitle(*m_logfile, "Hint strength");
+        print_colTitle(*m_logfile, "elapsed time");
+        print_colTitle(*m_logfile, "accept. ratio");
+        print_colTitle(*m_logfile, "MC steps", false, true);
     }
     std::cout << "Running Adam optimization with interactions...\n";
     *m_outfile << "# Running Adam optimization with interactions...\n";

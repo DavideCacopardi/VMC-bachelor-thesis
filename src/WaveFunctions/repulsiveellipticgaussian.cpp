@@ -35,6 +35,8 @@ double RepEllipticGaussian::evalLn_noInteraction(std::vector<std::unique_ptr<cla
 }
 
 double RepEllipticGaussian::evalLn_onlyInteraction(std::vector<std::unique_ptr<class Particle>>& particles) {
+    if (m_rep_a == 0) return 0;
+
     long double interaction_terms = 0; // sum of ln f
     for (unsigned int i = 0; i < particles.size(); i++) {
         for (unsigned int j = i + 1; j < particles.size(); j++) {

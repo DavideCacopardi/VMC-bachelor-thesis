@@ -43,6 +43,10 @@ public:
     // ∇ᵢln|ψ|
     virtual std::vector<double> paramGradientLnAbs(std::vector<std::unique_ptr<Particle>>& particles);
 
+    virtual bool hasJastrow() const { return false; }
+    virtual void deactivateJastrow() {
+        throw std::logic_error("WaveFunction has no Jastrow parameters");
+    }
 protected:
     int m_numberOfParameters = 0;
     std::vector<double> m_parameters;

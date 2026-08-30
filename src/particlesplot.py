@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
 import matplotlib.colors as mcolors
+from matplotlib.animation import FuncAnimation
 import tkinter as tk
 from tkinter import messagebox
 from mpl_toolkits.mplot3d import Axes3D
@@ -97,75 +98,104 @@ def plot_file(fname, talk=True):
                  'C': mcolors.to_rgb('green'), 'D': mcolors.to_rgb('orange')}
     unique_flavors = np.unique(f_all)
 
+    # pre-calculate fixed limits to prevent axis jitter during animation
+    def get_limits(series):
+        vmin, vmax = series.min(), series.max()
+        margin = (vmax - vmin) * 0.05
+        if margin == 0: margin = 1.0
+        return vmin - margin, vmax + margin
+
+    xlims = get_limits(p_df['x'])
+    ylims = get_limits(p_df['y'])
+    if dim == 3:
+        zlims = get_limits(p_df['z'])
+
+    # --- setup Figure ---
     fig = plt.figure(figsize=(8, 7))
-    
-    alpha_min, alpha_max = 0.02, 0.6
-
     if dim == 2:
-        gs = fig.add_gridspec(1, 1)
-        
-        ax1 = fig.add_subplot(gs[0, 0])
-        
-        for flav in unique_flavors:
-            fl_data = sub_df[sub_df['flavor'] == flav]
-            if len(fl_data) == 0: continue
-            
-            t_norm = fl_data['time_idx'] / max(1, n_snapshots - 2)
-            alphas = alpha_min + t_norm * (alpha_max - alpha_min)
-            
-            rgba_colors = np.zeros((len(fl_data), 4))
-            rgba_colors[:, :3] = color_map.get(flav, mcolors.to_rgb('black'))
-            rgba_colors[:, 3] = alphas
-            
-            ax1.scatter(fl_data['x'], fl_data['y'], s=8, c=rgba_colors, edgecolors='none')
-            
-            fl_last = last_snapshot[last_snapshot['flavor'] == flav]
-            ax1.scatter(fl_last['x'], fl_last['y'], s=80, color=color_map.get(flav, 'black'),
-                        edgecolors='yellow', linewidths=2.0, alpha=1.0, zorder=10, label=f'Ultimo Step {flav}')
-
-        ax1.set_title("Particle evolution")
-        ax1.set_xlabel("X")
-        ax1.set_ylabel("Y")
-        ax1.axis('equal')
-        ax1.legend()
-        ax1.grid(True, alpha=0.3)
-
+        ax = fig.add_subplot(111)
     elif dim == 3:
         ax = fig.add_subplot(111, projection='3d')
         
-        for flav in unique_flavors:
-            fl_data = sub_df[sub_df['flavor'] == flav]
-            if len(fl_data) == 0: continue
-            
-            t_norm = fl_data['time_idx'] / max(1, n_snapshots - 2)
-            alphas = alpha_min + t_norm * (alpha_max - alpha_min)
-            
-            rgba_colors = np.zeros((len(fl_data), 4))
-            rgba_colors[:, :3] = color_map.get(flav, mcolors.to_rgb('black'))
-            rgba_colors[:, 3] = alphas
-            
-            ax.scatter(fl_data['x'], fl_data['y'], fl_data['z'], 
-                       s=10, c=rgba_colors, edgecolors='none')
-            
-            fl_last = last_snapshot[last_snapshot['flavor'] == flav]
-            ax.scatter(fl_last['x'], fl_last['y'], fl_last['z'], s=100, 
-                       color=color_map.get(flav, 'black'), edgecolors='yellow', linewidths=2.0, 
-                       alpha=1.0, zorder=10, label=f'Last step {flav}')
+    alpha_min, alpha_max = 0.02, 0.6
 
+    def draw_frame(t_curr):
+        ax.clear()
+        
+        current_storico = sub_df[sub_df['time_idx'] < t_curr]
+        current_last = p_df[p_df['time_idx'] == t_curr]
+        
+        for flav in unique_flavors:
+            fl_data = current_storico[current_storico['flavor'] == flav]
+            fl_last = current_last[current_last['flavor'] == flav]
+            
+            # Plot the trail up to the current frame
+            if len(fl_data) > 0:
+                t_norm = fl_data['time_idx'] / max(1, t_curr - 1)
+                alphas = alpha_min + t_norm * (alpha_max - alpha_min)
+                
+                rgba_colors = np.zeros((len(fl_data), 4))
+                rgba_colors[:, :3] = color_map.get(flav, mcolors.to_rgb('black'))
+                rgba_colors[:, 3] = alphas
+                
+                if dim == 2:
+                    ax.scatter(fl_data['x'], fl_data['y'], s=8, c=rgba_colors, edgecolors='none')
+                elif dim == 3:
+                    ax.scatter(fl_data['x'], fl_data['y'], fl_data['z'], 
+                               s=10, c=rgba_colors, edgecolors='none')
+            
+            # Plot the 'leading' active points at the current frame
+            if len(fl_last) > 0:
+                lbl = f'Last step {flav}' if t_curr == n_snapshots - 1 else f'Step {t_curr} {flav}'
+                if dim == 2:
+                    ax.scatter(fl_last['x'], fl_last['y'], s=80, color=color_map.get(flav, 'black'),
+                               edgecolors='yellow', linewidths=2.0, alpha=1.0, zorder=10, label=lbl)
+                elif dim == 3:
+                    ax.scatter(fl_last['x'], fl_last['y'], fl_last['z'], s=100, 
+                               color=color_map.get(flav, 'black'), edgecolors='yellow', linewidths=2.0, 
+                               alpha=1.0, zorder=10, label=lbl)
+
+        # Restore labels and fixed limits
         ax.set_title(f"Particle evolution ({fname})")
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
-        ax.set_zlabel("Z")
-        ax.legend()
+        ax.set_xlim(xlims)
+        ax.set_ylim(ylims)
         
+        if dim == 2:
+            ax.set_aspect('equal', adjustable='box')
+            ax.grid(True, alpha=0.3)
+        elif dim == 3:
+            ax.set_zlabel("Z")
+            ax.set_zlim(zlims)
+            
+        handles, labels = ax.get_legend_handles_labels()
+        if handles:
+            ax.legend(loc='upper right')
+
+    # Draw the final frame first to save a high-res static PNG
+    draw_frame(n_snapshots - 1)
     fig.tight_layout()
-    md = readmetadata(fname)
     
+    md = readmetadata(fname)
     os.makedirs("figs_particles", exist_ok=True)
     fig.savefig(f"figs_particles/Particles_{fname[4:len(fname)-4]}.png", dpi=300, metadata=md)
+    print(f"Saved static final frame to figs_particles/Particles_{fname[4:len(fname)-4]}.png")
+    
     if talk:
+        fps = 20
+        evo_duration = 5.0    # seconds of particle motion
+        hold_duration = 12.0  # seconds holding the final fully-plotted frame
+        
+        n_evo_frames = int(fps * evo_duration)
+        n_hold_frames = int(fps * hold_duration)
+        
+        time_steps = np.linspace(0, n_snapshots - 1, n_evo_frames, dtype=int)
+        
+        frames = list(time_steps) + [n_snapshots - 1] * n_hold_frames
+        
+        anim = FuncAnimation(fig, draw_frame, frames=frames, interval=1000/fps, blit=False, repeat=True)
         plt.show()
-
 
 def on_select(listbox, event=None):
     selection = listbox.curselection()

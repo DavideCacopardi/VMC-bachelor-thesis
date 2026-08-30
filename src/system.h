@@ -54,7 +54,8 @@ public:
         double stepParameter,
         unsigned int numberOfMetropolisSteps,
         std::vector<double>* energiesOut = nullptr,
-        bool request_Ekin = true);
+        bool log_grads = false,
+        bool request_Ekin = false);
 
     // std::unique_ptr<class NNsampler> runMetropolisSteps_NN(double stepParameter,
     //     unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);

@@ -24,6 +24,9 @@ public:
     void set_cachedSum_Laplacian2_lnPsi(double new_val) { m_cachedSum_Laplacian2_lnPsi = new_val; }
     double get_cachedSum_SqNorm_GradlnPsi() { return m_cachedSum_SqNorm_GradlnPsi; }
     void set_cachedSum_SqNorm_GradlnPsi(double new_val) { m_cachedSum_SqNorm_GradlnPsi = new_val; }
+
+    bool hasJastrow() const override { return true; }
+    void deactivateJastrow() override { m_parameters[1] = m_parameters[2] = 0; m_parameters[0] = 16; }
 private:
     double m_cachedSum_Laplacian2_lnPsi = 0;
     double m_cachedSum_SqNorm_GradlnPsi = 0;

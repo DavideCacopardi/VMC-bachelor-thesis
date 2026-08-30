@@ -79,27 +79,18 @@ void NNsampler::computeAverages() {
     m_elapsedTime = m_watch_end - m_watch_start;
 }
 
-void NNsampler::printOutputToTerminal() {
-    std::cout << std::endl;
-    std::cout << "  -- NN Sampler results -- " << std::endl;
-    std::cout << " K : " << m_K << std::endl;
-    std::cout << " Acceptance ratio : "
-        << (double)m_numberOfAcceptedSteps / (double)m_numberOfMetropolisSteps
-        << std::endl;
-    std::cout << std::endl;
-}
+
 
 double NNsampler::get_K() const { return m_K; }
 double NNsampler::get_Kerr() const { return m_Kerr; }
 double NNsampler::getAcceptanceRatio() const { return m_acceptanceRatio; }
 
 void NNsampler::logOutput(std::ofstream& outs) {
-    const unsigned int prec = 10, width = 19;
-    outs << std::scientific << std::setprecision(prec)
-        << std::setw(width) << m_K << ","
-        << std::setw(width) << m_elapsedTime.count() << ","
-        << std::setw(width) << getAcceptanceRatio()
-        << std::endl;
+    outs << std::scientific;
+    print_colVal(outs, m_K);
+    print_colVal(outs, m_elapsedTime.count());
+    print_colVal(outs, getAcceptanceRatio());
+    outs << std::flush;
 }
 
 std::vector<double> NNsampler::get_dKdW() const {

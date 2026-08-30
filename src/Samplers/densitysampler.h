@@ -25,24 +25,35 @@ public:
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
+    void load_normalized_PCF(DensitySampler& noInt_sampler);
 
     void logDensity(std::ofstream& outs) const;
     void logDensityHeader(std::ofstream& outs) const;
-
     void logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs) const;
     void logParticlesHeader(std::ofstream& outs) const;
 
+    
     const std::vector<double>& getRadialGrid() const { return m_rGrid; }
 
+    std::vector<double>& getDensAlike() { return m_dens_alike; };
+    std::vector<double>& getDensErrAlike() { return m_dens_err_alike; };
+    std::vector<double>& getDensUnlike() { return m_dens_unlike; };
+    std::vector<double>& getDensErrUnlike() { return m_dens_err_unlike; };
+
+    std::vector<double>& getProbAlike() { return m_prob_alike; };
+    std::vector<double>& getProbErrAlike() { return m_prob_err_alike; };
+    std::vector<double>& getProbUnlike() { return m_prob_unlike; };
+    std::vector<double>& getProbErrUnlike() { return m_prob_err_unlike; };
 private:
     double m_rMax;
     unsigned int m_nBins;
     bool m_normalize_by_nParticles;
-    
+
     double m_dr;
     int m_nAlike = -1;
     int m_nUnlike = -1;
     bool m_nAlike_nUnlike_haveChanged = false;
+    bool m_normalized_PCF = false;
     std::vector<double> m_rGrid;
 
     std::vector<unsigned int> m_histogram;
@@ -58,6 +69,10 @@ private:
     std::vector<double> m_dens_err_alike;
     std::vector<double> m_dens_unlike;
     std::vector<double> m_dens_err_unlike;
+    std::vector<double> m_dens_alike_norm;
+    std::vector<double> m_dens_err_alike_norm;
+    std::vector<double> m_dens_unlike_norm;
+    std::vector<double> m_dens_err_unlike_norm;
 
     std::vector<double> m_prob;
     std::vector<double> m_prob_err;
@@ -67,4 +82,8 @@ private:
     std::vector<double> m_prob_err_alike;
     std::vector<double> m_prob_unlike;
     std::vector<double> m_prob_err_unlike;
+    std::vector<double> m_prob_alike_norm;
+    std::vector<double> m_prob_err_alike_norm;
+    std::vector<double> m_prob_unlike_norm;
+    std::vector<double> m_prob_err_unlike_norm;
 };

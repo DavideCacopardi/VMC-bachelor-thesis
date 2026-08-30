@@ -110,6 +110,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "-----------------------------------------\n";
     globalLog << "[ MONTE CARLO & OPTIMIZATION ENGINES ]\n";
     globalLog << "optimizer                 : " << cfg.optimizer << "\n";
+    globalLog << "log_grads                 : " << (cfg.log_grads ? "true" : "false") << "\n";
     globalLog << "time Step                 : " << cfg.timeStep << "\n";
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
     globalLog << "optimizationMCsteps       : " << cfg.metropolisSteps << "\n";
@@ -160,6 +161,12 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "-----------------------------------------\n";
     globalLog << "[ OBSERVABLES & MISC ]\n";
     globalLog << "Normalize by nParticles   : " << (cfg.normalize_by_nParticles ? "true" : "false") << "\n";
+    globalLog << "calc_normalized_PCF       : " << (cfg.calc_normalized_PCF ? "true" : "false") << "\n";
+    globalLog << "PCF reference params      : [ " << setprecision(9);
+    for (unsigned int i = 0; i < cfg.referenceParams.size(); i++) {
+        globalLog << cfg.referenceParams[i];
+        globalLog << ((i + 1 == cfg.referenceParams.size()) ? " ]\n" : ", ");
+    }
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
@@ -481,7 +488,7 @@ int main(int argc, char* argv[]) {
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
 
-        cout << "\r                                  " << flush;
+        cout << "\r                                                                             " << flush;
         cout << "\nSpatial distribution done (in " << elapsedTime.count() << " s).\n\n";
         globalLog << "Spatial distribution done (in " << elapsedTime.count() << " s).\n\n";
         densityfile.close();

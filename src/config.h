@@ -37,6 +37,7 @@ struct runConfig {
 
     // [ MONTE CARLO ]
     string optimizer = "NLOPT";
+    bool log_grads = false;
     double timeStep = 0.15;
     unsigned int equilibrationSteps = 10000;
     unsigned int metropolisSteps = 10000;
@@ -75,6 +76,8 @@ struct runConfig {
     unsigned int onebodyDensity_nBins = 50;
     unsigned int nParticleLogs = 50;
     bool normalize_by_nParticles = false;
+    bool calc_normalized_PCF = false;
+    vector<double> referenceParams = { 1, 1, 1 };
 
     // [ MISC ]
     int seed = 0; // Set later

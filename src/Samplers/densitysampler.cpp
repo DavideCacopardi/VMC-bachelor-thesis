@@ -26,15 +26,14 @@ DensitySampler::DensitySampler(
     unsigned int nBins,
     bool normalize_by_nParticles
 ) : Sampler(numberOfParticles,
-        numberOfDimensions,
-        numberOfParameters,
-        stepLength,
-        numberOfMetropolisSteps
-    ),
-    m_rMax(rMax),
-    m_nBins(nBins),
-    m_normalize_by_nParticles(normalize_by_nParticles)
-{
+    numberOfDimensions,
+    numberOfParameters,
+    stepLength,
+    numberOfMetropolisSteps
+),
+m_rMax(rMax),
+m_nBins(nBins),
+m_normalize_by_nParticles(normalize_by_nParticles) {
     m_dr = m_rMax / m_nBins;
 
     m_histogram.assign(m_nBins, 0);
@@ -183,6 +182,41 @@ void DensitySampler::computeAverages() {
     m_elapsedTime = m_watch_end - m_watch_start;
 }
 
+void DensitySampler::load_normalized_PCF(DensitySampler& oth) {
+    m_dens_alike_norm.resize(m_nBins);
+    m_dens_err_alike_norm.resize(m_nBins);
+    m_dens_unlike_norm.resize(m_nBins);
+    m_dens_err_unlike_norm.resize(m_nBins);
+    m_prob_alike_norm.resize(m_nBins);
+    m_prob_err_alike_norm.resize(m_nBins);
+    m_prob_unlike_norm.resize(m_nBins);
+    m_prob_err_unlike_norm.resize(m_nBins);
+    m_normalized_PCF = true;
+    for (unsigned int i = 0; i < m_nBins; i++) {
+        m_dens_alike_norm[i] = m_dens_alike[i] / oth.getDensAlike()[i];
+        m_dens_err_alike_norm[i] = norm(
+            { m_dens_alike[i] / sq(oth.getDensAlike()[i]) * oth.getDensErrAlike()[i],
+            m_dens_err_alike[i] / oth.getDensAlike()[i] }
+        );
+        m_dens_unlike_norm[i] = m_dens_unlike[i] / oth.getDensUnlike()[i];
+        m_dens_err_unlike_norm[i] = norm(
+            { m_dens_unlike[i] / sq(oth.getDensUnlike()[i]) * oth.getDensErrUnlike()[i],
+            m_dens_err_unlike[i] / oth.getDensUnlike()[i] }
+        );
+
+        m_prob_alike_norm[i] = m_prob_alike[i] / oth.getProbAlike()[i];
+        m_prob_err_alike_norm[i] = norm(
+            { m_prob_alike[i] / sq(oth.getProbAlike()[i]) * oth.getProbErrAlike()[i],
+            m_prob_err_alike[i] / oth.getProbAlike()[i] }
+        );
+        m_prob_unlike_norm[i] = m_prob_unlike[i] / oth.getProbUnlike()[i];
+        m_prob_err_unlike_norm[i] = norm(
+            { m_prob_unlike[i] / sq(oth.getProbUnlike()[i]) * oth.getProbErrUnlike()[i],
+            m_prob_err_unlike[i] / oth.getProbUnlike()[i] }
+        );
+    }
+}
+
 void DensitySampler::logDensity(std::ofstream& outs) const {
     outs << std::scientific;
     for (unsigned int i = 0; i < m_nBins; i++) {
@@ -196,10 +230,16 @@ void DensitySampler::logDensity(std::ofstream& outs) const {
                 print_colVal(outs, m_dens_f[i][flav]);
                 print_colVal(outs, m_dens_err_f[i][flav]);
             }
-            print_colVal(outs, m_dens_alike[i]); 
+            print_colVal(outs, m_dens_alike[i]);
             print_colVal(outs, m_dens_err_alike[i]);
-            print_colVal(outs, m_dens_unlike[i]); 
+            print_colVal(outs, m_dens_unlike[i]);
             print_colVal(outs, m_dens_err_unlike[i]);
+            if (m_normalized_PCF) {
+                print_colVal(outs, m_dens_alike_norm[i]);
+                print_colVal(outs, m_dens_err_alike_norm[i]);
+                print_colVal(outs, m_dens_unlike_norm[i]);
+                print_colVal(outs, m_dens_err_unlike_norm[i]);
+            }
         }
         print_colVal(outs, m_prob[i]);
         print_colVal(outs, m_prob_err[i]);
@@ -208,12 +248,18 @@ void DensitySampler::logDensity(std::ofstream& outs) const {
                 print_colVal(outs, m_prob_f[i][flav]);
                 print_colVal(outs, m_prob_err_f[i][flav]);
             }
-            print_colVal(outs, m_prob_alike[i]); 
+            print_colVal(outs, m_prob_alike[i]);
             print_colVal(outs, m_prob_err_alike[i]);
-            print_colVal(outs, m_prob_unlike[i]); 
-            print_colVal(outs, m_prob_err_unlike[i], false, true);
+            print_colVal(outs, m_prob_unlike[i]);
+            print_colVal(outs, m_prob_err_unlike[i], false, !m_normalized_PCF);
+            if (m_normalized_PCF) {
+                print_colVal(outs, m_prob_alike_norm[i]);
+                print_colVal(outs, m_prob_err_alike_norm[i]);
+                print_colVal(outs, m_prob_unlike_norm[i]);
+                print_colVal(outs, m_prob_err_unlike_norm[i], false, true);
+            }
         }
-        
+
     }
 }
 
@@ -224,56 +270,65 @@ void DensitySampler::logDensityHeader(std::ofstream& outs) const {
     if (N_FLAVORS > 1) {
         for (unsigned int flav = 0; flav < N_FLAVORS; flav++) {
             std::string f(1, (char)('A' + flav));
-            print_colTitle(outs, "dens_" + f); 
+            print_colTitle(outs, "dens_" + f);
             print_colTitle(outs, "dens_err_" + f);
         }
         print_colTitle(outs, "dens_alike");
-        print_colTitle(outs, "dens_alike_err");
+        print_colTitle(outs, "dens_err_alike");
         print_colTitle(outs, "dens_unlike");
-        print_colTitle(outs, "dens_unlike_err");
+        print_colTitle(outs, "dens_err_unlike");
+        if (m_normalized_PCF) {
+            print_colTitle(outs, "dens_alike_n");
+            print_colTitle(outs, "dens_err_alike_n");
+            print_colTitle(outs, "dens_unlike_n");
+            print_colTitle(outs, "dens_err_unlike_n");
+        }
     }
     print_colTitle(outs, "prob_tot");
     print_colTitle(outs, "prob_err");
     if (N_FLAVORS > 1) {
         for (unsigned int flav = 0; flav < N_FLAVORS; flav++) {
             std::string f(1, (char)('A' + flav));
-            print_colTitle(outs, "prob_" + f); 
+            print_colTitle(outs, "prob_" + f);
             print_colTitle(outs, "prob_err_" + f);
         }
         print_colTitle(outs, "prob_alike");
-        print_colTitle(outs, "prob_alike_err");
+        print_colTitle(outs, "prob_err_alike");
         print_colTitle(outs, "prob_unlike");
-        print_colTitle(outs, "prob_unlike_err", false, true);
+        print_colTitle(outs, "prob_err_unlike", false, !m_normalized_PCF);
+        if (m_normalized_PCF) {
+            print_colTitle(outs, "prob_alike_n");
+            print_colTitle(outs, "prob_err_alike_n");
+            print_colTitle(outs, "prob_unlike_n");
+            print_colTitle(outs, "prob_err_unlike_n", false, true);
+        }
     }
 }
 
 void DensitySampler::logParticles(std::vector<std::unique_ptr<class Particle>>& particles, std::ofstream& outs) const {
-    const unsigned int prec = 12, width = 19;
-    outs << std::scientific << std::setprecision(prec);
+    outs << std::scientific;
     for (unsigned int i = 0; i < m_numberOfParticles; i++) {
         if (N_FLAVORS > 1) {
-            outs << std::setw(width) << (char)('A' + particles[i]->getFlavor()) << ",";
+            print_colVal(outs, (char)('A' + particles[i]->getFlavor()));
         }
         for (unsigned int d = 0; d < m_numberOfDimensions; d++) {
-            outs << std::setw(width) << particles[i]->getPosition()[d];
-            outs << ((i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions) ? "\n" : ",");
+            print_colVal(outs, particles[i]->getPosition()[d], false, (i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions));
         }
     }
+    outs << std::flush;
 }
 
 void DensitySampler::logParticlesHeader(std::ofstream& outs) const {
-    const unsigned int width = 19;
     outs << '#';
     std::string str;
     for (unsigned int i = 0; i < m_numberOfParticles; i++) {
         if (N_FLAVORS > 1) {
             str = "p" + std::to_string(i) + " flavor";
-            outs << std::setw(width - (i == 0)) << str << ",";
+            print_colTitle(outs, str, i == 0, false);
         }
         for (unsigned int d = 0; d < m_numberOfDimensions; d++) {
             str = "p" + std::to_string(i) + " x" + std::to_string(d);
-            outs << std::setw(width - (N_FLAVORS <= 1 && i == 0)) << str;
-            outs << ((i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions) ? "\n" : ",");
+            print_colTitle(outs, str, (N_FLAVORS <= 1 && i == 0), (i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions));
         }
     }
 }

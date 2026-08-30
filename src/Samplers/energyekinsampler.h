@@ -18,7 +18,8 @@ public:
         unsigned int numberOfDimensions,
         unsigned int numberOfParameters,
         double stepLength,
-        unsigned int numberOfMetropolisSteps);
+        unsigned int numberOfMetropolisSteps,
+        bool log_grads);
     EnergyEkinSampler(const std::vector<std::unique_ptr<EnergyEkinSampler>>& others);
     ~EnergyEkinSampler() = default;
 

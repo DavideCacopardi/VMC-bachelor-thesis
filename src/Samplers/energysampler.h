@@ -17,14 +17,14 @@ public:
         unsigned int numberOfDimensions,
         unsigned int numberOfParameters,
         double stepLength,
-        unsigned int numberOfMetropolisSteps);
+        unsigned int numberOfMetropolisSteps,
+        bool log_grads);
     // Construct merged sampler
     EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others);
     virtual ~EnergySampler() = default;
 
     virtual void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr);
-    void printOutputToTerminal(class System& system);
-    void printOutputToFile(class System& system, std::ofstream& outs);
+
     virtual void logHeader(const std::vector<double>& params, std::ofstream& outs);
     virtual void logOutput(const std::vector<double>& params, std::ofstream& outs);
     void logOutput(std::ofstream& outs, std::vector<double> additional_log = {});
@@ -43,6 +43,7 @@ protected:
     double m_energySQ = 0;
     double m_variance = 0;
     double m_error = 0;
+    bool m_log_grads = false;
     std::vector<double> m_covarianceE;
     std::vector<double> m_covarianceE2;
     long double m_cumulativeEnergy = 0;

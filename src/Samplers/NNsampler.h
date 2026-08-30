@@ -19,7 +19,6 @@ public:
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
-    void printOutputToTerminal();
 
     double get_K() const;
     double get_Kerr() const;

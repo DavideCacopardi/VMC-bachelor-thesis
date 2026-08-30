@@ -79,6 +79,7 @@ std::unique_ptr<EnergySampler> MCEngine::run(
             tuned_timeStep, 
             localSteps, 
             energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr,
+            m_cfg.log_grads,
             m_cfg.LJ_request_Ekin
         );
     }
@@ -104,7 +105,9 @@ std::unique_ptr<EnergySampler> MCEngine::run(
 
 std::unique_ptr<DensitySampler> MCEngine::runSpatial(
     const std::vector<double>& params,
-    std::ofstream* particlesOut) {
+    std::ofstream* particlesOut,
+    bool normalizing_PCF)
+{
     auto rng = std::make_unique<Random>(m_cfg.seed == 0
         ? std::chrono::system_clock::now().time_since_epoch().count()
         : m_cfg.seed);
@@ -116,10 +119,18 @@ std::unique_ptr<DensitySampler> MCEngine::runSpatial(
         m_waveFunctionFactory(params),
         std::move(solver),
         std::move(particles));
-
+        
     double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    return system->runMetropolisStepsSpatial(tuned_timeStep, m_cfg.onebodyDensitySteps, m_cfg.onebodyDensity_rMax, m_cfg.onebodyDensity_nBins,
+    std::unique_ptr<DensitySampler> main_sampler = system->runMetropolisStepsSpatial(
+        tuned_timeStep, m_cfg.onebodyDensitySteps, m_cfg.onebodyDensity_rMax, m_cfg.onebodyDensity_nBins,
         m_cfg.normalize_by_nParticles, m_cfg.nParticleLogs, particlesOut);
+    
+    if (!normalizing_PCF && m_cfg.calc_normalized_PCF && system->getWaveFunction().hasJastrow()) {
+        std::cout << "\rComputing reference PCF...           " << std::flush;
+        std::unique_ptr<DensitySampler> noInt_sampler = runSpatial(m_cfg.referenceParams, nullptr, true);
+        main_sampler->load_normalized_PCF(*noInt_sampler);
+    }
+    return main_sampler;
 }
 
 double MCEngine::getRepulsiveFactor() const {

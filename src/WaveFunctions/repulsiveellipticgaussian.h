@@ -18,6 +18,9 @@ public:
 
     std::vector<double> lowerBounds() const override { return { 1e-3, 0.1 }; }
     std::vector<double> upperBounds() const override { return { 1.0, 5.0 }; }
+
+    bool hasJastrow() const override { return true; }
+    void deactivateJastrow() override { m_parameters[2] = 0; }
 private:
     double m_rep_a;
     const unsigned int m_NDIM = 3;

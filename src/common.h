@@ -82,7 +82,7 @@ std::unique_ptr<Derived> dynamic_unique_cast(std::unique_ptr<Base>&& p) {
 }
 
 inline void print_colTitle(std::ostream& outs, const std::string& str, bool is_first = false, bool is_last = false) {
-    const unsigned int width = 19;
+    const unsigned int width = 21;
     if (is_first)
         outs << '#';
     outs << std::setw(width - is_first) << str << (is_last ? "\n" : ",");
@@ -90,6 +90,6 @@ inline void print_colTitle(std::ostream& outs, const std::string& str, bool is_f
 
 template <typename Type>
 inline void print_colVal(std::ostream& outs, Type val, bool is_first = false, bool is_last = false) {
-    const unsigned int prec = 12, width = 19;
+    const unsigned int prec = 13, width = 21;
     outs << std::setprecision(prec) << std::setw(width) << val << (is_last ? "\n" : ",");
 }
