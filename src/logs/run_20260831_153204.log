@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-08-31 11:08:00
+Date and time             : 2026-08-31 15:32:04
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -18,7 +18,7 @@ particles (N)             : 8
 kinetic_factor            : 0.1
 min_dist                  : 0.1
 max_radius                : 10
-omega                     : 0
+omega                     : 0.027951
 omega_z                   : 0.027951
 LJsigma                   : 1
 LJenEps                   : 1
@@ -30,7 +30,7 @@ maxStrength               : 1
 pre-optimization params   : [ 2.7701, 1.1296, 1.1268 ]
 param-optimization mask   : [ true, true, true ]
 use_jsonParams            : true
-json params               : [ 4.8579, 5, 0 ]
+json params               : [ 2.8182, 1.1249, 1.126 ]
 -----------------------------------------
 [ MONTE CARLO & OPTIMIZATION ENGINES ]
 optimizer                 : NLOPT_NELDERMEAD
@@ -80,20 +80,20 @@ Called toggles            : [ true, true, true, false ]
 =========================================
 
 Initial parameters: 2.7701, 	1.1296, 	1.1268, 	
-Optimal parameters: 2.80293143, 	1.12470974, 	1.12772064, 	
-VMC Optimization done (in 10848.8692 s).
+Optimal parameters: 2.71098911, 	1.12389639, 	1.12610274, 	
+VMC Optimization done (in 2459.98758 s).
 
-FinalMC energy: -1.455330078e-01 +- 2.422775780e-05
-Acceptance ratio: 9.076172858e-01
-FinalMC done (in 306.183151 s).
+FinalMC energy: -1.286747154e-01 +- 2.577046286e-05
+Acceptance ratio: 9.055661336e-01
+FinalMC done (in 325.977908 s).
 
-Blocking_0 energy: -1.456233234e-01 +- 2.066180602e-04
-Blocking_1 energy: -1.453383392e-01 +- 2.123138476e-04
-Blocking_2 energy: -1.456210289e-01 +- 2.039303371e-04
-Blocking_3 energy: -1.455493395e-01 +- 2.093357631e-04
-Final blocking energy: -1.455330078e-01 +- 1.040364229e-04
-Blocking analysis done (in 4.26503624 s).
+Blocking_0 energy: -1.284697964e-01 +- 2.134421057e-04
+Blocking_1 energy: -1.288383587e-01 +- 2.161648487e-04
+Blocking_2 energy: -1.287020613e-01 +- 2.135853874e-04
+Blocking_3 energy: -1.286886450e-01 +- 2.225612982e-04
+Final blocking energy: -1.286747154e-01 +- 1.082349942e-04
+Blocking analysis done (in 4.4884472 s).
 
-Spatial distribution done (in 59.1918464 s).
+Spatial distribution done (in 59.554923 s).
 
 =========================================

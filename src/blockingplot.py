@@ -24,7 +24,8 @@ def plot_blocking_files(fnames, custom_save_name, talk=True):
             messagebox.showerror("Error", f"Could not load {fname}:\n{e}")
             continue
 
-        fig, ax = plt.subplots(figsize=(10, 6))
+        fig, ax = plt.subplots(figsize=(9, 6))
+        fig.tight_layout()
         ax.ticklabel_format(style="sci", scilimits=(0,0), axis='y')
         ax.ticklabel_format(style="plain", axis='x')
         ax.xaxis.set_major_locator(matplotlib.ticker.MaxNLocator(integer=True))
@@ -61,7 +62,7 @@ def plot_blocking_files(fnames, custom_save_name, talk=True):
                    label="Final error")
 
         if len(grouped) <= 10:
-            ax.legend(loc='lower right', fontsize='small')
+            ax.legend(loc='lower right', fontsize=14)
         else:
             handles, labels = ax.get_legend_handles_labels()
             ax.legend([handles[-1]], [labels[-1]], loc='lower right')
@@ -98,8 +99,7 @@ def on_select(listbox, entry_save_name, event=None):
 
 def main():
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
-    # Puoi adattare la grandezza del font se serve
-    plt.rcParams.update({"axes.grid": True, "font.size": 14})
+    plt.rcParams.update({"axes.grid": True, "font.size": 15})
 
     fdir = "./logs_blocking"
     

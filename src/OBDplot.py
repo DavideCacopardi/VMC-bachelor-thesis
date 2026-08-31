@@ -39,6 +39,7 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
     cmap_colors = matplotlib.colormaps.get_cmap("tab20c")
     cmap_colors = [cmap_colors.colors[i] for i in range(20)]
     has_pcorr = False
+    has_pcorr_norm = False
     
     for i, fname in enumerate(fnames):
         totfname = f"{fdir}/{fname}"
@@ -101,7 +102,8 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
 
         # FIGURE 2: Pair Correlation (alike / unlike)
         if 'dens_alike' in df.columns:
-            fig2, axs2 = plt.subplots(1, 2, figsize=(12, 6))
+            if has_pcorr_norm == False:
+                fig2, axs2 = plt.subplots(1, 2, figsize=(12, 6))
             axs2[0].ticklabel_format(style="sci", scilimits=(0,0))
             axs2[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr = True
@@ -122,7 +124,8 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
 
         # FIGURE 3: Normalized Pair Correlation (alike / unlike)
         if 'dens_alike_n' in df.columns:
-            fig3, axs3 = plt.subplots(1, 2, figsize=(12, 6))
+            if has_pcorr_norm == False:
+                fig3, axs3 = plt.subplots(1, 2, figsize=(12, 6))
             axs3[0].ticklabel_format(style="sci", scilimits=(0,0))
             axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr_norm = True
