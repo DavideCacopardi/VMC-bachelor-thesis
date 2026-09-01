@@ -1,0 +1,85 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-09-02 00:38:39
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : LJGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 6
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.027951
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 0.4
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 9, 1, 1 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 3.4118, 1.1236, 1.1207 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : Adam
+log_grads                 : true
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 500000
+autoMCincr_wait           : 500
+Final MC Steps            : 2^27 (134217728)
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.05
+Adam_nSteps               : 1000
+Adam_min_improvement      : 0.001
+Adam_max_patience         : 300
+NelderMead first guess    : + [ 0.5, 0.05, 0.05 ]
+varOpt_weight             : 0.0005
+LJ_request_Ekin           : false
+log_blocking              : true
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 1.8, 1, 1 ]
+upper bounds              : [ 2.2, 1.24, 1.24 ]
+number of points          : [ 4, 6, 6 ]
+Mesh MC Steps             : 2^20 (1048576)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 1000
+Energy Steps              : 4000
+Adiab Steps               : 1500
+Adam_ktol                 : 0.99
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.05
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+calc_normalized_PCF       : true
+PCF reference params      : [ 16, 0, 0 ]
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ false, false, true, false ]
+=========================================
+
+Spatial distribution done (in 23.1150288 s).
+
+=========================================
