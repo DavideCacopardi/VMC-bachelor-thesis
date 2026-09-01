@@ -114,6 +114,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "time Step                 : " << cfg.timeStep << "\n";
     globalLog << "Equilibr. Steps           : " << cfg.equilibrationSteps << "\n";
     globalLog << "optimizationMCsteps       : " << cfg.metropolisSteps << "\n";
+    globalLog << "autoMCincr_wait           : " << cfg.autoMCincr_wait << "\n";
     globalLog << "Final MC Steps            : 2^" << cfg.finalMClog2steps << " (" << std::pow(2, cfg.finalMClog2steps) << ")\n";
     globalLog << "NLOPT_tol                 : " << cfg.NLOPT_tol << "\n";
     globalLog << "Adam_lr                   : " << cfg.Adam_lr << "\n";

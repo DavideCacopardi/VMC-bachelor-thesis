@@ -55,7 +55,7 @@ double VMCOptimizer::computeMC(const std::vector<double>& params, std::vector<do
         objectiveValue = energy + m_cfg.varOpt_weight * variance;
 
         // Signal-to-Noise Ratio increment check (every c_wait cycles to avoid forced variance decrease)
-        if (m_mcCount % c_wait == 1
+        if (m_mcCount % m_cfg.autoMCincr_wait == 1
             && count_improvement_tries < c_max_improvement_tries
             && std::abs(objectiveValue - m_previousObjVal) < 4 * error
         ) {

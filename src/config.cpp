@@ -80,6 +80,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.timeStep             = j["monte_carlo"].value("timeStep", cfg.timeStep);
         cfg.equilibrationSteps   = j["monte_carlo"].value("equilibrationSteps", cfg.equilibrationSteps);
         cfg.metropolisSteps      = j["monte_carlo"].value("optimizationMCsteps", cfg.metropolisSteps);
+        cfg.autoMCincr_wait      = j["monte_carlo"].value("autoMCincr_wait", cfg.autoMCincr_wait);
         cfg.finalMClog2steps     = j["monte_carlo"].value("finalMClog2steps", cfg.finalMClog2steps);
         cfg.NLOPT_tol            = j["monte_carlo"].value("NLOPT_tol", cfg.NLOPT_tol);
         cfg.Adam_lr              = j["monte_carlo"].value("Adam_lr", cfg.Adam_lr);

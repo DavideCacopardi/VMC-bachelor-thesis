@@ -41,6 +41,7 @@ struct runConfig {
     double timeStep = 0.15;
     unsigned int equilibrationSteps = 10000;
     unsigned int metropolisSteps = 10000;
+    unsigned int autoMCincr_wait = 10;
     unsigned int finalMClog2steps = 16;
     double NLOPT_tol = 1e-5;
     double Adam_lr = 1e-5;

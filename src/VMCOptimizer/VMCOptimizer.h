@@ -34,6 +34,5 @@ protected:
     double m_previousObjVal = 0.0;
     double m_bestObjective = std::numeric_limits<double>::infinity();
     std::vector<double> m_bestParams;
-    const unsigned int c_wait = 10;
     const unsigned int c_max_improvement_tries = 5;
 };
