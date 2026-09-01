@@ -1,0 +1,111 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-08-31 20:14:05
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : LennardJonesHO
+WF Train Type             : LJGaussian
+WaveFunction              : LJGaussian
+Solver                    : SwappingMH
+useUmrigarDrift           : true
+preferAnalytic            : true
+numberOfThreads           : 16
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 3
+particles (N)             : 8
+kinetic_factor            : 0.1
+min_dist                  : 0.1
+max_radius                : 10
+omega                     : 0.111803
+omega_z                   : 0.027951
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 0.05
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 4.9, 1.1, 0.94 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : true
+json params               : [ 4.8579, 1.1174, 0.9481 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT_NELDERMEAD
+log_grads                 : false
+time Step                 : 0.1
+Equilibr. Steps           : 500000
+optimizationMCsteps       : 12000000
+Final MC Steps            : 2^27 (134217728)
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 0.03
+Adam_nSteps               : 120
+Adam_min_improvement      : 0.0001
+Adam_max_patience         : 40
+NelderMead first guess    : + [ 0.05, 0.05, 0.05 ]
+varOpt_weight             : 0.05
+LJ_request_Ekin           : false
+log_blocking              : true
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 4.3, 1.117, 0.95 ]
+upper bounds              : [ 5.1, 1.117, 0.95 ]
+number of points          : [ 10, 1, 1 ]
+Mesh MC Steps             : 2^23 (8388608)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.1
+Pretrain Steps            : 1000
+Energy Steps              : 4000
+Adiab Steps               : 1500
+Adam_ktol                 : 0.99
+max_patience              : 50
+min_improvement           : 0.02
+helpDecay                 : 0.05
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : true
+calc_normalized_PCF       : true
+PCF reference params      : [ 4, 0, 0 ]
+1bodyDens. Steps          : 15000000
+1bodyDens. rMax           : 9
+1bodyDens. nBins          : 150
+Seed                      : 0
+=========================================
+Called toggles            : [ true, true, true, false ]
+=========================================
+
+Initial parameters: 4.9, 	1.1, 	0.94, 	
+Optimal parameters: 4.89438589, 	1.11857356, 	0.943687182, 	
+VMC Optimization done (in 1728.69945 s).
+
+FinalMC energy: 7.100746702e-01 +- 5.880337430e-05
+Acceptance ratio: 9.034475982e-01
+FinalMC done (in 179.277561 s).
+
+Blocking_0 energy: 7.097681188e-01 +- 6.944387057e-04
+Blocking_1 energy: 7.105378128e-01 +- 6.990967870e-04
+Blocking_2 energy: 7.091431012e-01 +- 8.514661993e-04
+Blocking_3 energy: 7.095354081e-01 +- 6.616508415e-04
+Blocking_4 energy: 7.105158344e-01 +- 7.862583081e-04
+Blocking_5 energy: 7.097221026e-01 +- 7.547775479e-04
+Blocking_6 energy: 7.101757764e-01 +- 7.602278770e-04
+Blocking_7 energy: 7.100980919e-01 +- 7.078743453e-04
+Blocking_8 energy: 7.106103956e-01 +- 7.769322994e-04
+Blocking_9 energy: 7.098968879e-01 +- 7.420840883e-04
+Blocking_10 energy: 7.106300994e-01 +- 7.272990603e-04
+Blocking_11 energy: 7.101757764e-01 +- 7.602278770e-04
+Blocking_12 energy: 7.097005076e-01 +- 6.998073769e-04
+Blocking_13 energy: 7.106151972e-01 +- 6.733155739e-04
+Blocking_14 energy: 7.105341755e-01 +- 6.975959872e-04
+Blocking_15 energy: 7.095354380e-01 +- 7.346295210e-04
+Final blocking energy: 7.100746702e-01 +- 1.836193158e-04
+Blocking analysis done (in 1.2772942 s).
+
+Spatial distribution done (in 34.1633945 s).
+
+=========================================
