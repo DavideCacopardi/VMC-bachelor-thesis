@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-09-01 13:06:10
+Date and time             : 2026-09-01 13:17:45
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -37,7 +37,7 @@ optimizer                 : Adam
 log_grads                 : true
 time Step                 : 0.1
 Equilibr. Steps           : 500000
-optimizationMCsteps       : 5000000
+optimizationMCsteps       : 500000
 autoMCincr_wait           : 500
 Final MC Steps            : 2^27 (134217728)
 NLOPT_tol                 : 1e-05
@@ -46,15 +46,15 @@ Adam_nSteps               : 1000
 Adam_min_improvement      : 0.0001
 Adam_max_patience         : 300
 NelderMead first guess    : + [ 0.5, 0.05, 0.05 ]
-varOpt_weight             : 0.05
+varOpt_weight             : 0.0005
 LJ_request_Ekin           : false
 log_blocking              : true
 -----------------------------------------
 [ PARAMETER MESH ]
 lower bounds              : [ 4.2, 0, 0.84 ]
 upper bounds              : [ 5.2, 0, 1.7 ]
-number of points          : [ 4, 1, 20 ]
-Mesh MC Steps             : 2^21 (2097152)
+number of points          : [ 5, 1, 20 ]
+Mesh MC Steps             : 2^18 (262144)
 -----------------------------------------
 [ NEURAL NETWORK ]
 Nhid                      : 12
@@ -81,22 +81,22 @@ Called toggles            : [ true, true, true, true ]
 =========================================
 
 Initial parameters: 4.6, 	0, 	1, 	
-Optimal parameters: 4.6, 	0, 	1, 	
-VMC Optimization done (in 325.649314 s).
+Optimal parameters: 4.63552536, 	0, 	0.980034573, 	
+VMC Optimization done (in 1241.5783 s).
 
-FinalMC energy: 1.686063499e-01 +- 1.844035800e-05
-Acceptance ratio: 9.043051451e-01
-FinalMC done (in 57.4100378 s).
+FinalMC energy: 1.685847026e-01 +- 1.725342929e-05
+Acceptance ratio: 8.983586133e-01
+FinalMC done (in 62.4411256 s).
 
-Blocking_0 energy: 1.686300651e-01 +- 4.393092677e-05
-Blocking_1 energy: 1.686009453e-01 +- 4.752380450e-05
-Blocking_2 energy: 1.686480133e-01 +- 4.463112281e-05
-Blocking_3 energy: 1.685463758e-01 +- 4.454817073e-05
-Final blocking energy: 1.686063499e-01 +- 2.258997975e-05
-Blocking analysis done (in 2.20892108 s).
+Blocking_0 energy: 1.686263613e-01 +- 4.063992724e-05
+Blocking_1 energy: 1.684773874e-01 +- 4.861640836e-05
+Blocking_2 energy: 1.686476179e-01 +- 4.171962390e-05
+Blocking_3 energy: 1.685874437e-01 +- 4.233315743e-05
+Final blocking energy: 1.685847026e-01 +- 2.171949309e-05
+Blocking analysis done (in 2.5229532 s).
 
-Spatial distribution done (in 18.9848316 s).
+Spatial distribution done (in 19.1671608 s).
 
-Mesh plot done (in 97.8365106 s).
+Mesh plot done (in 43.6893804 s).
 
 =========================================

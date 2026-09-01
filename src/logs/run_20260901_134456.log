@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-09-01 13:06:10
+Date and time             : 2026-09-01 13:44:56
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -14,7 +14,7 @@ numberOfThreads           : 4
 -----------------------------------------
 [ PHYSICAL PARAMETERS ]
 dimensions (D)            : 3
-particles (N)             : 2
+particles (N)             : 6
 kinetic_factor            : 0.1
 min_dist                  : 0.1
 max_radius                : 10
@@ -27,8 +27,8 @@ LJGaussian_loc_Ken_method : 0
 rep_a_factor              : 0.0043
 rep_strength              : inf
 maxStrength               : 1
-pre-optimization params   : [ 4.6, 0, 1 ]
-param-optimization mask   : [ true, false, true ]
+pre-optimization params   : [ 4.8, 1.1, 1 ]
+param-optimization mask   : [ true, true, true ]
 use_jsonParams            : true
 json params               : [ 3.05, 1.1259, 1.121 ]
 -----------------------------------------
@@ -37,7 +37,7 @@ optimizer                 : Adam
 log_grads                 : true
 time Step                 : 0.1
 Equilibr. Steps           : 500000
-optimizationMCsteps       : 5000000
+optimizationMCsteps       : 500000
 autoMCincr_wait           : 500
 Final MC Steps            : 2^27 (134217728)
 NLOPT_tol                 : 1e-05
@@ -46,15 +46,15 @@ Adam_nSteps               : 1000
 Adam_min_improvement      : 0.0001
 Adam_max_patience         : 300
 NelderMead first guess    : + [ 0.5, 0.05, 0.05 ]
-varOpt_weight             : 0.05
+varOpt_weight             : 0.0005
 LJ_request_Ekin           : false
 log_blocking              : true
 -----------------------------------------
 [ PARAMETER MESH ]
-lower bounds              : [ 4.2, 0, 0.84 ]
-upper bounds              : [ 5.2, 0, 1.7 ]
-number of points          : [ 4, 1, 20 ]
-Mesh MC Steps             : 2^21 (2097152)
+lower bounds              : [ 4.6, 0.9, 0.84 ]
+upper bounds              : [ 5.5, 1.4, 1.4 ]
+number of points          : [ 5, 1, 20 ]
+Mesh MC Steps             : 2^20 (1048576)
 -----------------------------------------
 [ NEURAL NETWORK ]
 Nhid                      : 12
@@ -80,23 +80,23 @@ Seed                      : 0
 Called toggles            : [ true, true, true, true ]
 =========================================
 
-Initial parameters: 4.6, 	0, 	1, 	
-Optimal parameters: 4.6, 	0, 	1, 	
-VMC Optimization done (in 325.649314 s).
+Initial parameters: 4.8, 	1.1, 	1, 	
+Optimal parameters: 4.78841648, 	1.10967554, 	0.981696524, 	
+VMC Optimization done (in 2305.11753 s).
 
-FinalMC energy: 1.686063499e-01 +- 1.844035800e-05
-Acceptance ratio: 9.043051451e-01
-FinalMC done (in 57.4100378 s).
+FinalMC energy: 5.213672010e-01 +- 5.121922794e-05
+Acceptance ratio: 9.130647704e-01
+FinalMC done (in 198.042801 s).
 
-Blocking_0 energy: 1.686300651e-01 +- 4.393092677e-05
-Blocking_1 energy: 1.686009453e-01 +- 4.752380450e-05
-Blocking_2 energy: 1.686480133e-01 +- 4.463112281e-05
-Blocking_3 energy: 1.685463758e-01 +- 4.454817073e-05
-Final blocking energy: 1.686063499e-01 +- 2.258997975e-05
-Blocking analysis done (in 2.20892108 s).
+Blocking_0 energy: 5.215076132e-01 +- 2.593656963e-04
+Blocking_1 energy: 5.215191442e-01 +- 2.577510401e-04
+Blocking_2 energy: 5.213658520e-01 +- 2.735142148e-04
+Blocking_3 energy: 5.210761946e-01 +- 2.673143160e-04
+Final blocking energy: 5.213672010e-01 +- 1.322812185e-04
+Blocking analysis done (in 3.00530494 s).
 
-Spatial distribution done (in 18.9848316 s).
+Spatial distribution done (in 45.2486084 s).
 
-Mesh plot done (in 97.8365106 s).
+Mesh plot done (in 237.139614 s).
 
 =========================================

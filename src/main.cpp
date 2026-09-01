@@ -510,12 +510,13 @@ int main(int argc, char* argv[]) {
             return 1;
         }
         meshfile << "#";
-        unsigned int col_width = 20, col_prec = 12; // print to file in columns
         for (unsigned int i = 0; i < param_mesh[0].size(); i++) {
             std::string temp = "p[" + std::to_string(i) + "],";
-            meshfile << std::setw(col_width - (i == 0)) << temp;
+            print_colTitle(meshfile, temp, i==0, false);
         }
-        meshfile << std::setw(col_width) << "energy," << std::setw(col_width) << "error" << std::endl;
+        print_colTitle(meshfile, "energy");
+        print_colTitle(meshfile, "variance");
+        print_colTitle(meshfile, "error", false, true);
 
         for (unsigned int par_idx = 0; par_idx < param_mesh.size(); par_idx++) {
             cout << "\rComputing mesh MC #" << par_idx + 1 << " of " << param_mesh.size() << flush;
@@ -525,6 +526,7 @@ int main(int argc, char* argv[]) {
                 engine.run(param_mesh[par_idx], (unsigned int)pow(2, cfg.mesh_MClog2steps), &rawEnergiesData);
             double energy = sampler->getEnergy();
             double err = sampler->getError();
+            double variance = sampler->getVariance();
 
             // --- 4b: Blocking ---
             if (rawEnergiesData[0].size() % 2 != 0) {   // check viability of the blocking estimate
@@ -543,11 +545,13 @@ int main(int argc, char* argv[]) {
                 err = sqrt(cumulative_var) / (double)rawEnergiesData.size();
 
                 // print row
-                meshfile << scientific << setprecision(col_prec);
+                meshfile << scientific;
                 for (unsigned int i = 0; i < param_mesh[par_idx].size(); i++) {
-                    meshfile << setw(col_width-1) << param_mesh[par_idx][i] << ",";
+                    print_colVal(meshfile, param_mesh[par_idx][i], i == 0, false);
                 }
-                meshfile << setw(col_width-1) << energy << "," << setw(col_width-1) << err << endl;
+                print_colVal(meshfile, energy);
+                print_colVal(meshfile, variance);
+                print_colVal(meshfile, err, false, true);
             }
         }
 
