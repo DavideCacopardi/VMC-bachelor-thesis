@@ -1,7 +1,7 @@
 =========================================
                VMC RUN LOG               
 =========================================
-Date and time             : 2026-09-01 17:19:47
+Date and time             : 2026-09-01 18:04:02
 -----------------------------------------
 [ SYSTEM & MODELS ]
 Hamiltonian               : LennardJonesHO
@@ -14,7 +14,7 @@ numberOfThreads           : 4
 -----------------------------------------
 [ PHYSICAL PARAMETERS ]
 dimensions (D)            : 3
-particles (N)             : 2
+particles (N)             : 4
 kinetic_factor            : 0.1
 min_dist                  : 0.1
 max_radius                : 10
@@ -22,7 +22,7 @@ omega                     : 0.111803
 omega_z                   : 0.027951
 LJsigma                   : 1
 LJenEps                   : 1
-LJalpha                   : 0.05
+LJalpha                   : 1
 LJGaussian_loc_Ken_method : 0
 rep_a_factor              : 0.0043
 rep_strength              : inf
@@ -51,9 +51,9 @@ LJ_request_Ekin           : false
 log_blocking              : true
 -----------------------------------------
 [ PARAMETER MESH ]
-lower bounds              : [ 3.7, 0, 0.85 ]
-upper bounds              : [ 5.2, 0, 1.1 ]
-number of points          : [ 15, 1, 10 ]
+lower bounds              : [ 2.6, 1, 0.8 ]
+upper bounds              : [ 2.6, 1.24, 1.24 ]
+number of points          : [ 1, 6, 11 ]
 Mesh MC Steps             : 2^23 (8388608)
 -----------------------------------------
 [ NEURAL NETWORK ]
@@ -80,6 +80,6 @@ Seed                      : 0
 Called toggles            : [ false, false, false, true ]
 =========================================
 
-Mesh plot done (in 605.372442 s).
+Mesh plot done (in 470.787406 s).
 
 =========================================

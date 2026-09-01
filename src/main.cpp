@@ -509,9 +509,8 @@ int main(int argc, char* argv[]) {
             cerr << "Error: unable to generate meshfile " << filenameStream.str() << endl;
             return 1;
         }
-        meshfile << "#";
         for (unsigned int i = 0; i < param_mesh[0].size(); i++) {
-            std::string temp = "p[" + std::to_string(i) + "],";
+            std::string temp = "p[" + std::to_string(i) + "]";
             print_colTitle(meshfile, temp, i==0, false);
         }
         print_colTitle(meshfile, "energy");
