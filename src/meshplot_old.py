@@ -211,6 +211,7 @@ def plot_file(fname, plot_surface, force_slices, opt_ifAvailable, talk = True):
             okIdx_arr.append(okIdx)
             if okIdx.size > 1:
                 countRows += 1
+    print(f"countRows = {countRows}")
     if not force_slices and (nPar == 2 or countRows == 2):
         if nPar == 2:
             p_x = 0

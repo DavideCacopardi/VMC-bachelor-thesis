@@ -71,7 +71,8 @@ def plot3D(x,
     ax_dx.set_zlabel(r"Var $E$", c="brown", zorder=10)
     ax_dx.set_xlabel(f"p[0]", c="brown", zorder=10)
     ax_dx.set_ylabel(f"p[1]", c="brown", zorder=10)
-    
+    ax_sx.view_init(elev=25, azim=50)
+    ax_dx.view_init(elev=25, azim=50)
     return norm_sx, norm_dx
 
 def rowSubplots2D(x,
@@ -187,8 +188,6 @@ def plot_file(fname, plot_surface, force_slices, opt_ifAvailable, talk = True):
         fdir_opt = "./logs_opt"
         totfname_opt = f"{fdir_opt}/{fname}"
         try:
-            # We load the exact same number of columns as the mesh file
-            # This perfectly aligns Energy (-3), Variance (-2), and Error (-1)
             mesh_opt = np.loadtxt(totfname_opt, delimiter=',', usecols=range(0, mesh.shape[1]))
             plot_opt = True
         except Exception as e:
@@ -197,7 +196,6 @@ def plot_file(fname, plot_surface, force_slices, opt_ifAvailable, talk = True):
     else:
         plot_opt = False
 
-    # Now there are 3 non-parameter columns: Energy, Variance, Error
     nPar = mesh.shape[1] - 3
 
     countRows = 0
@@ -208,13 +206,15 @@ def plot_file(fname, plot_surface, force_slices, opt_ifAvailable, talk = True):
             mask = np.ones(mesh.shape[0], dtype=bool)
             for j in range(nPar):
                 if j != par:
-                    mask &= np.isclose(mesh[:, j], mesh[min_idx, j])
+                    mask &= np.isclose(mesh[:, j], mesh[min_idx, j], atol=1e-12)
             
+            # okIdx = np.arange(0, mesh.shape[0], 1)[mask]
             okIdx = np.where(mask)[0]
             okIdx_arr.append(okIdx)
             if okIdx.size > 1:
                 countRows += 1
                 
+    # print(f"countRows = {countRows}")
     if not force_slices and (nPar == 2 or countRows == 2):
         if nPar == 2:
             p_x = 0

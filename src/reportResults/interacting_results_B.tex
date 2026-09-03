@@ -15,8 +15,9 @@
     $6$ & $1.00$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{4 \pm 1}{}$ & $\qty{1.1 \pm 0.1}{}$ & $\qty{1.1 \pm 0.1}{}$ & $\qty{-0.0022 \pm 0.0004}{}$ \\
     $8$ & $1.00$ & Nelder-Mead & $0.05$ & $16$ & $1$ & $1$ & $2.7701$ & $1.1296$ & $1.1268$ & $\qty{-0.1282 \pm 0.0001}{}$ \\
     \rowcolor{LightCyan}
-    $8$ & $1.00$ & Nelder-Mead\tnote{$**$} & $0.05$ & $2.7701$ & $1.1296$ & $1.1268$ & $2.8457$ & $1.1263$ & $1.1234$ & $\qty{-0.1284 \pm 0.0001}{}$ \\
+    $8$ & $1.00$ & Nelder-Mead\tnote{$**$} & $0.05$ & $2.7701$ & $1.1296$ & $1.1268$ & $2.7110$ & $1.1239$ & $1.1261$ & $\qty{-0.1287 \pm 0.0001}{}$ \\
     $8$ & $1.00$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{3 \pm 1}{}$ & $\qty{1.1 \pm 0.1}{}$ & $\qty{1.1 \pm 0.1}{}$ & $\qty{-0.1211 \pm 0.0009}{}$ \\
+    \rowcolor{LightCyan}
     $12$\tnote{$*$} & $1.00$ & Nelder-Mead & $0.05$ & $2$ & $1.1$ & $1.1$ & $2.3599$ & $1.1301$ & $1.1314$ & $\qty{-0.5304 \pm 0.0002}{}$ \\
     $12$\tnote{$*$} & $1.00$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{2.5 \pm 0.5}{}$ & $\qty{1.12 \pm 0.04}{}$ & $\qty{1.12 \pm 0.04}{}$ & $\qty{-0.5269 \pm 0.001}{}$ \\ \hline
 
@@ -32,7 +33,11 @@
     $6$ & $0.40$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{13.0 \pm 0.5}{}$ & $\qty{1.12 \pm 0.06}{}$ & $\qty{1.06 \pm 0.06}{}$ & $\qty{0.09648 \pm 0.00008}{}$ \\
     \rowcolor{LightCyan}
     $8$ & $0.40$ & Nelder-Mead & $0.05$ & $16$ & $1$ & $1$ & $11.424$ & $1.1106$ & $1.0706$ & $\qty{0.11476 \pm 0.00004}{}$ \\
-    $8$ & $0.40$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{12.0 \pm 0.5}{}$ & $\qty{1.12 \pm 0.06}{}$ & $\qty{1.06 \pm 0.06}{}$ & $\qty{0.1154 \pm 0.0001}{}$ \\ \hline
+    $8$ & $0.40$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{12.0 \pm 0.5}{}$ & $\qty{1.12 \pm 0.06}{}$ & $\qty{1.06 \pm 0.06}{}$ & $\qty{0.1154 \pm 0.0001}{}$ \\
+    $12$\tnote{$*$} & $0.40$ & Adam & $0.0005$ & $2$ & $1.1$ & $1.1$ & $9.0597$ & $1.1011$ & $1.0814$ & $\qty{0.1248 \pm 0.0001}{}$ \\
+    \rowcolor{LightCyan}
+    $12$\tnote{$*$} & $0.40$ & BFGS & $0.0005$ & $2$ & $1.1$ & $1.1$ & $9.0017$ & $1.1025$ & $1.0835$ & $\qty{0.1246 \pm 0.0001}{}$ \\
+    $12$\tnote{$*$} & $0.40$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{9.0 \pm 0.5}{}$ & $\qty{1.08 \pm 0.04}{}$ & $\qty{1.06 \pm 0.06}{}$ & $\qty{0.126 \pm 0.002}{}$ \\ \hline
 
     %$2$ & $0.05$ & Nelder-Mead & $0.05$ & $16$ & -- & $1$ & $16.498$ & -- & $0.9759$ & $\qty{0.040007 \pm 0.000007}{}$ \\
     \rowcolor{LightCyan}
@@ -48,12 +53,3 @@
     $8$ & $0.05$ & Nelder-Mead & $0.05$ & $16$ & $1.1$ & $1$ & $16.143$ & $1.1192$ & $0.9559$ & $\qty{0.15257 \pm 0.00008}{}$ \\
     $8$ & $0.05$ & Mesh Grid & $0.00$ & -- & -- & -- & $\qty{16.5 \pm 0.5}{}$ & $\qty{1.12 \pm 0.06}{}$ & $\qty{0.95 \pm 0.10}{}$ & $\qty{0.1525 \pm 0.0003}{}$ \\
 \end{tabular}
-
-\begin{tablenotes}
-    \centering
-    \small
-    \item[$\dagger$] Local kinetic energy evaluated with Eq. \ref{eq:local_kinetic_energy_1}.
-    \item[$\ddagger$] Local kinetic energy evaluated with Eq. \ref{eq:local_kinetic_energy_2}.
-    \item[$*$] Bonus run.
-    \item[$**$] These runs were executed subsequently to those of Table \ref{tab:interacting_results_C} for the sake of fair comparison.
-\end{tablenotes}
