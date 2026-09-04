@@ -76,8 +76,12 @@ double System::runEquilibrationSteps(double stepParameter,
 }
 
 std::unique_ptr<EnergySampler> System::runMetropolisSteps(double stepParameter,
-    unsigned int numberOfMetropolisSteps, std::vector<double>* energiesOut, bool log_grads, bool request_Ekin)
-{
+    unsigned int numberOfMetropolisSteps,
+    std::vector<double>* energiesOut,
+    bool log_grads,
+    bool request_Ekin,
+    EnSamplerFactory* enSamplerFactory
+) {
     std::unique_ptr<EnergySampler> sampler;
     auto* ptr_h = dynamic_cast<LennardJonesHO*>(&getHamiltonian());
     auto* ptr_wf = dynamic_cast<LJGaussian*>(&getWaveFunction());
@@ -91,13 +95,23 @@ std::unique_ptr<EnergySampler> System::runMetropolisSteps(double stepParameter,
             log_grads);
     }
     else {
-        sampler = std::make_unique<EnergySampler>(
-            m_numberOfParticles,
-            m_numberOfDimensions,
-            m_waveFunction->getNumberOfParameters(),
-            stepParameter,
-            numberOfMetropolisSteps,
-            log_grads);
+        if (enSamplerFactory != nullptr) {
+            sampler = (*enSamplerFactory)(m_numberOfParticles,
+                m_numberOfDimensions,
+                m_waveFunction->getNumberOfParameters(),
+                stepParameter,
+                numberOfMetropolisSteps,
+                log_grads);
+        }
+        else {
+            sampler = std::make_unique<EnergySampler>(
+                m_numberOfParticles,
+                m_numberOfDimensions,
+                m_waveFunction->getNumberOfParameters(),
+                stepParameter,
+                numberOfMetropolisSteps,
+                log_grads);
+        }
     }
 
     auto watch_start = std::chrono::high_resolution_clock::now();

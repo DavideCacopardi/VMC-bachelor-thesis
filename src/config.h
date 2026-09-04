@@ -11,6 +11,7 @@ struct runConfig {
     string waveFunctionTrainType = "EllipticGaussian";
     string waveFunctionType = "LJGaussian";
     string solverType = "MetropolisHastings";
+    string enSamplerType = "Standard";
     bool useUmrigarDrift = false;
     bool preferAnalytic = false;
     unsigned int numberOfThreads = 4;
@@ -79,6 +80,7 @@ struct runConfig {
     bool normalize_by_nParticles = false;
     bool calc_normalized_PCF = false;
     vector<double> referenceParams = { 1, 1, 1 };
+    unsigned int uncorrRefDraws = 1e7;
 
     // [ MISC ]
     int seed = 0; // Set later

@@ -20,6 +20,11 @@ public:
         std::vector<std::unique_ptr<class Particle>>& particles
     ) override;
 
+    std::vector<double> computeLocalEnergies(
+        class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles
+    ) override;
+
     double computeLocalKineticEnergy(
         WaveFunction& waveFunction,
         std::vector<std::unique_ptr<Particle>>& particles,
@@ -39,6 +44,16 @@ private:
     double m_percStrength = 1;
     static unsigned int s_loc_Ken_method;
 
+    double localHarmonicPotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
+
+    double localLennardJonesPotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
+    
+    double localLennardJonesAlikePotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
+    double localLennardJonesUnlikePotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
 
     const double c_eps = 1e-9; // prevents numerical errors
 };

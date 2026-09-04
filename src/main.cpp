@@ -33,6 +33,7 @@
 #include "Math/blocker2.h"
 #include "Particles/particle.h"
 #include "Samplers/energysampler.h"
+#include "Samplers/energyseparatesampler.h"
 #include "Samplers/densitysampler.h"
 #include "VMCOptimizer/VMCOptimizer.h"
 #include "VMCOptimizer/VMCOptimizer_NLOPT_BFGS.h"
@@ -46,6 +47,7 @@ using namespace CommonUtils;
 using HamiltonianFactory = function<unique_ptr<class Hamiltonian>()>;
 using WaveFunctionFactory = function<unique_ptr<class WaveFunction>(const vector<double>&)>;
 using SolverFactory = function<unique_ptr<MonteCarlo>(unique_ptr<Random>)>;
+using EnSamplerFactory = function<unique_ptr<EnergySampler>(unsigned int, unsigned int, unsigned int, double, unsigned int, bool)>;
 using ActivationFunc = std::function<torch::Tensor(const torch::Tensor&)>;
 using ActivationFuncFactory = std::function<ActivationFunc()>;
 
@@ -72,6 +74,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "WF Train Type             : " << cfg.waveFunctionTrainType << "\n";
     globalLog << "WaveFunction              : " << cfg.waveFunctionType << "\n";
     globalLog << "Solver                    : " << cfg.solverType << "\n";
+    globalLog << "enSamplerType             : " << cfg.enSamplerType << "\n";
     globalLog << "useUmrigarDrift           : " << (cfg.useUmrigarDrift ? "true" : "false") << "\n";
     globalLog << "preferAnalytic            : " << (cfg.preferAnalytic ? "true" : "false") << "\n";
     globalLog << "numberOfThreads           : " << cfg.numberOfThreads << "\n";
@@ -171,6 +174,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
+    globalLog << "uncorrRefDraws            : " << cfg.uncorrRefDraws << "\n";
     globalLog << "Seed                      : " << cfg.seed << "\n";
     globalLog << "=========================================\n";
     globalLog << "Called toggles            : [ ";
@@ -285,6 +289,20 @@ int main(int argc, char* argv[]) {
             else // default to Metropolis-Hastings
                 return make_unique<MetropolisHastings>(move(rng), cfg.useUmrigarDrift);
         };
+    EnSamplerFactory enSamplerFac = [=](
+        unsigned int nParticles,
+        unsigned int nDimensions,
+        unsigned int nParameters,
+        double step,
+        unsigned int nMetropolisSteps,
+        bool log_grads
+    ) -> unique_ptr<EnergySampler> {
+            if (cfg.enSamplerType == "Separate") {
+                return make_unique<EnergySeparateSampler>(nParticles, nDimensions, nParameters, step, nMetropolisSteps, log_grads);
+        }
+        else // default to Standard
+            return make_unique<EnergySampler>(nParticles, nDimensions, nParameters, step, nMetropolisSteps, log_grads);
+    };
     ActivationFuncFactory actFun = [=]() -> ActivationFunc {
             if (cfg.activationFunctionType == "gelu") {
                 return [](const torch::Tensor& t) { return torch::gelu(t); };
@@ -349,7 +367,8 @@ int main(int argc, char* argv[]) {
         cfg,
         hFac,
         wfFac,
-        solverFac
+        solverFac,
+        enSamplerFac
     );
 
     if (toggles[0] && cfg.waveFunctionType != "NN_envelope") {
@@ -415,6 +434,8 @@ int main(int argc, char* argv[]) {
             << endl << defaultfloat;
         globalLog << scientific << setprecision(9) << "Acceptance ratio: " << sampler->getAcceptanceRatio()
             << endl << defaultfloat;
+        sampler->printSpecial(cout);
+        sampler->printSpecial(globalLog);
         watch_end = chrono::high_resolution_clock::now();
         elapsedTime = watch_end - watch_start;
         cout << "FinalMC done (in " << elapsedTime.count() << " s).\n\n";

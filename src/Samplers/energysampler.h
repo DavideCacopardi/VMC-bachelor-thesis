@@ -23,11 +23,19 @@ public:
     EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others);
     virtual ~EnergySampler() = default;
 
+    virtual void reset();
+    virtual std::unique_ptr<EnergySampler> constructMergedSampler(
+        std::vector<std::unique_ptr<EnergySampler>>& others
+    ) {
+        return std::make_unique<EnergySampler>(others);
+    };
+
     virtual void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr);
 
     virtual void logHeader(const std::vector<double>& params, std::ofstream& outs);
     virtual void logOutput(const std::vector<double>& params, std::ofstream& outs);
     void logOutput(std::ofstream& outs, std::vector<double> additional_log = {});
+    virtual void printSpecial(std::ostream&) {};
     virtual void computeAverages();
     double getEnergy() { return m_energy; }
     double getVariance() { return m_variance; }
@@ -51,4 +59,5 @@ protected:
     std::vector<long double> m_cumulativeOpO;
     std::vector<long double> m_cumulativeOpOE;
     std::vector<long double> m_cumulativeOpOE2;
+    std::vector<long double> m_cumulativeEdEdW;
 };

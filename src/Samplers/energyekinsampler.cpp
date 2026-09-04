@@ -49,6 +49,23 @@ EnergyEkinSampler::EnergyEkinSampler(const std::vector<std::unique_ptr<EnergyEki
     computeAverages();
 }
 
+std::unique_ptr<EnergySampler> EnergyEkinSampler::constructMergedSampler(
+    std::vector<std::unique_ptr<EnergySampler>>& others
+) {
+    std::vector<std::unique_ptr<EnergyEkinSampler>> castedPtrs;
+    castedPtrs.reserve(others.size());
+    for (auto& o : others) {
+        // release ownership from the base unique_ptr, reclaim as derived
+        EnergyEkinSampler* derivedRaw = dynamic_cast<EnergyEkinSampler*>(o.get());
+        if (!derivedRaw) {
+            throw std::runtime_error("Expected EnergyEkinSampler in merge list");
+        }
+        o.release();  // base unique_ptr no longer owns it
+        castedPtrs.emplace_back(derivedRaw);  // derived unique_ptr now owns it
+    }
+    return std::make_unique<EnergyEkinSampler>(castedPtrs);
+}
+
 void EnergyEkinSampler::sample(bool acceptedStep, System* system, std::vector<double>* energiesOut) {
     EnergySampler::sample(acceptedStep, system, energiesOut);   // computeLocalEnergy loads wf's cache
 
@@ -82,7 +99,7 @@ void EnergyEkinSampler::logHeader(const std::vector<double>& params, std::ofstre
     print_colTitle(outs, "error");
     print_colTitle(outs, "      -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩");
     print_colTitle(outs, "  Var -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩");
-    print_colTitle(outs, "    (ℏ/2)⟨|∇ᵢln(ψ)|²⟩");
+    print_colTitle(outs, "     (ℏ/2)⟨|∇ᵢln(ψ)|²⟩");
     print_colTitle(outs, " Var (ℏ/2)⟨|∇ᵢln(ψ)|²⟩");
     if (m_log_grads) {
         for (unsigned int i = 0; i < params.size(); i++) {
@@ -92,17 +109,12 @@ void EnergyEkinSampler::logHeader(const std::vector<double>& params, std::ofstre
             print_colTitle(outs, temp);
         }
     }
-    // outs << std::setw(width) << "      -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩,"
-        // << std::setw(width) << "  Var -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩,"
-        // << std::setw(width) << "    (ℏ/2)⟨|∇ᵢln(ψ)|²⟩,"
-        // << std::setw(width) << " Var (ℏ/2)⟨|∇ᵢln(ψ)|²⟩,";
     print_colTitle(outs, "elapsed time");
     print_colTitle(outs, "accept. ratio");
     print_colTitle(outs, "MC steps", false, true);
 }
 
 void EnergyEkinSampler::logOutput(const std::vector<double>& params, std::ofstream& outs) {
-    const unsigned int prec = 14, width = 21;
     outs << std::scientific;
     for (unsigned int i = 0; i < m_numberOfParameters; i++) {
         print_colVal(outs, params[i], i==0, false);
@@ -136,4 +148,18 @@ void EnergyEkinSampler::computeAverages() {
     m_Ekin2SQ = m_cumulativeEkin2SQ / (double)m_numberOfMetropolisSteps;
     m_Ekin1_variance = m_Ekin1SQ - sq(m_Ekin1);
     m_Ekin2_variance = m_Ekin2SQ - sq(m_Ekin2);
+}
+
+void EnergyEkinSampler::printSpecial(std::ostream& outs) {
+    outs << "Printing specials:\n";
+    outs << std::scientific;
+    outs << "      -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩:";
+    print_colVal(outs, m_Ekin1, false, true);
+    outs << "  Var -(ℏ/4)⟨∇ᵢ²ln(ψ)⟩:";
+    print_colVal(outs, m_Ekin1_variance, false, true);
+    outs <<  "    (ℏ/2)⟨|∇ᵢln(ψ)|²⟩:";
+    print_colVal(outs, m_Ekin2, false, true);
+    outs << " Var (ℏ/2)⟨|∇ᵢln(ψ)|²⟩:";
+    print_colVal(outs, m_Ekin2_variance, false, true);
+    outs << std::defaultfloat;
 }

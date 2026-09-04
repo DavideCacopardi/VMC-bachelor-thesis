@@ -25,7 +25,11 @@ public:
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
-    void load_normalized_PCF(DensitySampler& noInt_sampler);
+    void computeUncorrelatedReference(unsigned long numberOfDraws, class Random& rng);
+    void normalizeAgainstUncorrelated();
+
+    // deprecated
+    // void load_normalized_PCF(DensitySampler& noInt_sampler);
 
     void logDensity(std::ofstream& outs) const;
     void logDensityHeader(std::ofstream& outs) const;
@@ -69,6 +73,10 @@ private:
     std::vector<double> m_dens_err_alike;
     std::vector<double> m_dens_unlike;
     std::vector<double> m_dens_err_unlike;
+    std::vector<double> m_dens_alike_uncorr;
+    std::vector<double> m_dens_err_alike_uncorr;
+    std::vector<double> m_dens_unlike_uncorr;
+    std::vector<double> m_dens_err_unlike_uncorr;
     std::vector<double> m_dens_alike_norm;
     std::vector<double> m_dens_err_alike_norm;
     std::vector<double> m_dens_unlike_norm;
@@ -82,8 +90,16 @@ private:
     std::vector<double> m_prob_err_alike;
     std::vector<double> m_prob_unlike;
     std::vector<double> m_prob_err_unlike;
+    std::vector<double> m_prob_alike_uncorr;
+    std::vector<double> m_prob_err_alike_uncorr;
+    std::vector<double> m_prob_unlike_uncorr;
+    std::vector<double> m_prob_err_unlike_uncorr;
     std::vector<double> m_prob_alike_norm;
     std::vector<double> m_prob_err_alike_norm;
     std::vector<double> m_prob_unlike_norm;
     std::vector<double> m_prob_err_unlike_norm;
+
+
+    std::vector<double> buildRadialCDF(unsigned int flavor) const;
+    double sampleRadiusFromCDF(const std::vector<double>& cdf, class Random& rng) const;
 };

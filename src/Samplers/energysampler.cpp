@@ -27,18 +27,8 @@ EnergySampler::EnergySampler(
     stepLength,
     numberOfMetropolisSteps)
 {
-    m_covarianceE.resize(m_numberOfParameters, 0);
-    m_covarianceE2.resize(m_numberOfParameters, 0);
-    m_energy = 0;
-    m_energySQ = 0;
-    m_variance = 0;
-    m_error = 0;
     m_log_grads = log_grads;
-    m_cumulativeEnergy = 0;
-    m_cumulativeEnergySQ = 0;
-    m_cumulativeOpO.resize(m_numberOfParameters, 0);
-    m_cumulativeOpOE.resize(m_numberOfParameters, 0);
-    m_cumulativeOpOE2.resize(m_numberOfParameters, 0);
+    reset();
 }
 
 EnergySampler::EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& others)
@@ -55,6 +45,21 @@ EnergySampler::EnergySampler(const std::vector<std::unique_ptr<EnergySampler>>& 
     computeAverages();
 }
 
+void EnergySampler::reset() {
+    m_covarianceE.resize(m_numberOfParameters, 0);
+    m_covarianceE2.resize(m_numberOfParameters, 0);
+    m_energy = 0;
+    m_energySQ = 0;
+    m_variance = 0;
+    m_error = 0;
+    m_cumulativeEnergy = 0;
+    m_cumulativeEnergySQ = 0;
+    m_cumulativeOpO.resize(m_numberOfParameters, 0);
+    m_cumulativeOpOE.resize(m_numberOfParameters, 0);
+    m_cumulativeOpOE2.resize(m_numberOfParameters, 0);
+    m_cumulativeEdEdW.resize(m_numberOfParameters, 0);
+}
+
 void EnergySampler::mergeBaseData(const EnergySampler* other) {
     if (other->m_elapsedTime > m_elapsedTime)
         m_elapsedTime = other->m_elapsedTime;
@@ -66,6 +71,7 @@ void EnergySampler::mergeBaseData(const EnergySampler* other) {
         m_cumulativeOpO[j] += other->m_cumulativeOpO[j];
         m_cumulativeOpOE[j] += other->m_cumulativeOpOE[j];
         m_cumulativeOpOE2[j] += other->m_cumulativeOpOE2[j];
+        m_cumulativeEdEdW[j] += other->m_cumulativeEdEdW[j];
     }
 }
 

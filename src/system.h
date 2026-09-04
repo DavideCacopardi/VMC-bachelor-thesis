@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <vector>
+#include <functional>
 
 #include "Hamiltonians/hamiltonian.h"
 
@@ -13,6 +14,8 @@
  */
 class System {
 public:
+    using EnSamplerFactory = std::function<std::unique_ptr<class EnergySampler>(unsigned int, unsigned int, unsigned int, double, unsigned int, bool)>;
+
     /**
      * @brief Constructs the system by assembling all physical and numerical components.
      * @param hamiltonian Unique pointer to the Hamiltonian object.
@@ -55,7 +58,9 @@ public:
         unsigned int numberOfMetropolisSteps,
         std::vector<double>* energiesOut = nullptr,
         bool log_grads = false,
-        bool request_Ekin = false);
+        bool request_Ekin = false,
+        EnSamplerFactory* enSamplerFactory = nullptr
+    );
 
     // std::unique_ptr<class NNsampler> runMetropolisSteps_NN(double stepParameter,
     //     unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);
@@ -81,6 +86,11 @@ public:
      */
     double inline computeLocalEnergy() {
         return m_hamiltonian->computeLocalEnergy(
+            *m_waveFunction, m_particles);
+    }
+
+    std::vector<double> inline computeLocalEnergies() {
+        return m_hamiltonian->computeLocalEnergies(
             *m_waveFunction, m_particles);
     }
 

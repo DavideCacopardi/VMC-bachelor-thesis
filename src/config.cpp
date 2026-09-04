@@ -30,7 +30,8 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.waveFunctionTrainType = j["system"].value("waveFunctionTrainType", cfg.waveFunctionTrainType);
         cfg.waveFunctionType      = j["system"].value("waveFunctionType", cfg.waveFunctionType);
         cfg.solverType            = j["system"].value("solverType", cfg.solverType);
-        cfg.useUmrigarDrift        = j["system"].value("useUmrigarDrift", cfg.useUmrigarDrift);
+        cfg.enSamplerType         = j["system"].value("enSamplerType", cfg.enSamplerType);
+        cfg.useUmrigarDrift       = j["system"].value("useUmrigarDrift", cfg.useUmrigarDrift);
         cfg.preferAnalytic        = j["system"].value("preferAnalytic", cfg.preferAnalytic);
         cfg.numberOfThreads       = j["system"].value("numberOfThreads", cfg.numberOfThreads);
     }
@@ -129,6 +130,7 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.normalize_by_nParticles= j["observables"].value("normalize_by_nParticles", cfg.normalize_by_nParticles);
         cfg.calc_normalized_PCF    = j["observables"].value("calc_normalized_PCF", cfg.calc_normalized_PCF);
         cfg.onebodyDensitySteps    = j["observables"].value("onebodyDensitySteps", cfg.onebodyDensitySteps);
+        cfg.uncorrRefDraws         = j["observables"].value("uncorrRefDraws", cfg.uncorrRefDraws);
         cfg.onebodyDensity_rMax    = j["observables"].value("onebodyDensity_rMax", cfg.onebodyDensity_rMax);
         cfg.onebodyDensity_nBins   = j["observables"].value("onebodyDensity_nBins", cfg.onebodyDensity_nBins);
         cfg.nParticleLogs          = j["observables"].value("nParticleLogs", cfg.nParticleLogs);

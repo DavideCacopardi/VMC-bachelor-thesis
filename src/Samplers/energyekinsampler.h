@@ -23,6 +23,10 @@ public:
     EnergyEkinSampler(const std::vector<std::unique_ptr<EnergyEkinSampler>>& others);
     ~EnergyEkinSampler() = default;
 
+    std::unique_ptr<EnergySampler> constructMergedSampler(
+        std::vector<std::unique_ptr<EnergySampler>>& others
+    ) override;
+
     void sample(bool acceptedStep, class System* system, std::vector<double>* energiesOut = nullptr) override;
     void logOutput(const std::vector<double>& params, std::ofstream& outs) override;
     void logHeader(const std::vector<double>& params, std::ofstream& outs) override;
@@ -31,7 +35,7 @@ public:
     double getEkin1_variance() { return m_Ekin1_variance; }
     double getEkin2() { return m_Ekin2; }
     double getEkin2_variance() { return m_Ekin2_variance; }
-
+    void printSpecial(std::ostream& outs) override;
 private:
     LennardJonesHO* m_ljHam;
     long double m_cumulativeEkin1 = 0;
