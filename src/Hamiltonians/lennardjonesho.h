@@ -49,6 +49,11 @@ private:
 
     double localLennardJonesPotentialEnergy(class WaveFunction& waveFunction,
         std::vector<std::unique_ptr<class Particle>>& particles);
+    
+    double localLennardJonesAlikePotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
+    double localLennardJonesUnlikePotentialEnergy(class WaveFunction& waveFunction,
+        std::vector<std::unique_ptr<class Particle>>& particles);
 
     const double c_eps = 1e-9; // prevents numerical errors
 };

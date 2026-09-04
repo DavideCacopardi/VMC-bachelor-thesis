@@ -113,12 +113,21 @@ std::unique_ptr<DensitySampler> MCEngine::runSpatial(
     std::unique_ptr<DensitySampler> main_sampler = system->runMetropolisStepsSpatial(
         tuned_timeStep, m_cfg.onebodyDensitySteps, m_cfg.onebodyDensity_rMax, m_cfg.onebodyDensity_nBins,
         m_cfg.normalize_by_nParticles, m_cfg.nParticleLogs, particlesOut);
-    
+
     if (!normalizing_PCF && m_cfg.calc_normalized_PCF && system->getWaveFunction().hasJastrow()) {
         std::cout << "\rComputing reference PCF...           " << std::flush;
-        std::unique_ptr<DensitySampler> noInt_sampler = runSpatial(m_cfg.referenceParams, nullptr, true);
-        main_sampler->load_normalized_PCF(*noInt_sampler);
+        Random refRng(m_cfg.seed == 0
+            ? std::chrono::system_clock::now().time_since_epoch().count()
+            : m_cfg.seed + 987654321);  // distinct stream from the physical run
+        main_sampler->computeUncorrelatedReference(m_cfg.uncorrRefDraws, refRng);
+        main_sampler->normalizeAgainstUncorrelated();
     }
+    
+    // if (!normalizing_PCF && m_cfg.calc_normalized_PCF && system->getWaveFunction().hasJastrow()) {
+    //     std::cout << "\rComputing reference PCF...           " << std::flush;
+    //     std::unique_ptr<DensitySampler> noInt_sampler = runSpatial(m_cfg.referenceParams, nullptr, true);
+    //     main_sampler->load_normalized_PCF(*noInt_sampler);
+    // }
     return main_sampler;
 }
 

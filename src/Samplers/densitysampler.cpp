@@ -9,6 +9,7 @@
 #include <chrono>
 #include "system.h"
 #include "common.h"
+#include "Math/random.h"
 #include "densitysampler.h"
 #include "Particles/particle.h"
 #include "Hamiltonians/hamiltonian.h"
@@ -51,6 +52,10 @@ m_normalize_by_nParticles(normalize_by_nParticles) {
     m_dens_err_alike.resize(m_nBins, 0.0);
     m_dens_unlike.resize(m_nBins, 0.0);
     m_dens_err_unlike.resize(m_nBins, 0.0);
+    m_dens_alike_uncorr.resize(m_nBins);
+    m_dens_err_alike_uncorr.resize(m_nBins);
+    m_dens_unlike_uncorr.resize(m_nBins);
+    m_dens_err_unlike_uncorr.resize(m_nBins);
 
     m_prob.assign(m_nBins, 0.0);
     m_prob_err.assign(m_nBins, 0.0);
@@ -60,6 +65,11 @@ m_normalize_by_nParticles(normalize_by_nParticles) {
     m_prob_err_alike.resize(m_nBins, 0.0);
     m_prob_unlike.resize(m_nBins, 0.0);
     m_prob_err_unlike.resize(m_nBins, 0.0);
+    m_prob_alike_uncorr.resize(m_nBins);
+    m_prob_err_alike_uncorr.resize(m_nBins);
+    m_prob_unlike_uncorr.resize(m_nBins);
+    m_prob_err_unlike_uncorr.resize(m_nBins);
+
     for (unsigned int i = 0; i < m_nBins; i++) {
         m_rGrid[i] = (i + 0.5) * m_dr;
 
@@ -182,40 +192,40 @@ void DensitySampler::computeAverages() {
     m_elapsedTime = m_watch_end - m_watch_start;
 }
 
-void DensitySampler::load_normalized_PCF(DensitySampler& oth) {
-    m_dens_alike_norm.resize(m_nBins);
-    m_dens_err_alike_norm.resize(m_nBins);
-    m_dens_unlike_norm.resize(m_nBins);
-    m_dens_err_unlike_norm.resize(m_nBins);
-    m_prob_alike_norm.resize(m_nBins);
-    m_prob_err_alike_norm.resize(m_nBins);
-    m_prob_unlike_norm.resize(m_nBins);
-    m_prob_err_unlike_norm.resize(m_nBins);
-    m_normalized_PCF = true;
-    for (unsigned int i = 0; i < m_nBins; i++) {
-        m_dens_alike_norm[i] = m_dens_alike[i] / oth.getDensAlike()[i];
-        m_dens_err_alike_norm[i] = norm(
-            { m_dens_alike[i] / sq(oth.getDensAlike()[i]) * oth.getDensErrAlike()[i],
-            m_dens_err_alike[i] / oth.getDensAlike()[i] }
-        );
-        m_dens_unlike_norm[i] = m_dens_unlike[i] / oth.getDensUnlike()[i];
-        m_dens_err_unlike_norm[i] = norm(
-            { m_dens_unlike[i] / sq(oth.getDensUnlike()[i]) * oth.getDensErrUnlike()[i],
-            m_dens_err_unlike[i] / oth.getDensUnlike()[i] }
-        );
+// void DensitySampler::load_normalized_PCF(DensitySampler& oth) {
+//     m_dens_alike_norm.resize(m_nBins);
+//     m_dens_err_alike_norm.resize(m_nBins);
+//     m_dens_unlike_norm.resize(m_nBins);
+//     m_dens_err_unlike_norm.resize(m_nBins);
+//     m_prob_alike_norm.resize(m_nBins);
+//     m_prob_err_alike_norm.resize(m_nBins);
+//     m_prob_unlike_norm.resize(m_nBins);
+//     m_prob_err_unlike_norm.resize(m_nBins);
+//     m_normalized_PCF = true;
+//     for (unsigned int i = 0; i < m_nBins; i++) {
+//         m_dens_alike_norm[i] = m_dens_alike[i] / oth.getDensAlike()[i];
+//         m_dens_err_alike_norm[i] = norm(
+//             { m_dens_alike[i] / sq(oth.getDensAlike()[i]) * oth.getDensErrAlike()[i],
+//             m_dens_err_alike[i] / oth.getDensAlike()[i] }
+//         );
+//         m_dens_unlike_norm[i] = m_dens_unlike[i] / oth.getDensUnlike()[i];
+//         m_dens_err_unlike_norm[i] = norm(
+//             { m_dens_unlike[i] / sq(oth.getDensUnlike()[i]) * oth.getDensErrUnlike()[i],
+//             m_dens_err_unlike[i] / oth.getDensUnlike()[i] }
+//         );
 
-        m_prob_alike_norm[i] = m_prob_alike[i] / oth.getProbAlike()[i];
-        m_prob_err_alike_norm[i] = norm(
-            { m_prob_alike[i] / sq(oth.getProbAlike()[i]) * oth.getProbErrAlike()[i],
-            m_prob_err_alike[i] / oth.getProbAlike()[i] }
-        );
-        m_prob_unlike_norm[i] = m_prob_unlike[i] / oth.getProbUnlike()[i];
-        m_prob_err_unlike_norm[i] = norm(
-            { m_prob_unlike[i] / sq(oth.getProbUnlike()[i]) * oth.getProbErrUnlike()[i],
-            m_prob_err_unlike[i] / oth.getProbUnlike()[i] }
-        );
-    }
-}
+//         m_prob_alike_norm[i] = m_prob_alike[i] / oth.getProbAlike()[i];
+//         m_prob_err_alike_norm[i] = norm(
+//             { m_prob_alike[i] / sq(oth.getProbAlike()[i]) * oth.getProbErrAlike()[i],
+//             m_prob_err_alike[i] / oth.getProbAlike()[i] }
+//         );
+//         m_prob_unlike_norm[i] = m_prob_unlike[i] / oth.getProbUnlike()[i];
+//         m_prob_err_unlike_norm[i] = norm(
+//             { m_prob_unlike[i] / sq(oth.getProbUnlike()[i]) * oth.getProbErrUnlike()[i],
+//             m_prob_err_unlike[i] / oth.getProbUnlike()[i] }
+//         );
+//     }
+// }
 
 void DensitySampler::logDensity(std::ofstream& outs) const {
     outs << std::scientific;
@@ -330,5 +340,117 @@ void DensitySampler::logParticlesHeader(std::ofstream& outs) const {
             str = "p" + std::to_string(i) + " x" + std::to_string(d);
             print_colTitle(outs, str, (N_FLAVORS <= 1 && i == 0), (i + 1 == m_numberOfParticles && d + 1 == m_numberOfDimensions));
         }
+    }
+}
+
+
+std::vector<double> DensitySampler::buildRadialCDF(unsigned int flavor) const {
+    std::vector<double> cdf(m_nBins, 0.0);
+    double running = 0.0;
+    for (unsigned int i = 0; i < m_nBins; i++) {
+        running += static_cast<double>(m_histFlavor[i][flavor]);
+        cdf[i] = running;
+    }
+    double total = cdf.back();
+    if (total > 0.0)
+        for (unsigned int i = 0; i < m_nBins; i++) cdf[i] /= total;
+    return cdf;
+}
+
+double DensitySampler::sampleRadiusFromCDF(const std::vector<double>& cdf, Random& rng) const {
+    double u = rng.nextDouble();
+    auto it = std::upper_bound(cdf.begin(), cdf.end(), u);
+    unsigned int bin = static_cast<unsigned int>(
+        std::min<size_t>(it - cdf.begin(), m_nBins - 1));
+    return m_rGrid[bin] + (rng.nextDouble() - 0.5) * m_dr;  // jitter within the bin
+}
+
+void DensitySampler::computeUncorrelatedReference(unsigned long numberOfDraws, Random& rng) {
+    // Assumes two-species case (A=0, B=1), N_A == N_B in 3D
+    std::vector<double> cdfA = buildRadialCDF(0);
+    std::vector<double> cdfB = buildRadialCDF(1);
+
+    std::vector<unsigned long> histAlikeUncorr(m_nBins, 0);
+    std::vector<unsigned long> histUnlikeUncorr(m_nBins, 0);
+
+    for (unsigned long k = 0; k < numberOfDraws; k++) {
+        // alike: alternate AA / BB draws (exact 50/50 since N_A == N_B)
+        const std::vector<double>& cdfAlike = (k % 2 == 0) ? cdfA : cdfB;
+        double r1 = sampleRadiusFromCDF(cdfAlike, rng);
+        double r2 = sampleRadiusFromCDF(cdfAlike, rng);
+        double cosG = 2 * rng.nextDouble() - 1;
+        double R = std::sqrt(std::max(0.0, r1 * r1 + r2 * r2 - 2 * r1 * r2 * cosG));
+        unsigned int bin = static_cast<unsigned int>(R / m_dr);
+        if (bin < m_nBins) histAlikeUncorr[bin]++;
+
+        // unlike: one A, one B, always independent
+        double r1u = sampleRadiusFromCDF(cdfA, rng);
+        double r2u = sampleRadiusFromCDF(cdfB, rng);
+        double cosGu = 2 * rng.nextDouble() - 1;
+        double Ru = std::sqrt(std::max(0.0, r1u * r1u + r2u * r2u - 2 * r1u * r2u * cosGu));
+        unsigned int binU = static_cast<unsigned int>(Ru / m_dr);
+        if (binU < m_nBins) histUnlikeUncorr[binU]++;
+    }
+
+    m_dens_alike_uncorr.assign(m_nBins, 0.0);
+    m_dens_err_alike_uncorr.assign(m_nBins, 0.0);
+    m_dens_unlike_uncorr.assign(m_nBins, 0.0);
+    m_dens_err_unlike_uncorr.assign(m_nBins, 0.0);
+    m_prob_alike_uncorr.assign(m_nBins, 0.0);
+    m_prob_err_alike_uncorr.assign(m_nBins, 0.0);
+    m_prob_unlike_uncorr.assign(m_nBins, 0.0);
+    m_prob_err_unlike_uncorr.assign(m_nBins, 0.0);
+
+    double half_d = 0.5 * m_numberOfDimensions;
+    double volume_coeff = pow(M_PI, half_d) / tgamma(half_d + 1.0);
+
+    for (unsigned int i = 0; i < m_nBins; i++) {
+        double r_inner = i * m_dr, r_outer = (i + 1) * m_dr;
+        double volume = volume_coeff * (pow(r_outer, m_numberOfDimensions) - pow(r_inner, m_numberOfDimensions));
+        if (volume <= 0.0) continue;
+
+        double normDens = static_cast<double>(numberOfDraws) * volume;
+        m_dens_alike_uncorr[i] = histAlikeUncorr[i] / normDens;
+        m_dens_err_alike_uncorr[i] = sqrt((double)histAlikeUncorr[i]) / normDens;
+        m_dens_unlike_uncorr[i] = histUnlikeUncorr[i] / normDens;
+        m_dens_err_unlike_uncorr[i] = sqrt((double)histUnlikeUncorr[i]) / normDens;
+
+        double normProb = static_cast<double>(numberOfDraws) * (r_outer - r_inner);
+        m_prob_alike_uncorr[i] = histAlikeUncorr[i] / normProb;
+        m_prob_err_alike_uncorr[i] = sqrt((double)histAlikeUncorr[i]) / normProb;
+        m_prob_unlike_uncorr[i] = histUnlikeUncorr[i] / normProb;
+        m_prob_err_unlike_uncorr[i] = sqrt((double)histUnlikeUncorr[i]) / normProb;
+    }
+}
+
+void DensitySampler::normalizeAgainstUncorrelated() {
+    m_dens_alike_norm.resize(m_nBins);
+    m_dens_err_alike_norm.resize(m_nBins);
+    m_dens_unlike_norm.resize(m_nBins);
+    m_dens_err_unlike_norm.resize(m_nBins);
+    m_prob_alike_norm.resize(m_nBins);
+    m_prob_err_alike_norm.resize(m_nBins);
+    m_prob_unlike_norm.resize(m_nBins);
+    m_prob_err_unlike_norm.resize(m_nBins);
+    m_normalized_PCF = true;
+
+    for (unsigned int i = 0; i < m_nBins; i++) {
+        m_dens_alike_norm[i] = m_dens_alike[i] / m_dens_alike_uncorr[i];
+        m_dens_err_alike_norm[i] = norm({
+            m_dens_alike[i] / sq(m_dens_alike_uncorr[i]) * m_dens_err_alike_uncorr[i],
+            m_dens_err_alike[i] / m_dens_alike_uncorr[i] });
+        m_dens_unlike_norm[i] = m_dens_unlike[i] / m_dens_unlike_uncorr[i];
+        m_dens_err_unlike_norm[i] = norm({
+            m_dens_unlike[i] / sq(m_dens_unlike_uncorr[i]) * m_dens_err_unlike_uncorr[i],
+            m_dens_err_unlike[i] / m_dens_unlike_uncorr[i] });
+
+        m_prob_alike_norm[i] = m_prob_alike[i] / m_prob_alike_uncorr[i];
+        m_prob_err_alike_norm[i] = norm({
+            m_prob_alike[i] / sq(m_prob_alike_uncorr[i]) * m_prob_err_alike_uncorr[i],
+            m_prob_err_alike[i] / m_prob_alike_uncorr[i] });
+        m_prob_unlike_norm[i] = m_prob_unlike[i] / m_prob_unlike_uncorr[i];
+        m_prob_err_unlike_norm[i] = norm({
+            m_prob_unlike[i] / sq(m_prob_unlike_uncorr[i]) * m_prob_err_unlike_uncorr[i],
+            m_prob_err_unlike[i] / m_prob_unlike_uncorr[i] });
     }
 }

@@ -126,13 +126,14 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         if 'dens_alike_n' in df.columns:
             if has_pcorr_norm == False:
                 fig3, axs3 = plt.subplots(1, 1, figsize=(12, 6))
-            axs3[0].ticklabel_format(style="sci", scilimits=(0,0))
+            axs3.ticklabel_format(style="sci", scilimits=(0,0))
             # axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr_norm = True
+            mask = r < 6
 
-            axs3[0].errorbar(r, df['dens_alike_n'], yerr=df['dens_err_alike_n'], 
+            axs3.errorbar(r[mask], df['dens_alike_n'][mask], yerr=df['dens_err_alike_n'][mask], 
                              color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")            
-            axs3[0].errorbar(r, df['dens_unlike_n'], yerr=df['dens_err_unlike_n'], 
+            axs3.errorbar(r[mask], df['dens_unlike_n'][mask], yerr=df['dens_err_unlike_n'][mask], 
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
             
             # axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
@@ -164,15 +165,16 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         fig2.tight_layout()
 
     if has_pcorr_norm:
-        axs3[0].set_title("Pair Correlation Density")
-        axs3[0].set_ylabel(r"$g(r)$")
-        axs3[0].set_xlabel(r"$r$")
-        axs3[0].legend()
+        axs3.set_title("Pair Correlation Function")
+        axs3.set_ylabel(r"$g(r)$")
+        axs3.set_xlabel(r"$r$")
+        axs3.legend(loc=4)
         
         # axs3[1].set_title("Pair Correlation Radial Probability")
         # axs3[1].set_ylabel(r"$P_{g}(r)$")
         # axs3[1].set_xlabel(r"$r$")
         # axs3[1].legend()
+        # axs3.set_xlim(right=6)
         fig3.tight_layout()
 
     # --- save ---
@@ -188,13 +190,13 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             save_base = "multiplot"
         md = {}
     
-    fig1.savefig(f"figs_OBD/OBD_{save_base}.png", dpi=300, metadata=md)
+    fig1.savefig(f"figs_OBD/OBD_{save_base}.png", dpi=300, metadata=md, transparent=True)
     print(f"Saved OBD plot to figs_OBD/OBD_{save_base}.png")
     if has_pcorr:
-        fig2.savefig(f"figs_pcorr/pcorr_{save_base}.png", dpi=300, metadata=md)
+        fig2.savefig(f"figs_pcorr/pcorr_{save_base}.png", dpi=300, metadata=md, transparent=True)
         print(f"Saved Pair Correlation plot to figs_pcorr/pcorr_{save_base}.png")
     if has_pcorr_norm:
-        fig3.savefig(f"figs_pcorr/pcorr_norm_{save_base}.png", dpi=300, metadata=md)
+        fig3.savefig(f"figs_pcorr/pcorr_norm_{save_base}.png", dpi=300, metadata=md, transparent=True)
         print(f"Saved Normalized Pair Correlation plot to figs_pcorr/pcorr_norm_{save_base}.png")
         
     if talk:

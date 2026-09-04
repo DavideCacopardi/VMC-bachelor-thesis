@@ -174,6 +174,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";
+    globalLog << "uncorrRefDraws            : " << cfg.uncorrRefDraws << "\n";
     globalLog << "Seed                      : " << cfg.seed << "\n";
     globalLog << "=========================================\n";
     globalLog << "Called toggles            : [ ";
