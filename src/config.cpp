@@ -30,7 +30,8 @@ runConfig loadConfig(const std::string& filepath) {
         cfg.waveFunctionTrainType = j["system"].value("waveFunctionTrainType", cfg.waveFunctionTrainType);
         cfg.waveFunctionType      = j["system"].value("waveFunctionType", cfg.waveFunctionType);
         cfg.solverType            = j["system"].value("solverType", cfg.solverType);
-        cfg.useUmrigarDrift        = j["system"].value("useUmrigarDrift", cfg.useUmrigarDrift);
+        cfg.enSamplerType         = j["system"].value("enSamplerType", cfg.enSamplerType);
+        cfg.useUmrigarDrift       = j["system"].value("useUmrigarDrift", cfg.useUmrigarDrift);
         cfg.preferAnalytic        = j["system"].value("preferAnalytic", cfg.preferAnalytic);
         cfg.numberOfThreads       = j["system"].value("numberOfThreads", cfg.numberOfThreads);
     }

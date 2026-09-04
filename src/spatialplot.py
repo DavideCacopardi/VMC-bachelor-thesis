@@ -125,9 +125,9 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         # FIGURE 3: Normalized Pair Correlation (alike / unlike)
         if 'dens_alike_n' in df.columns:
             if has_pcorr_norm == False:
-                fig3, axs3 = plt.subplots(1, 2, figsize=(12, 6))
+                fig3, axs3 = plt.subplots(1, 1, figsize=(12, 6))
             axs3[0].ticklabel_format(style="sci", scilimits=(0,0))
-            axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
+            # axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr_norm = True
 
             axs3[0].errorbar(r, df['dens_alike_n'], yerr=df['dens_err_alike_n'], 
@@ -135,10 +135,10 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             axs3[0].errorbar(r, df['dens_unlike_n'], yerr=df['dens_err_unlike_n'], 
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
             
-            axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
-                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
-            axs3[1].errorbar(r, df['prob_unlike_n'], yerr=df['prob_err_unlike_n'], 
-                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+            # axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
+            #                  color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
+            # axs3[1].errorbar(r, df['prob_unlike_n'], yerr=df['prob_err_unlike_n'], 
+            #                  color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
 
     axs1[0].set_title("One-Body Density")
     axs1[0].set_ylabel(r"$\rho(r)$")
@@ -169,10 +169,10 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         axs3[0].set_xlabel(r"$r$")
         axs3[0].legend()
         
-        axs3[1].set_title("Pair Correlation Radial Probability")
-        axs3[1].set_ylabel(r"$P_{g}(r)$")
-        axs3[1].set_xlabel(r"$r$")
-        axs3[1].legend()
+        # axs3[1].set_title("Pair Correlation Radial Probability")
+        # axs3[1].set_ylabel(r"$P_{g}(r)$")
+        # axs3[1].set_xlabel(r"$r$")
+        # axs3[1].legend()
         fig3.tight_layout()
 
     # --- save ---

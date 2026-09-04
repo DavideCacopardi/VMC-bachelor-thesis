@@ -20,6 +20,8 @@ public:
     using WaveFunctionFactory = std::function<std::unique_ptr<class WaveFunction>(const std::vector<double>&)>;
     /// @brief Type for the Solver factory (accepts a random generator).
     using SolverFactory = std::function<std::unique_ptr<class MonteCarlo>(std::unique_ptr<class Random>)>;
+    /// @brief Type for the EnergySampler factory.
+    using EnSamplerFactory = std::function<std::unique_ptr<class EnergySampler>(unsigned int, unsigned int, unsigned int, double, unsigned int, bool)>;
 
     /**
      * @brief Initializes the VMC engine, configuring physical parameters and Factories.
@@ -31,7 +33,8 @@ public:
         const runConfig& cfg,
         HamiltonianFactory hamiltonianFactory,
         WaveFunctionFactory waveFunctionFactory,
-        SolverFactory solverFactory
+        SolverFactory solverFactory,
+        EnSamplerFactory enSamplerFactory
     );
 
     std::unique_ptr<class EnergySampler> run(
@@ -67,5 +70,6 @@ private:
     HamiltonianFactory m_hamiltonianFactory;
     WaveFunctionFactory m_waveFunctionFactory;
     SolverFactory m_solverFactory;
+    EnSamplerFactory m_enSamplerFactory;
     double m_rep_a;
 };

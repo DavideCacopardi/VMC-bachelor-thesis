@@ -10,6 +10,7 @@
 #include "system.h"
 #include "Samplers/energysampler.h"
 #include "Samplers/energyekinsampler.h"
+#include "Samplers/energyseparatesampler.h"
 #include "Samplers/densitysampler.h"
 #include "InitialStates/initialstate.h"
 #include "Math/random.h"
@@ -23,12 +24,14 @@ MCEngine::MCEngine(
     const runConfig& cfg,
     HamiltonianFactory hamiltonianFactory,
     WaveFunctionFactory waveFunctionFactory,
-    SolverFactory solverFactory
+    SolverFactory solverFactory,
+    EnSamplerFactory enSamplerFactory
 ) :
 m_cfg(cfg),
 m_hamiltonianFactory(std::move(hamiltonianFactory)),
 m_waveFunctionFactory(std::move(waveFunctionFactory)),
-m_solverFactory(std::move(solverFactory)) 
+m_solverFactory(std::move(solverFactory)),
+m_enSamplerFactory(std::move(enSamplerFactory)) 
 {
     if (m_hamiltonianFactory()->has_hardcore()) {
         m_rep_a = m_hamiltonianFactory()->getRepulsiveFactor();
@@ -80,26 +83,12 @@ std::unique_ptr<EnergySampler> MCEngine::run(
             localSteps, 
             energiesOut != nullptr ? &((*energiesOut)[thread_id]) : nullptr,
             m_cfg.log_grads,
-            m_cfg.LJ_request_Ekin
+            m_cfg.LJ_request_Ekin,
+            &m_enSamplerFactory
         );
     }
 
-    std::unique_ptr<EnergySampler> global_sampler;
-    auto* helper_ptr = dynamic_cast<EnergyEkinSampler*>(local_samplers[0].get());
-    if (m_cfg.LJ_request_Ekin && helper_ptr != nullptr) { // check EnergyEkinSampler
-        std::vector<std::unique_ptr<EnergyEkinSampler>> local_ekin_samplers;
-        local_ekin_samplers.reserve(m_cfg.numberOfThreads);
-        for (auto& sampler : local_samplers) {
-            local_ekin_samplers.push_back(
-                dynamic_unique_cast<EnergyEkinSampler>(std::move(sampler))
-            );
-        }
-        global_sampler = std::make_unique<EnergyEkinSampler>(local_ekin_samplers);
-    }
-    else {
-        global_sampler = std::make_unique<EnergySampler>(local_samplers);
-    }
-
+    std::unique_ptr<EnergySampler> global_sampler = local_samplers[0]->constructMergedSampler(local_samplers);
     return global_sampler;
 }
 

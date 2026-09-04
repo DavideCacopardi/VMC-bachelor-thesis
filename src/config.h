@@ -11,6 +11,7 @@ struct runConfig {
     string waveFunctionTrainType = "EllipticGaussian";
     string waveFunctionType = "LJGaussian";
     string solverType = "MetropolisHastings";
+    string enSamplerType = "Standard";
     bool useUmrigarDrift = false;
     bool preferAnalytic = false;
     unsigned int numberOfThreads = 4;

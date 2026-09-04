@@ -82,10 +82,13 @@ std::vector<double> MetropolisHastings::calcDrift(
         drift[i] = qforce[i] * timeStep * m_D;
     }
     if (m_useUmrigarDrift) {
-        double sqn = sqNorm(drift);
+        double sq_qforce = sqNorm(qforce); 
+        double dimensionless = m_D * sq_qforce * timeStep;
+
+        // double sqn = sqNorm(drift);
         double umrigar_multiplier = 1.0; // sqn -> 0
-        if (sqn > 1e-12) {
-            umrigar_multiplier = (sqrt(1 + 2 * a * sqn) - 1) / (a * sqn);
+        if (dimensionless > 1e-12) {
+            umrigar_multiplier = (sqrt(1 + 2 * a * dimensionless) - 1) / (a * dimensionless);
         }
         for (unsigned int i = 0; i < drift.size(); i++) {
             drift[i] *= umrigar_multiplier;

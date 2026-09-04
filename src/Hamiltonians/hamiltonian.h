@@ -21,6 +21,14 @@ public:
         return -1;
     }
 
+    virtual std::vector<double> computeLocalEnergies(
+        class WaveFunction&,
+        std::vector<std::unique_ptr<class Particle>>&
+    ) {
+        throw std::invalid_argument("computeLocalEnergies called on base class hamiltonian");
+        return {};
+    }
+
     virtual double getRepulsiveFactor() {
         throw std::invalid_argument("getRepulsiveFactor called on base class hamiltonian");
         return -1;
