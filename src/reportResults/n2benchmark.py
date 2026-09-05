@@ -45,7 +45,7 @@ if __name__ == "__main__":
     omega1, omega2 = 0.111803, 0.027951
  
     print(f"{'omega':>10} {'alpha_tilde':>12} {'E_rel':>19} {'E_cm':>19} {'E_exact':>19}")
-    for omega in (omega1, omega2):
+    for omega in (omega1, omega2, 0):
         for alpha_tilde in (1.00, 0.40, 0.05, 0.00):
             e_rel = solve_relative_motion(omega, alpha_tilde)
             ecm = E_cm(omega)

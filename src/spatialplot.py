@@ -126,6 +126,10 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         if 'dens_alike_n' in df.columns:
             if has_pcorr_norm == False:
                 fig3, axs3 = plt.subplots(1, 1, figsize=(12, 6))
+                # ax_ins = axs3.inset_axes(
+                #     [0.3, 0.09, 0.3, 0.57], xlim=(1.25, 2.25), ylim=(0.8, 1.12), xticklabels=[], yticklabels=[]
+                # )
+                # ax_ins.set_facecolor("white")
             axs3.ticklabel_format(style="sci", scilimits=(0,0))
             # axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr_norm = True
@@ -135,6 +139,16 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
                              color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")            
             axs3.errorbar(r[mask], df['dens_unlike_n'][mask], yerr=df['dens_err_unlike_n'][mask], 
                              color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+            
+            
+            # ax_ins.errorbar(r[mask], df['dens_alike_n'][mask], yerr=df['dens_err_alike_n'][mask], 
+            #                  color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")  
+            # ax_ins.errorbar(r[mask], df['dens_unlike_n'][mask], yerr=df['dens_err_unlike_n'][mask], 
+            #                  color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+            # ax_ins.set_xticklabels([f"{ax_ins.get_xticks()[k]}" for k in range(ax_ins.get_xticks().size)], fontsize=13)
+            # ax_ins.set_yticklabels(np.array(ax_ins.get_yticks()), fontsize=13)
+            # ax_ins.tick_params(axis="both", direction="in")
+            # axs3.indicate_inset_zoom(ax_ins, edgecolor="black")
             
             # axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
             #                  color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
