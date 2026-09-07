@@ -15,17 +15,23 @@ public:
     DensitySampler(
         unsigned int numberOfParticles,
         unsigned int numberOfDimensions,
-        unsigned int numberOfParameters,
-        double stepLength,
         unsigned int numberOfMetropolisSteps,
         double rMax,
         unsigned int nBins,
         bool normalize_by_nParticles);
+    // Construct merged sampler
+    DensitySampler(const std::vector<std::unique_ptr<DensitySampler>>& others);
+
+    virtual void reset();
+    std::unique_ptr<DensitySampler> constructMergedSampler(
+        std::vector<std::unique_ptr<DensitySampler>>& others,
+        bool calc_merged_errors = true);
 
 
     void sample(bool acceptedStep, class System* system, std::vector<double>* outfile = nullptr) override;
     void computeAverages();
-    void computeUncorrelatedReference(unsigned long numberOfDraws, class Random& rng);
+    void computeUncorrelatedReference(unsigned int nDraws, class Random& rng);
+    void computeAveragesUncorrelatedReference();
     void normalizeAgainstUncorrelated();
 
     // deprecated
@@ -52,18 +58,20 @@ private:
     double m_rMax;
     unsigned int m_nBins;
     bool m_normalize_by_nParticles;
+    unsigned int m_uncorrReference_nDraws = 0;
 
     double m_dr;
     int m_nAlike = -1;
     int m_nUnlike = -1;
     bool m_nAlike_nUnlike_haveChanged = false;
-    bool m_normalized_PCF = false;
     std::vector<double> m_rGrid;
 
     std::vector<unsigned int> m_histogram;
     std::vector<std::vector<unsigned int>> m_histFlavor;
     std::vector<unsigned int> m_histAlike;
     std::vector<unsigned int> m_histUnlike;
+    std::vector<unsigned int> m_histAlikeUncorr;
+    std::vector<unsigned int> m_histUnlikeUncorr;
 
     std::vector<double> m_dens;
     std::vector<double> m_dens_err;
@@ -94,11 +102,13 @@ private:
     std::vector<double> m_prob_err_alike_uncorr;
     std::vector<double> m_prob_unlike_uncorr;
     std::vector<double> m_prob_err_unlike_uncorr;
-    std::vector<double> m_prob_alike_norm;
-    std::vector<double> m_prob_err_alike_norm;
-    std::vector<double> m_prob_unlike_norm;
-    std::vector<double> m_prob_err_unlike_norm;
+    // std::vector<double> m_prob_alike_norm;
+    // std::vector<double> m_prob_err_alike_norm;
+    // std::vector<double> m_prob_unlike_norm;
+    // std::vector<double> m_prob_err_unlike_norm;
 
+    void mergeBaseData(const DensitySampler* other);
+    void calcStatErrors(const std::vector<std::unique_ptr<DensitySampler>>& others);
 
     std::vector<double> buildRadialCDF(unsigned int flavor) const;
     double sampleRadiusFromCDF(const std::vector<double>& cdf, class Random& rng) const;

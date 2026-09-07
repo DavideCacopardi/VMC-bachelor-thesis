@@ -66,15 +66,15 @@ target_compile_options(vmc PRIVATE ${TORCH_CXX_FLAGS})
 
 find_package(Doxygen)
 
-if (DOXYGEN_FOUND)
-    add_custom_target(doc
-        COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        COMMENT "Generating documentation..."
-        VERBATIM
-    )
+# if (DOXYGEN_FOUND)
+#     add_custom_target(doc
+#         COMMAND ${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile
+#         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+#         COMMENT "Generating documentation..."
+#         VERBATIM
+#     )
     
-    message(STATUS "Doxygen found!")
-else()
-    message(WARNING "Doxygen not found. The 'doc' target will not be available.")
-endif()
+#     message(STATUS "Doxygen found!")
+# else()
+#     message(WARNING "Doxygen not found. The 'doc' target will not be available.")
+# endif()

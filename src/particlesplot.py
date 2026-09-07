@@ -156,7 +156,7 @@ def plot_file(fname, talk=True):
                                alpha=1.0, zorder=10, label=lbl)
 
         # Restore labels and fixed limits
-        ax.set_title(f"Particle evolution ({fname})")
+        # ax.set_title(f"Particle evolution ({fname})")
         ax.set_xlabel("X")
         ax.set_ylabel("Y")
         ax.set_xlim(xlims)
@@ -195,6 +195,9 @@ def plot_file(fname, talk=True):
         frames = list(time_steps) + [n_snapshots - 1] * n_hold_frames
         
         anim = FuncAnimation(fig, draw_frame, frames=frames, interval=1000/fps, blit=False, repeat=True)
+        Writer = matplotlib.animation.writers['ffmpeg']
+        writer = Writer(fps=15, bitrate=1800)
+        anim.save("reportResults/nonConfinedN12.mp4", writer=writer)
         plt.show()
 
 def on_select(listbox, event=None):

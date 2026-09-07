@@ -165,12 +165,7 @@ void printLogHeader(const runConfig& cfg, const vector<bool>& toggles, std::ofst
     globalLog << "-----------------------------------------\n";
     globalLog << "[ OBSERVABLES & MISC ]\n";
     globalLog << "Normalize by nParticles   : " << (cfg.normalize_by_nParticles ? "true" : "false") << "\n";
-    globalLog << "calc_normalized_PCF       : " << (cfg.calc_normalized_PCF ? "true" : "false") << "\n";
-    globalLog << "PCF reference params      : [ " << setprecision(9);
-    for (unsigned int i = 0; i < cfg.referenceParams.size(); i++) {
-        globalLog << cfg.referenceParams[i];
-        globalLog << ((i + 1 == cfg.referenceParams.size()) ? " ]\n" : ", ");
-    }
+    globalLog << "onebodyDensity_statErr    : " << (cfg.onebodyDensity_statErr ? "true" : "false") << "\n";
     globalLog << "1bodyDens. Steps          : " << cfg.onebodyDensitySteps << "\n";
     globalLog << "1bodyDens. rMax           : " << cfg.onebodyDensity_rMax << "\n";
     globalLog << "1bodyDens. nBins          : " << cfg.onebodyDensity_nBins << "\n";

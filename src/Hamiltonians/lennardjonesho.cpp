@@ -64,8 +64,8 @@ double LennardJonesHO::computeLocalEnergy(
     return computeLocalKineticEnergy(waveFunction, particles) + potentialEnergy;
     */
     return computeLocalKineticEnergy(waveFunction, particles)
-        + localHarmonicPotentialEnergy(waveFunction, particles)
-        + localLennardJonesPotentialEnergy(waveFunction, particles);
+        + localHarmonicPotentialEnergy(particles)
+        + localLennardJonesPotentialEnergy(particles);
 }
 
 std::vector<double> LennardJonesHO::computeLocalEnergies(
@@ -74,14 +74,14 @@ std::vector<double> LennardJonesHO::computeLocalEnergies(
 ) {
     std::vector<double> energies(5);
     energies[1] = computeLocalKineticEnergy(waveFunction, particles);
-    energies[2] = localHarmonicPotentialEnergy(waveFunction, particles);
-    energies[3] = localLennardJonesAlikePotentialEnergy(waveFunction, particles);
-    energies[4] = localLennardJonesUnlikePotentialEnergy(waveFunction, particles);
+    energies[2] = localHarmonicPotentialEnergy(particles);
+    energies[3] = localLennardJonesAlikePotentialEnergy(particles);
+    energies[4] = localLennardJonesUnlikePotentialEnergy(particles);
     energies[0] = energies[1] + energies[2] + energies[3] + energies[4];
     return energies;
 }
 
-double LennardJonesHO::localHarmonicPotentialEnergy(class WaveFunction& waveFunction,
+double LennardJonesHO::localHarmonicPotentialEnergy(
     std::vector<std::unique_ptr<class Particle>>& particles
 ) {
     double potentialEnergy = 0;
@@ -91,7 +91,7 @@ double LennardJonesHO::localHarmonicPotentialEnergy(class WaveFunction& waveFunc
     return potentialEnergy;
 }
 
-double LennardJonesHO::localLennardJonesPotentialEnergy(class WaveFunction& waveFunction,
+double LennardJonesHO::localLennardJonesPotentialEnergy(
     std::vector<std::unique_ptr<class Particle>>& particles
 ) {
     double potentialEnergy = 0;
@@ -114,7 +114,7 @@ double LennardJonesHO::localLennardJonesPotentialEnergy(class WaveFunction& wave
     return potentialEnergy;
 }
 
-double LennardJonesHO::localLennardJonesUnlikePotentialEnergy(class WaveFunction& waveFunction,
+double LennardJonesHO::localLennardJonesUnlikePotentialEnergy(
     std::vector<std::unique_ptr<class Particle>>& particles
 ) {
     double potentialEnergy = 0;
@@ -136,7 +136,7 @@ double LennardJonesHO::localLennardJonesUnlikePotentialEnergy(class WaveFunction
     return potentialEnergy;
 }
 
-double LennardJonesHO::localLennardJonesAlikePotentialEnergy(class WaveFunction& waveFunction,
+double LennardJonesHO::localLennardJonesAlikePotentialEnergy(
     std::vector<std::unique_ptr<class Particle>>& particles
 ) {
     double potentialEnergy = 0;

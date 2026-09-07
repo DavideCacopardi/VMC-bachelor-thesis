@@ -36,8 +36,12 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
     axs1[1].ticklabel_format(style="sci", scilimits=(0,0))
     
     
-    cmap_colors = matplotlib.colormaps.get_cmap("tab20c")
-    cmap_colors = [cmap_colors.colors[i] for i in range(20)]
+    cmap_colors_base = matplotlib.colormaps.get_cmap("tab20c")
+    cmap_colors = [cmap_colors_base.colors[i] for i in range(20)]
+    cmap_colors.append("red")
+    cmap_colors.append("fuchsia")
+    cmap_colors.append("magenta")
+    cmap_colors.append("pink")
     has_pcorr = False
     has_pcorr_norm = False
     
@@ -69,33 +73,38 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             label = fname[4:-4]
         else:
             label = legend_labels[i]
-        base_color = cmap_colors[(4 * i)%20]
-        base_color_A = cmap_colors[(4 * i + 4)%20]
-        base_color_B = cmap_colors[(4 * i + 8)%20]
-        sec_color = cmap_colors[(4 * i + 2)%20]
+        base_color = cmap_colors[(4 * i)%len(cmap_colors)]
+        base_color_A = cmap_colors[(4 * i + 4)%len(cmap_colors)]
+        base_color_B = cmap_colors[(4 * i + 8)%len(cmap_colors)]
+        sec_color = cmap_colors[(4 * i + 2)%len(cmap_colors)]
+        # if (4 * i // 20) % 2 == 0:
+        #     ls = '-'
+        # else:
+        #     ls = ':'
+        ls = '-'
         
         # FIGURE 1: One-Body Density
         if 'dens_tot' in df.columns:
             err_col = 'dens_err_' if 'dens_err_' in df.columns else df.columns[2]
             
             axs1[0].errorbar(r, df['dens_tot'], yerr=df[err_col], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=rf"{label} (tot)")
+                             color=base_color, marker='.', markersize=4, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
             
             if 'dens_A' in df.columns and len(fnames) == 1:
                 err_col = 'dens_err_A' if 'dens_err_A' in df.columns else df.columns[4]
-                axs1[0].errorbar(r, df['dens_A'], yerr=df[err_col], marker='.', markersize=4, color=base_color_A, linestyle='-', alpha=0.4, label='A')
+                axs1[0].errorbar(r, df['dens_A'], yerr=df[err_col], marker='.', markersize=3, color=base_color_A, linestyle=ls, alpha=0.4, label='A')
             if 'dens_B' in df.columns and len(fnames) == 1:
                 err_col = 'dens_err_B' if 'dens_err_B' in df.columns else df.columns[6]
-                axs1[0].errorbar(r, df['dens_B'], yerr=df[err_col], marker='s', mfc="none", markersize=4, color=base_color_B, linestyle='--', alpha=0.6, label='B')
+                axs1[0].errorbar(r, df['dens_B'], yerr=df[err_col], marker='s', mfc="none", markersize=3, color=base_color_B, linestyle='--', alpha=0.6, label='B')
                 
         if 'prob_tot' in df.columns:
             err_col_prob = 'prob_err_' if 'prob_err_' in df.columns else [c for c in df.columns if 'prob_err' in c][0]
             axs1[1].errorbar(r, df['prob_tot'], yerr=df[err_col_prob], 
-                             color=base_color, marker='.', markersize=6, linestyle='-', label=rf"{label} (tot)")
+                             color=base_color, marker='.', markersize=3, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
                              
             if 'prob_A' in df.columns and len(fnames) == 1:
                 err_col = 'prob_err_A' if 'prob_err_A' in df.columns else [c for c in df.columns if 'prob_err' in c][1]
-                axs1[1].errorbar(r, df['prob_A'], yerr=df[err_col], marker='.', markersize=4, color=base_color_A, linestyle='-', alpha=0.4, label='A')
+                axs1[1].errorbar(r, df['prob_A'], yerr=df[err_col], marker='.', markersize=4, color=base_color_A, linestyle=ls, alpha=0.4, label='A')
             if 'prob_B' in df.columns and len(fnames) == 1:
                 err_col = 'prob_err_B' if 'prob_err_B' in df.columns else [c for c in df.columns if 'prob_err' in c][2]
                 axs1[1].errorbar(r, df['prob_B'], yerr=df[err_col], marker='s', mfc="none", markersize=4, color=base_color_B, linestyle='--', alpha=0.6, label='B')
@@ -110,17 +119,17 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
 
             err = df['dens_err_alike'] if 'dens_err_alike' in df.columns else df['dens_alike_err']
             axs2[0].errorbar(r, df['dens_alike'], yerr=err, 
-                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
+                             color=sec_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (alike)")
             err = df['dens_err_unlike'] if 'dens_err_unlike' in df.columns else df['dens_unlike_err']
             axs2[0].errorbar(r, df['dens_unlike'], yerr=err, 
-                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+                             color=base_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (unlike)")
             
             err = df['prob_err_alike'] if 'prob_err_alike' in df.columns else df['prob_alike_err']
             axs2[1].errorbar(r, df['prob_alike'], yerr=err, 
-                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
+                             color=sec_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (alike)")
             err = df['prob_err_unlike'] if 'prob_err_unlike' in df.columns else df['prob_unlike_err']
             axs2[1].errorbar(r, df['prob_unlike'], yerr=err, 
-                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+                             color=base_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (unlike)")
 
         # FIGURE 3: Normalized Pair Correlation (alike / unlike)
         if 'dens_alike_n' in df.columns:
@@ -134,17 +143,17 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             # axs3[1].ticklabel_format(style="sci", scilimits=(0,0))
             has_pcorr_norm = True
             mask = r < 6
-
+            
             axs3.errorbar(r[mask], df['dens_alike_n'][mask], yerr=df['dens_err_alike_n'][mask], 
-                             color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")            
+                             color=sec_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (alike)")            
             axs3.errorbar(r[mask], df['dens_unlike_n'][mask], yerr=df['dens_err_unlike_n'][mask], 
-                             color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+                             color=base_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (unlike)")
             
             
             # ax_ins.errorbar(r[mask], df['dens_alike_n'][mask], yerr=df['dens_err_alike_n'][mask], 
-            #                  color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")  
+            #                  color=sec_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (alike)")  
             # ax_ins.errorbar(r[mask], df['dens_unlike_n'][mask], yerr=df['dens_err_unlike_n'][mask], 
-            #                  color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+            #                  color=base_color, marker='.', markersize=3, linestyle=ls, alpha=0.8, label=rf"{label} (unlike)")
             # ax_ins.set_xticklabels([f"{ax_ins.get_xticks()[k]}" for k in range(ax_ins.get_xticks().size)], fontsize=13)
             # ax_ins.set_yticklabels(np.array(ax_ins.get_yticks()), fontsize=13)
             # ax_ins.tick_params(axis="both", direction="in")

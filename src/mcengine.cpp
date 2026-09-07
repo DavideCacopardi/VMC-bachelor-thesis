@@ -51,7 +51,7 @@ std::unique_ptr<EnergySampler> MCEngine::run(
 
     // Vectors to hold the results from each thread
     std::vector<std::unique_ptr<EnergySampler>> local_samplers(m_cfg.numberOfThreads);
-    std::vector<std::vector<double>> local_energies(m_cfg.numberOfThreads);
+    // std::vector<std::vector<double>> local_energies(m_cfg.numberOfThreads);
     if (energiesOut != nullptr) {
         energiesOut->resize(m_cfg.numberOfThreads);
         for (unsigned int i = 0; i < m_cfg.numberOfThreads; ++i) {
@@ -94,41 +94,58 @@ std::unique_ptr<EnergySampler> MCEngine::run(
 
 std::unique_ptr<DensitySampler> MCEngine::runSpatial(
     const std::vector<double>& params,
-    std::ofstream* particlesOut,
-    bool normalizing_PCF)
+    std::ofstream* particlesOut)
 {
-    auto rng = std::make_unique<Random>(m_cfg.seed == 0
-        ? std::chrono::system_clock::now().time_since_epoch().count()
-        : m_cfg.seed);
-    auto particles = setupRandomUniformInitialState(
-        m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng);
-    auto solver = m_solverFactory(std::move(rng));
-    auto system = std::make_unique<System>(
-        m_hamiltonianFactory(),
-        m_waveFunctionFactory(params),
-        std::move(solver),
-        std::move(particles));
-        
-    double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
-    std::unique_ptr<DensitySampler> main_sampler = system->runMetropolisStepsSpatial(
-        tuned_timeStep, m_cfg.onebodyDensitySteps, m_cfg.onebodyDensity_rMax, m_cfg.onebodyDensity_nBins,
-        m_cfg.normalize_by_nParticles, m_cfg.nParticleLogs, particlesOut);
+    omp_set_num_threads(m_cfg.numberOfThreads);
+    unsigned int localSteps = m_cfg.onebodyDensitySteps / m_cfg.numberOfThreads;
+    unsigned int localUncorrDraws = m_cfg.uncorrRefDraws / m_cfg.numberOfThreads;
 
-    if (!normalizing_PCF && m_cfg.calc_normalized_PCF && system->getWaveFunction().hasJastrow()) {
-        std::cout << "\rComputing reference PCF...           " << std::flush;
+    // Vectors to hold the results from each thread
+    std::vector<std::unique_ptr<DensitySampler>> local_samplers(m_cfg.numberOfThreads);
+
+#pragma omp parallel
+    {
+        int thread_id = omp_get_thread_num();
+        // thread-safe RNG
+        unsigned long base_seed = (m_cfg.seed == 0) 
+            ? std::chrono::system_clock::now().time_since_epoch().count() 
+            : m_cfg.seed;
+        auto rng = std::make_unique<Random>(base_seed + thread_id);
+        auto particles = setupRandomUniformInitialState(
+            m_cfg.numberOfDimensions, m_cfg.numberOfParticles, *rng);
+        auto solver = m_solverFactory(std::move(rng));
+        auto system = std::make_unique<System>(
+            m_hamiltonianFactory(),
+            m_waveFunctionFactory(params),
+            std::move(solver),
+            std::move(particles));
+
+        double tuned_timeStep = system->runEquilibrationSteps(m_cfg.timeStep, m_cfg.equilibrationSteps);
+        local_samplers[thread_id] = system->runMetropolisStepsSpatial(
+            tuned_timeStep, localSteps, m_cfg.onebodyDensity_rMax, m_cfg.onebodyDensity_nBins,
+            m_cfg.normalize_by_nParticles, ((thread_id == 0) ? m_cfg.nParticleLogs : 0),
+            ((thread_id == 0) ? particlesOut : nullptr));
+
+        if (thread_id == 0)
+            std::cout << "\rComputing reference PCF...           " << std::flush;
         Random refRng(m_cfg.seed == 0
             ? std::chrono::system_clock::now().time_since_epoch().count()
             : m_cfg.seed + 987654321);  // distinct stream from the physical run
-        main_sampler->computeUncorrelatedReference(m_cfg.uncorrRefDraws, refRng);
-        main_sampler->normalizeAgainstUncorrelated();
+        local_samplers[thread_id]->computeUncorrelatedReference(localUncorrDraws, refRng);
+        // local_samplers[thread_id]->computeAveragesUncorrelatedReference();
+        // local_samplers[thread_id]->normalizeAgainstUncorrelated();
     }
-    
+
+    // DEPRECATED:
     // if (!normalizing_PCF && m_cfg.calc_normalized_PCF && system->getWaveFunction().hasJastrow()) {
     //     std::cout << "\rComputing reference PCF...           " << std::flush;
     //     std::unique_ptr<DensitySampler> noInt_sampler = runSpatial(m_cfg.referenceParams, nullptr, true);
     //     main_sampler->load_normalized_PCF(*noInt_sampler);
     // }
-    return main_sampler;
+
+    std::unique_ptr<DensitySampler> global_sampler =
+        local_samplers[0]->constructMergedSampler(local_samplers, (m_cfg.numberOfThreads > 1) ? m_cfg.onebodyDensity_statErr : false);
+    return global_sampler;
 }
 
 double MCEngine::getRepulsiveFactor() const {

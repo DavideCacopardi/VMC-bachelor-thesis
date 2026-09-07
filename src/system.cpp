@@ -158,8 +158,6 @@ std::unique_ptr<DensitySampler> System::runMetropolisStepsSpatial(double stepPar
     auto sampler = std::make_unique<DensitySampler>(
         m_numberOfParticles,
         m_numberOfDimensions,
-        m_waveFunction->getNumberOfParameters(),
-        stepParameter,
         numberOfMetropolisSteps,
         rMax,
         nBins,

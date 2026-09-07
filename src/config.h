@@ -78,8 +78,8 @@ struct runConfig {
     unsigned int onebodyDensity_nBins = 50;
     unsigned int nParticleLogs = 50;
     bool normalize_by_nParticles = false;
-    bool calc_normalized_PCF = false;
-    vector<double> referenceParams = { 1, 1, 1 };
+    bool onebodyDensity_statErr = true;
+    // vector<double> referenceParams = { 1, 1, 1 };
     unsigned int uncorrRefDraws = 1e7;
 
     // [ MISC ]

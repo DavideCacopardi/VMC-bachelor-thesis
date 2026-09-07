@@ -44,15 +44,15 @@ private:
     double m_percStrength = 1;
     static unsigned int s_loc_Ken_method;
 
-    double localHarmonicPotentialEnergy(class WaveFunction& waveFunction,
+    double localHarmonicPotentialEnergy(
         std::vector<std::unique_ptr<class Particle>>& particles);
 
-    double localLennardJonesPotentialEnergy(class WaveFunction& waveFunction,
+    double localLennardJonesPotentialEnergy(
         std::vector<std::unique_ptr<class Particle>>& particles);
     
-    double localLennardJonesAlikePotentialEnergy(class WaveFunction& waveFunction,
+    double localLennardJonesAlikePotentialEnergy(
         std::vector<std::unique_ptr<class Particle>>& particles);
-    double localLennardJonesUnlikePotentialEnergy(class WaveFunction& waveFunction,
+    double localLennardJonesUnlikePotentialEnergy(
         std::vector<std::unique_ptr<class Particle>>& particles);
 
     const double c_eps = 1e-9; // prevents numerical errors

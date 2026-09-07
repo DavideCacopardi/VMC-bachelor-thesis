@@ -49,7 +49,7 @@ public:
      * @param particlesOut Output stream where to log particle positions.
      * @return A DensitySampler object containing the calculated density profile.
      */
-    std::unique_ptr<class DensitySampler> runSpatial(const std::vector<double>& params, std::ofstream* particlesOut, bool normalize_PCF = false);
+    std::unique_ptr<class DensitySampler> runSpatial(const std::vector<double>& params, std::ofstream* particlesOut);
 
     /**
      * @brief Retrieves the repulsive interaction parameter (hard-core diameter).

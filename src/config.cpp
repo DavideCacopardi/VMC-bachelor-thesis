@@ -128,15 +128,15 @@ runConfig loadConfig(const std::string& filepath) {
     // --- [ OBSERVABLES ] ---
     if (j.contains("observables")) {
         cfg.normalize_by_nParticles= j["observables"].value("normalize_by_nParticles", cfg.normalize_by_nParticles);
-        cfg.calc_normalized_PCF    = j["observables"].value("calc_normalized_PCF", cfg.calc_normalized_PCF);
+        cfg.onebodyDensity_statErr = j["observables"].value("onebodyDensity_statErr", cfg.onebodyDensity_statErr);
         cfg.onebodyDensitySteps    = j["observables"].value("onebodyDensitySteps", cfg.onebodyDensitySteps);
         cfg.uncorrRefDraws         = j["observables"].value("uncorrRefDraws", cfg.uncorrRefDraws);
         cfg.onebodyDensity_rMax    = j["observables"].value("onebodyDensity_rMax", cfg.onebodyDensity_rMax);
         cfg.onebodyDensity_nBins   = j["observables"].value("onebodyDensity_nBins", cfg.onebodyDensity_nBins);
         cfg.nParticleLogs          = j["observables"].value("nParticleLogs", cfg.nParticleLogs);
-        if (j["observables"].contains("referenceParams")) {
-            cfg.referenceParams = j["observables"]["referenceParams"].get<std::vector<double>>();
-        }
+        // if (j["observables"].contains("referenceParams")) {
+        //     cfg.referenceParams = j["observables"]["referenceParams"].get<std::vector<double>>();
+        // }
     }
 
     // --- [ MISC ] ---
