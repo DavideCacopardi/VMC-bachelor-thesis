@@ -1,0 +1,83 @@
+=========================================
+               VMC RUN LOG               
+=========================================
+Date and time             : 2026-09-07 19:48:18
+-----------------------------------------
+[ SYSTEM & MODELS ]
+Hamiltonian               : CoulombHO
+WF Train Type             : EllipticGaussian
+WaveFunction              : LJGaussian
+Solver                    : MetropolisHastings
+enSamplerType             : Standard
+useUmrigarDrift           : false
+preferAnalytic            : false
+numberOfThreads           : 4
+-----------------------------------------
+[ PHYSICAL PARAMETERS ]
+dimensions (D)            : 1
+particles (N)             : 1
+kinetic_factor            : 0.5
+min_dist                  : 1
+max_radius                : 10000
+omega                     : 1
+omega_z                   : 2.8243
+LJsigma                   : 1
+LJenEps                   : 1
+LJalpha                   : 1
+LJGaussian_loc_Ken_method : 0
+rep_a_factor              : 0.0043
+rep_strength              : inf
+maxStrength               : 1
+pre-optimization params   : [ 1, 1, 1 ]
+param-optimization mask   : [ true, true, true ]
+use_jsonParams            : false
+json params               : [ 1, 1, 1 ]
+-----------------------------------------
+[ MONTE CARLO & OPTIMIZATION ENGINES ]
+optimizer                 : NLOPT
+log_grads                 : false
+time Step                 : 0.15
+Equilibr. Steps           : 10000
+optimizationMCsteps       : 10000
+autoMCincr_wait           : 10
+Final MC Steps            : 2^16 (65536)
+NLOPT_tol                 : 1e-05
+Adam_lr                   : 1e-05
+Adam_nSteps               : 200
+Adam_min_improvement      : 0.05
+Adam_max_patience         : 25
+NelderMead first guess    : + [ 0.05, 0.05, 0.05 ]
+varOpt_weight             : 0.01
+LJ_request_Ekin           : true
+log_blocking              : true
+-----------------------------------------
+[ PARAMETER MESH ]
+lower bounds              : [ 1, 1, 5 ]
+upper bounds              : [ 1, 1, 5 ]
+number of points          : [ 5, 5, 1 ]
+Mesh MC Steps             : 2^16 (65536)
+-----------------------------------------
+[ NEURAL NETWORK ]
+Nhid                      : 12
+Activation Func           : tanh
+NN Learning Rate          : 0.05
+Pretrain Steps            : 1000
+Energy Steps              : 7000
+Adiab Steps               : 1000
+Adam_ktol                 : 0.99
+max_patience              : 80
+min_improvement           : 0.05
+helpDecay                 : 0.4
+-----------------------------------------
+[ OBSERVABLES & MISC ]
+Normalize by nParticles   : false
+onebodyDensity_statErr    : true
+1bodyDens. Steps          : 100000
+1bodyDens. rMax           : 3.5
+1bodyDens. nBins          : 50
+uncorrRefDraws            : 10000000
+Seed                      : 0
+=========================================
+Called toggles            : [ false, false, true, false ]
+=========================================
+

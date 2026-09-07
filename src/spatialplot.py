@@ -88,7 +88,7 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             err_col = 'dens_err_' if 'dens_err_' in df.columns else df.columns[2]
             
             axs1[0].errorbar(r, df['dens_tot'], yerr=df[err_col], 
-                             color=base_color, marker='.', markersize=4, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
+                             color=base_color, marker='.', markersize=5, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
             
             if 'dens_A' in df.columns and len(fnames) == 1:
                 err_col = 'dens_err_A' if 'dens_err_A' in df.columns else df.columns[4]
@@ -100,7 +100,7 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
         if 'prob_tot' in df.columns:
             err_col_prob = 'prob_err_' if 'prob_err_' in df.columns else [c for c in df.columns if 'prob_err' in c][0]
             axs1[1].errorbar(r, df['prob_tot'], yerr=df[err_col_prob], 
-                             color=base_color, marker='.', markersize=3, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
+                             color=base_color, marker='.', markersize=5, alpha=0.8, linestyle=ls, label=rf"{label} (tot)")
                              
             if 'prob_A' in df.columns and len(fnames) == 1:
                 err_col = 'prob_err_A' if 'prob_err_A' in df.columns else [c for c in df.columns if 'prob_err' in c][1]
@@ -158,11 +158,7 @@ def plot_files(fnames, custom_save_name, legend_labels = None, talk=True):
             # ax_ins.set_yticklabels(np.array(ax_ins.get_yticks()), fontsize=13)
             # ax_ins.tick_params(axis="both", direction="in")
             # axs3.indicate_inset_zoom(ax_ins, edgecolor="black")
-            
-            # axs3[1].errorbar(r, df['prob_alike_n'], yerr=df['prob_err_alike_n'], 
-            #                  color=sec_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (alike)")
-            # axs3[1].errorbar(r, df['prob_unlike_n'], yerr=df['prob_err_unlike_n'], 
-            #                  color=base_color, marker='.', markersize=3, linestyle='-', alpha=0.8, label=rf"{label} (unlike)")
+
 
     axs1[0].set_title("One-Body Density")
     axs1[0].set_ylabel(r"$\rho(r)$")
