@@ -1,11 +1,11 @@
 ## Compiling the C++ project
 In order to compile the project, you can use the updated bash scripts
 by running "sh ./build_debug.sh" or "sh ./build_release.sh".
- - ./build_debug.sh   : activates the following flag: "-g"
-                        and generates the executable ./vmc_debug
- - ./build_release.sh : activates the following flags:
+ - ./build_debug.sh   : Activates the following flag: "-g"
+                        and generates the executable ./vmc_debug .
+ - ./build_release.sh : Activates the following flags:
                         "-O3 -march=native -flto -fno-math-errno"
-                        and generates the executable ./vmc_release
+                        and generates the executable ./vmc_release .
 
 ## Where is the relevant output found?
 A concise summary of the output is printed to terminal.
@@ -16,15 +16,15 @@ If One-body density is run, a file is output (saved with time and date) in folde
 Other specific output is explained below.
 
 ## Running the executable
-The program executes in 3 steps (all ):
+The program executes in 4 steps:
 
-    1 - Optimization  : if no neural network is used:
+    1 - Optimization  : If no neural network is used:
                             starting from an initial guess for the parameters 
-                            ( initialParams in main() ), executes the BFGS optimization; 
-                            ./iofiles/log.csv is updated (and flushed) at each parameter guess
-                            so you can follow the process, since it can take a while;
-                            the final parameters are also printed to ./iofiles/params.dat .
-                        if a neural network is used as waveFunctionType:
+                            ( initialParams ), executes the BFGS optimization; 
+                            A log file in ./logs_opt/log.csv is updated (and flushed)
+                            at each parameter guess so one can follow the process.
+                            The final parameters are also printed to ./iofiles/params.dat .
+                        If a neural network is used as waveFunctionType:
                             the neural network is pre-trained to behave like the wavefunction
                             chosen as waveFunctionTrainType, then it is trained to minimize
                             the energy; the file generated in ./logs_NN is updated
@@ -32,22 +32,38 @@ The program executes in 3 steps (all ):
                             process, since it can take a while; the final parameters
                             are also printed to ./iofiles/params.dat .
 
-    2 - FinalMC &     : runs a MC simulation sampling energies, setting up the
-        blocking        wavefunction with the parameters found in ./iofiles/params.dat ;
-                        the local energy value calculated at each step is printed to
-                        ./iofiles/finalMCenergies.dat ;
-                        after that, the blocking algorithm runs reading from
-                        ./iofiles/finalMCenergies.dat and printing results also
-                        to ./iofiles/blocking_results.csv
+    2 - FinalMC &     : Runs a number nThreads of parallel MC simulations using the 
+        blocking        selected EnergySampler, setting up the wavefunction
+                        with the parameters found in ./iofiles/params.dat or,
+                        if use_jsonParams is set to true and step 1 - Optimization
+                        didn't run, using the jsonParams parameters ;
+                        after that, the results are printed and the blocking algorithm
+                        runs for each vector of data produced by the nThreads 
+                        and logs the final energy together with its blocked error.
+                        Additionally, the stderr vs. number of blocking transofrmations
+                        can be logged to a file generated in ./logs_blocking (this is
+                        the only modification made to Marius Jonsson's implementation
+                        of the blocking algorithm, hence this is the reason for
+                        Math/blocker2.h and Math/blocker2.cpp).
 
-    3 - One-body      : runs a MC simulation sampling the position of the particles
-        density         to build a histogram;
-                        the results (the one-body density and the Poisson esitmate
-                        of its error, the radial probability and the Poisson estimate 
-                        of its error) are printed to the file generated in ./logs_OBD
+    3 - Spatial       : Runs a number nThreads of MC simulations sampling the position 
+        distribution    of the particles to build the one-body density histogram and 
+                        the two-body density histogram; after that, uncorrelated two-body
+                        density references are computed. The histograms are then merged and
+                        the PCF is generated by normalizing the correlated two-body density
+                        wrt the uncorrelated one. All these results are printed to the file 
+                        generated in ./logs_OBD .
+                        Additionally, one of the nThreads logs the particles' positions
+                        nParticleLogs times over the course of the MC simultation
+                        to a file generated in ./logs_particles .
+    
+    4 - Mesh Grid     : A mesh grid of parameters is prepared based on the parameters
+                        specified in the config.json file. The FinalMC & Blocking 
+                        routine runs on each point. The results are
+                        printed in ./parameter_mesh .
 
 If you run the executable with no extra arguments (e.g., "./vmc_release"),
-all 3 steps will run one after the other.
+all 4 steps will run one after the other.
 You can also choose to run only one or two of the steps, specifying their corresponding
 numbers as extra arguments to the command line:
     e.g. #1: if you want to run only step 2, you can run "./vmc_release 2";
@@ -59,28 +75,35 @@ A sample config.json file is provided: it comprises and sets all the tunable par
 program. Here follows a quick rundown of their usage, and their meaning for the trickiest ones.
  # System parameters
  -  hamiltonianType:
-        accepted values:    "HarmonicOscillator" or "RepulsiveHO" or "CoulombHO".
+        accepted values:    "HarmonicOscillator" or "RepulsiveHO" or "CoulombHO" 
+                            or "LennardJonesHO" or "LennadJonesHO_noInteraction"
         description:        RepulsiveHO is a harmonic oscillator with an interaction
                             hardcore diameter set by the physical parameters repulsive_a_factor
                             and repulsive_strength. CoulombHO is a harmonic oscillator
                             with a Coulomb-like interaction set by the physical parameter
-                            maxStrength. Only CoulombHO is fully compatible with the neural
-                            network optimization process.
+                            maxStrength. Only CoulombHO and LennardJonesHO should be compatible
+                            with the neural network optimization process.
  -  waveFunctionTrainType:
-        accepted values:    "SimpleGaussian" or "EllipticGaussian" (or "RepEllipticGaussian")
+        accepted values:    "SimpleGaussian" or "EllipticGaussian" (or "RepEllipticGaussian") or "LJGaussian"
         description:        It's the wavefunction which a neural network is pre-trained to
                             resemble. Repulsive options are discouraged.
  -  waveFunctionType:
         accepted values:    "SimpleGaussian" or "EllipticGaussian" or "RepEllipticGaussian" or 
-                            "NN_envelope"
+                            "NN_envelope" or "LJGaussian"
         description:        It's the system's wavefunction. If NN_envelope is chosen, the
                             optimization step follows the neural network optimization procedure.
  -  solverType:
-        accepted values:    "Metropolis" or "MetropolisHastings"
-        description:        It sets the kind of Monte Carlo. Metropolis selects brute force Metropolis
-                            Monte Carlo. MetropolisHastings selects importance sampling 
-                            MetropolisHastings Monte Carlo. This parameter conditions the 
-                            interpretation of the timeStep parameter.
+        accepted values:    "Metropolis" or "MetropolisHastings" or "SwappingMetropolis" or "SwappingMH"
+        description:        It sets the kind of Monte Carlo. Metropolis and SwappingMetropolis 
+                            select brute force Metropolis Monte Carlo.
+                            MetropolisHastings selects importance sampling Monte Carlo.
+                            The Swapping versions add a 1/10 flavor-swap move to the algorithms.
+                            The solver conditions the interpretation of the timeStep parameter.
+ -  enSamplerType:          
+        accepted values:    "Standard" or "Separate"
+        description:        It sets the EnergySampler to use for Optimization, FinalMC and Mesh Grid.
+                            Separate is only compatible with LennardJonesHO and outputs all partial
+                            energy terms (kinetic energy, harmonic potential energy, etc.)
  -  preferAnalytic:
         accepted values:    true or false
         description:        flag assigned to the solver, which instructs the hamiltonian
@@ -93,6 +116,15 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
         description:        flag to enable wavefunction caching for importance sampling. Without
                             neural networks it might improve performances. With neural networks, it
                             must be turned to false.
+ -  useUmrigarDrift:
+        accepted values:    true or false
+        description:        flag to enable or disable UmrigarDrift in Importance Sampling Solvers.
+ -  numberOfThreads:
+        accepted values:    positive integers
+        description:        It sets the number of threads on which to run independent Monte Carlo
+                            simultations in parallel, as prescribed by the routines.
+                            In order to obtain Blocking estimates, this must be set to a power of 2.
+
  # Physics parameters
  -  dimensions:
         accepted values:    positive integers
@@ -100,12 +132,37 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
  -  particles:
         accepted values:    positive integers
         description:        number of particles
+ -  kinetic_factor:
+        accepted values:    positive floating point
+        description:        Coefficient of the laplacian in the kinetic term of a hamiltonian (i.e. hbar^2/(2m)).
+                            It is thus also the diffusion coefficient utilized in Importance Sampling.
+ -  min_dist:
+        accepted values:    positive floating point
+        description:        Minimum reciprocal distance between particles for their random generation.
+ -  max_radius:
+        accepted values:    positive floating point
+        description:        Maximum radial distance from the origin at which to randomly generate particles.
  -  omega:
         accepted values:    positive floating point
         description:        default frequency of the harmonic oscillator potentials along every axis
  -  omega_z:
         accepted values:    positive floating point
         description:        frequency of the elliptic harmonic oscillator potentials along the third axis
+ -  LJsigma:
+        accepted values:    positive floating point
+        description:        Parameter sigma in the Lennard-Jones potential.
+ -  LJenEps:
+        accepted values:    positive floating point
+        description:        Parameter epsilon in the Lennard-Jones potential.        
+ -  LJalpha:
+        accepted values:    positive floating point
+        description:        Parameter alpha-tilde in the Lennard-Jones potential.
+ -  LJGaussian_loc_Ken_method:
+        accepted values:    0 or 1 or 2
+        description:        Selects the main local kinetic energy estimator to use with LJGaussian.
+                            0 is the default sum_i( ∇ᵢ²ln(ψ) + ||∇ᵢln(ψ)||² );
+                            1 is sum_i( ∇ᵢ²ln(ψ) );
+                            2 is sum_i( ||∇ᵢln(ψ)||²).
  -  repulsive_a_factor:
         accepted values:    positive floating point
         description:        hardcore radius for RepulsiveHO according to
@@ -117,29 +174,108 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
  -  maxStrength:
         accepted values:    floating point
         description:        scaling factor for CoulombHO (leave 1 for 1/r Coulomb repulsion)
+                            and LennardJonesHO. This parameter is useful for the adiabatic
+                            training of a neural network.
  -  initialParams:
         accepted values:    array of floating points
         description:        initial parameters guesses for the optimization processes of
-                            non-neural-network wavefunctions. The initial parameters are chosen at
+                            non-neural-network wavefunctions. The initial parameters
+                            for neural-network wavefunctions are chosen at
                             random as explained later in this readme file.
+ -  optimizeParams_mask:
+        accepted values:    array of boolean values
+        description:        A mask of the same length as initialParams to select which
+                            parameters to optimize and which not to
+                            (true = optimize; false = don't optimize).
+ -  use_jsonParams:
+        accepted values:    true or false
+        description:        Running the optimization routine overrides this option, setting it to
+                            false internally.
+                            If set to true,
+                                FinalMC and Spatial distributions are computed setting
+                                 the wavefunction parameters according to jsonParams;
+                            if set to false,
+                                FinalMC and Spatial distributions read the wavefunction
+                                parameters from the /iofiles/params.dat file.
+ -  jsonParams:
+        accepted values:    array of floating points
+        description:        Wavefunction parameters to setup the wavefunction with,
+                            if use_jsonParams is set to true and the optimization
+                            routine didn't run.
  # Monte Carlo parameters
+ -  optimizer:              
+        accepted values:    "NLOPT_NELDERMEAD" or "NLOPT_BFGS" or "Adam"
+        description:        Selects the optimization algorithm to run for the Optimization routine,
+                            in case non-neural-network wavefunction are employed.
+ -  log_grads:
+        accepted valuse:    true or false
+        description:        Toggles the logging of gradients in optimization logs.
  -  timeStep:
-        accepted values:    floating point
-        description:        time step parameter for MatropolisHasting; step length parameter
-                            for Metropolis
+        accepted values:    positive floating point
+        description:        time step parameter for MatropolisHasting; 
+                            step length parameter for Metropolis.
  -  equilibrationSteps:
         accepted values:    positive integer
-        description:        number of equilibration steps
+        description:        number of equilibration steps.
  -  metropolisSteps:
         accepted values:    positive integer
-        description:        number of Monte Carlo steps to perform for optimization procedures
- -  finalMClog2steps
+        description:        number of Monte Carlo steps to perform for the optimization routine.
+ -  autoMCincr_wait:
+        accepted values:    positive integer
+        description:        sets the number of optimization steps to wait checking the signal-to-ratio
+                            condition and, if necessary, multiply the number of Monte Carlo steps by 1.2.
+ -  finalMClog2steps:
         accepted values:    positive integer
         description:        logarithm in base 2 of the number of Monte Carlo steps
                             to perform for the final run procedure
- -  BFGS_tol:
+ -  NLOPT_tol:
         accepted values:    positive floating point
-        description:        read project 1
+        description:        sets the xtol_rel parameter of the NLOPT library if an NLOPT optimizer is employed
+ -  Adam_lr:
+        accepted values:    positive floating point
+        description:        Adam algorithm's learning rate (this is not the right one for neural networks).
+ -  Adam_nSteps:
+        accepted values:    positive integer
+        description:        Adam algorithm's number of steps.
+ -  Adam_min_improvement:
+        accepted values:    positive floating point
+        description:        Adam checkPlateau tolerance.
+-   Adam_max_patience:
+        accepted values:    positive integer
+        description:        Adam chechPlateau maximum patience.
+ -  nelderMead_init:
+        accepted values:    array of floating points (of the same size as initialParams)
+        description:        Intial step size of Nelder-Mead's simplex.
+ -  varOpt_weight:
+        accepted values:    floating point
+        description:        The weight parameter w of the loss function L = mean(E_L) + w * variance(E_L)
+ -  LJ_request_Ekin:        
+        accepted values:    true or false
+        description:        Toggles the logging of the sum_i( ∇ᵢ²ln(ψ) ) and sum_i( ||∇ᵢln(ψ)||²) local
+                            kinetic energy estimator in the optimization log.
+ -  log_blocking:
+        accepted values:    ture or false
+        description:        Toggles the logging of the stddev of the energy vs. the number
+                            of blocking transformations.
+ # Parameter Mesh parameters
+ -  mesh_lb:
+        accepted values:    array of floats
+        description:        Lower bounds of the mesh grid
+ -  mesh_ub:
+        accepted values:    array of floats
+        description:        Upper bounds of the mesh grid
+ -  mesh_nPoints:
+        accepted values:    array of integers
+        description:        Number of points to generate for each parameter
+                            between the corresponding bounds, mesh_lb and mesh_ub.
+                            Note that the step size is calculated as
+                            (mesh_ub - mesh_lb)/mesh_nPoints, thus the grid includes mesh_lb
+                            and excludes mesh_ub (i.e., as ordinary in programming,
+                            the interval is [a,b) ).
+ -  mesh_MClog2steps:
+        accepted values:    positive integers
+        description:        logarithm in base 2 of the number of Monte Carlo steps
+                            to perform for each grid point.
  # Neural Network parameters
  -  Nhid:
         accepted values:    positive integer
@@ -183,6 +319,11 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
  -  onebodyDensitySteps:
         accepted values:    positive integer
         description:        number of Monte Carlo steps to perform for the One-body density procedure
+ -  onebodyDensity_statErr:
+        accepted values:    true or false
+        description:        Toggles the functionality of estimating a true statistical error from the
+                            parallel spatial distribution runs, and assigns the densities with the
+                            greater error between the Poisson estimate and this statistical one.
  -  onebodyDensity_rMax:
         accepted values:    positive floating point
         description:        maximum distance from the origin where to set the last bin of the
@@ -190,12 +331,26 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
  -  onebodyDensity_nBins:
         accepted values:    positive integer
         description:        number of bins for the One-body density histogram
+ -  nParticleLogs:
+        accepted values:    positive integer
+        description:        number of snapshots of the particles' positions to log, 
+                            from the whole Metropolis evolution.
+ -  normalize_by_nParticles:
+        accepted values:    true or false
+        description:        Normalizes the one-body bin counts to the number of particles of that system
+                            and the two-body bin counts to the number of alike/unlike interactions
+                            according to the respective histogram type.
+ -  uncorrRefDraws:
+        accepted values:    positive integer
+        description:        number of indepentent stochastic draws to perform
+                            in order to build the uncorrelated two-body density reference.
  # Miscellaneous parameters
  -  seed:
         accepted values:    integer
         description:        if seed == 0, then every MonteCarlo run extracts a new random seed using
                             std::chrono::system_clock::now().time_since_epoch().count();
                             else every MonteCarlo run runs on the same fixed seed.
+                            Note that different threads run on their own individual seeds.
 
  -  In VMCOptimizer.cpp, there are two hard-codings:
         lib_optimizer.set_maxeval(400);
@@ -210,12 +365,19 @@ program. Here follows a quick rundown of their usage, and their meaning for the 
         double scale1 = std::sqrt(2.0 / (Nin + Nhid)) * 0.01;
         double scale2 = std::sqrt(2.0 / Nhid) * 0.01;
         scale2 = scale1 = 1;
+        m_helpDecay = register_parameter("helpDecay", torch::tensor({ helpDecay }, opts));
         m_W1 = register_parameter("W1", torch::randn({ Nin, Nhid }, opts) * scale1);
         m_b = register_parameter("b", torch::randn(Nhid, opts) * scale2);
         m_W2 = register_parameter("W2", torch::randn(Nhid, opts) * scale2);
     This is what happens by default when a neural network is asked to be optimized.
+ -  In all wavefunction headers the NLOPT optimization bounds for
+    the parameters are hard-coded
+    (e.g.,
+        std::vector<double> lowerBounds() const override { return { 1, 0, 0 }; }
+        std::vector<double> upperBounds() const override { return { 50, 3, 3 }; }
+    ).
 
-## Jupyter Notebook (the old one)
+## Jupyter Notebook (the first old one)
 A Jupyter Notebook display.ipynb is provided to analyze the final results visually.
 It is not well-refined - it was only a handy tool.
 The first cells are the most reusable ones, whereas the last ones were used to finalize
@@ -224,7 +386,7 @@ The first few cells read .iofiles/log.csv in order to plot the optimization
 evolution in 2D (for 1 variational parameters) and in 3D (for 2 variational parameters).
 You can adjust the burnin steps to your own liking.
 
-## Jupyter Notebook (the new one)
+## Jupyter Notebook (the second old one)
 A Jupyter Notebook display2.ipynb is provided to analyze the final results visually.
 It is not too well-refined - it was mainly a handy tool.
 Nonetheless its use is more strongly recommended than display.ipynb in project 1.
@@ -239,3 +401,23 @@ Note that the generated png's store information read from the general log file i
 corresponding to the respective run according to the filenaming system based on date
 and time; this is a handy tool to compare different results quickly, but please pay
 attention to the relevance of certain variables to the specific run execution.
+
+## Jupyter Notebook (the third one) and python scripts
+Disclaimer: all of these are not too well-refined - they were only handy tools.
+The display3.ipynb Jupyter Notebook was mainly used for plotting the " --- vs. N"
+plots in the thesis report.
+The python scripts optplot.py, meshplot.py, spatialplot.py, particlesplot.py,
+blockingplot.py are all aimed at plotting their respective log files.
+They are all visually similar and utilize a simple GUI interface
+to allow the user to select which file(s) to plot. Some of them allow the user
+to select multiple files to plot together and the user can specify a name
+to save the file with and personalized legend labels, using the '€' character
+as separator. Some of these scripts were written with the help of Gemini.
+All of them also allow the user to call the additional command line argument "all"
+in order to quickly internally plot and save all plots of the logs present in the
+respective log folder.
+The images are saved to the respective /figs_yyy folders and the ones that
+are related to just one log file, also retain the global log summary of the
+run configuration as metadata (I can suggest the use of programs such as XnViewMP
+to quickly compare the plots inside the /figs_yyy folders while simultaneously
+reading the corresponding metadata).

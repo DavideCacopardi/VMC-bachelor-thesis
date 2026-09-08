@@ -437,7 +437,7 @@ int main(int argc, char* argv[]) {
         globalLog << "FinalMC done (in " << elapsedTime.count() << " s).\n\n";
 
         // --- 2b: Blocking ---
-        if (rawEnergiesData[0].size() % 2 != 0) {   // check viability of the blocking estimate
+        if ((rawEnergiesData[0].size() & (rawEnergiesData[0].size() - 1)) != 0) {   // check viability of the blocking estimate
             toLogStr = "WRN: size of data fed into the blocking algorithm must be a power of 2."
                 "\n    This may be caused by the number of threads not being a power of 2 itself."
                 "\n    The blocking estimate will not be evaluated.\n\n";
@@ -479,11 +479,11 @@ int main(int argc, char* argv[]) {
             globalLog << scientific << setprecision(9) << "Final blocking energy: "
                 << cumulative_E / (double)rawEnergiesData.size()
                 << " +- " << sqrt(cumulative_var) / (double)rawEnergiesData.size() << endl << defaultfloat;
+            watch_end = chrono::high_resolution_clock::now();
+            elapsedTime = watch_end - watch_start;
+            cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
+            globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
         }
-        watch_end = chrono::high_resolution_clock::now();
-        elapsedTime = watch_end - watch_start;
-        cout << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
-        globalLog << "Blocking analysis done (in " << elapsedTime.count() << " s).\n\n";
     }
 
     if (toggles[2]) {
