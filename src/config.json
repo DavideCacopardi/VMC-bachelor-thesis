@@ -4,43 +4,44 @@
         "waveFunctionTrainType": "LJGaussian",
         "waveFunctionType": "LJGaussian",
         "solverType": "SwappingMH",
+        "enSamplerType": "Standard",
         "useUmrigarDrift": true,
         "preferAnalytic": true,
-        "numberOfThreads": 16
+        "numberOfThreads": 5
     },
     "physics": {
         "dimensions": 3,
-        "particles": 16,
+        "particles": 4,
         "kinetic_factor": 0.1,
         "min_dist": 0.1,
         "max_radius": 10,
-        "omega": 0.0,
+        "omega": 0.027951,
         "omega_1": 0.111803,
         "omega_z": 0.027951,
         "LJsigma": 1.0,
         "LJenEps": 1.0,
-        "LJalpha": 0.4,
+        "LJalpha": 0.05,
         "LJGaussian_loc_Ken_method": 0,
         "repulsive_a_factor": 0.0043,
         "repulsive_strength": "inf",
         "maxStrength": 1,
-        "initialParams": [ 9, 1, 1 ],
+        "initialParams": [ 9.0017, 1.1025, 1.0835 ],
         "optimizeParams_mask": [ true, true, true ],
         "use_jsonParams": true,
-        "jsonParams": [ 11.66059714, 1.102781421, 1.083691590 ]
+        "jsonParams": [ 16,0,0  ]
     },
     "monte_carlo": {
-        "optimizer": "Adam",
+        "optimizer": "NLOPT_NELDERMEAD",
         "log_grads": true,
         "timeStep": 0.10,
         "equilibrationSteps": 5e5,
-        "optimizationMCsteps": 5e5,
-        "autoMCincr_wait": 500,
-        "finalMClog2steps": 27,
+        "optimizationMCsteps": 8e6,
+        "autoMCincr_wait": 100,
+        "finalMClog2steps": 24,
         "NLOPT_tol": 1e-5,
-        "Adam_lr": 0.05,
+        "Adam_lr": 0.03,
         "Adam_nSteps": 1000,
-        "Adam_min_improvement": 0.001,
+        "Adam_min_improvement": 0.0001,
         "Adam_max_patience": 300,
         "nelderMead_init": [ 0.5, 0.05, 0.05 ],
         "varOpt_weight": 0.0005,
@@ -48,10 +49,10 @@
         "log_blocking": true
     },
     "parameter_mesh": {
-        "mesh_lb": [ 1.8, 1.0, 1.0 ],
-        "mesh_ub": [ 2.2, 1.24, 1.24 ],
-        "mesh_nPoints": [ 4, 6, 6 ],
-        "mesh_MClog2steps": 20
+        "mesh_lb": [ 2, 0, 0 ],
+        "mesh_ub": [ 7, 0, 0 ],
+        "mesh_nPoints": [ 5, 1, 1 ],
+        "mesh_MClog2steps": 23
     },
     "neural_network": {
         "Nhid": 12,
@@ -66,13 +67,13 @@
         "nAdiabSteps": 1500
     },
     "observables": {
-        "onebodyDensitySteps": 15e6,
+        "onebodyDensitySteps": 50e6,
+        "onebodyDensity_statErr": true,
         "onebodyDensity_rMax": 9,
         "onebodyDensity_nBins": 150,
         "nParticleLogs": 10,
-        "normalize_by_nParticles": true,
-        "calc_normalized_PCF": false,
-        "referenceParams": [ 2.4242, 0, 0 ]
+        "normalize_by_nParticles": false,
+        "uncorrRefDraws": 50e6
     },
     "misc": {
         "seed": 0
