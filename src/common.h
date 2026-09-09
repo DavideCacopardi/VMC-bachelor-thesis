@@ -53,18 +53,47 @@ std::vector<std::vector<double>> readMatrix(const std::string& filename);
  */
 std::pair<double, double> mean_err(std::vector<double>& vec);
 
+/**
+ * @brief Calculates the ||vec||_2 norm of a vector vec.
+ * @param vec Vector.
+ * @return The norm.
+ */
 double norm(const std::vector<double>& vec);
 
+/**
+ * @brief Calculates the squared ||vec||_2 norm of a vector vec.
+ * @param vec Vector.
+ * @return The squared norm.
+ */
 double sqNorm(const std::vector<double>& vec);
 
+/**
+ * @brief Calculates the distance-2 between two vectors.
+ * @param v First vector.
+ * @param w Second vector.
+ * @return The distance.
+ */
 double distance(const std::vector<double>& v, const std::vector<double>& w);
 
+/**
+ * @brief Swaps the values of two double variables.
+ * @param a First variable.
+ * @param b Second variable.
+ */
 void inline swapVar(double& a, double& b) {
     double temp = a;
     a = b;
     b = temp;
 }
 
+/**
+ * @brief Generates a mesh grid of parameters with bounds lb and ub,
+ * * and nPoints in between the bounds ( semi-open intervals [lb, ub) ).
+ * @param lb Lower bounds.
+ * @param ub Upper bounds.
+ * @param nPoints Number of points between bounds.
+ * @result The mesh grid.
+ */
 std::vector<std::vector<double>> generate_mesh(
     std::vector<double>& lb, std::vector<double>& ub, std::vector<unsigned int>& nPoints);
 
@@ -81,6 +110,13 @@ std::unique_ptr<Derived> dynamic_unique_cast(std::unique_ptr<Base>&& p) {
     return std::unique_ptr<Derived>(nullptr); 
 }
 
+/**
+ * @brief Utility function to print a column's title in the header of a log file.
+ * @param outs log file.
+ * @param str Column's title.
+ * @param is_first Prints a '#' in front of str.
+ * @param is_last Follows the title with '\n' instead of ','.
+ */
 inline void print_colTitle(std::ostream& outs, const std::string& str, bool is_first = false, bool is_last = false) {
     const unsigned int width = 21;
     if (is_first)
@@ -88,6 +124,13 @@ inline void print_colTitle(std::ostream& outs, const std::string& str, bool is_f
     outs << std::setw(width - is_first) << str << (is_last ? "\n" : ",");
 }
 
+/**
+ * @brief Utility function to print a value in a column of a log file.
+ * @param outs log file.
+ * @param val Value.
+ * @param is_first Placeholder for future necessity.
+ * @param is_last Follows the value with '\n' instead of ','.
+ */
 template <typename Type>
 inline void print_colVal(std::ostream& outs, Type val, bool is_first = false, bool is_last = false) {
     const unsigned int prec = 13, width = 21;

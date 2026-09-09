@@ -5,6 +5,10 @@
 
 using namespace std;
 
+/**
+ * @brief Struct containing all user-tunable configuration
+ * * parameters of the VMC program.
+ */
 struct runConfig {
     // [ SYSTEM & MODELS ]
     string hamiltonianType = "CoulombHO";
@@ -86,4 +90,9 @@ struct runConfig {
     int seed = 0; // Set later
 };
 
+/**
+ * @brief Loads a runConfig struct based on a config.json file.
+ * @param filepath Path to the config.json file.
+ * @return Loaded runConfig struct.
+ */
 runConfig loadConfig(const std::string& filepath);

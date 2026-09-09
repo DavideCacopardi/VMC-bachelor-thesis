@@ -10,7 +10,7 @@
 /**
  * @brief Main engine for Variational Monte Carlo simulations.
  * * Directs the creation of the physical environment (via Factories),
- * system initialization, and execution of the desired sampling loop.
+ * * system initialization, and execution of the desired sampling loop.
  */
 class MCEngine {
 public:
@@ -25,9 +25,11 @@ public:
 
     /**
      * @brief Initializes the VMC engine, configuring physical parameters and Factories.
+     * @param cfg Constant reference to the configuration parameters.
      * @param hamiltonianFactory Function dynamically generating the chosen Hamiltonian.
      * @param waveFunctionFactory Function dynamically generating the WaveFunction.
-     * @param solverFactory Function dynamically generating the solver (e.g., Metropolis-Hastings).
+     * @param solverFactory Function dynamically generating the solver.
+     * @param enSamplerFactory Function dynamically generating the EnergySampler.
      */
     MCEngine(
         const runConfig& cfg,
@@ -37,6 +39,14 @@ public:
         EnSamplerFactory enSamplerFactory
     );
 
+    /**
+     * @brief Executes a number m_cfg.nThreads of VMC simulations
+     * * to estimate the energy of the system.
+     * @param params Wavefunction's variational paramters.
+     * @param numberOfMetropolisSteps Total number of Monte Carlo steps.
+     * @param energiesOut Matrix where to store the sampled local energy at each step.
+     * @return The merged EnergySampler.
+     */
     std::unique_ptr<class EnergySampler> run(
         const std::vector<double>& params,
         unsigned int numberOfMetropolisSteps,
@@ -44,21 +54,22 @@ public:
     );
 
     /**
-     * @brief Executes a VMC simulation uniquely dedicated to the one-body density.
-     * @param params Optimal variational parameters to utilize.
+     * @brief Executes a number m_cfg.nThreads of VMC simulations
+     * * to estimate the spatial distributions of the system.
+     * @param params Wavefunction's variational paramters.
      * @param particlesOut Output stream where to log particle positions.
-     * @return A DensitySampler object containing the calculated density profile.
+     * @return The merged DensitySampler.
      */
     std::unique_ptr<class DensitySampler> runSpatial(const std::vector<double>& params, std::ofstream* particlesOut);
 
     /**
-     * @brief Retrieves the repulsive interaction parameter (hard-core diameter).
-     * @return Value of the hard-core radius 'a'.
+     * @brief Deprecated: retrieves the repulsive interaction parameter (hard-core diameter).
+     * @return Value of the hard-core radius 'a' (RepEllipticGaussian).
      */
     double getRepulsiveFactor() const;
 
     /**
-     * @brief Manually instantiates a wave function for extra calculations (e.g., external derivatives).
+     * @brief Manually instantiates a wave function for extra purposes.
      * @param params Vector of variational parameters.
      * @return Unique pointer to the created WaveFunction.
      */

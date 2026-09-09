@@ -15,8 +15,8 @@ A concise summary of the output is printed to terminal.
 A detailed log file (saved with time and date) is generated at each run in folder ./logs .
 If a neural network is optimized, a file containing the optimization steps is output
 (saved with time and date) in folder ./logs_NN .
-If One-body density is run, a file is output (saved with time and date) in folder ./logs_OBD .
-Other specific output is explained below.
+Other more detailed logs, dedicated for each specific routine, are output in their respective
+./logs_yyy folders.
 
 ## Running the executable
 The program executes in 4 steps:

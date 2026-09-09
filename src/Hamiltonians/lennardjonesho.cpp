@@ -38,31 +38,6 @@ double LennardJonesHO::computeLocalEnergy(
     WaveFunction& waveFunction,
     std::vector<std::unique_ptr<Particle>>& particles
 ) {
-    /*
-    double potentialEnergy = 0;
-
-    Lennard-Jones term
-    for (unsigned int i = 0; i < particles.size(); i++) {
-        if (m_activate_interactions) {
-            for (unsigned int j = i + 1; j < particles.size(); j++) {
-                double dist = distance(particles[i]->getPosition(), particles[j]->getPosition());
-                double temp = pow(m_sigma / (dist + c_eps), 6);
-                temp = 4 * m_enEps * temp * (temp - 1);
-                if (particles[i]->getFlavor() != particles[j]->getFlavor())
-                    temp *= m_alpha;
-                potentialEnergy += temp;
-            }
-        }
-    }
-    potentialEnergy *= m_maxStrength * m_percStrength;
-    
-    Harmonic term
-    for (unsigned int i = 0; i < particles.size(); i++) {
-        potentialEnergy += 0.5 * sq(m_omega) * sqNorm(particles[i]->getPosition());
-    }
-
-    return computeLocalKineticEnergy(waveFunction, particles) + potentialEnergy;
-    */
     return computeLocalKineticEnergy(waveFunction, particles)
         + localHarmonicPotentialEnergy(particles)
         + localLennardJonesPotentialEnergy(particles);

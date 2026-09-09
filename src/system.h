@@ -9,8 +9,8 @@
 /**
  * @brief Represents the complete quantum system.
  * * This class acts as a bridge between the Hamiltonian, WaveFunction,
- * particles, and the Monte Carlo solver. It coordinates the step-by-step
- * sampling process.
+ * * particles, and the Monte Carlo solver. It coordinates the step-by-step
+ * * sampling process.
  */
 class System {
 public:
@@ -30,6 +30,11 @@ public:
         std::vector<std::unique_ptr<class Particle>> particles
     );
 
+    /**
+     * @brief Constructs the system by assembling all physical and numerical components.
+     * @param hamiltonian Unique pointer to the Hamiltonian object.
+     * @param waveFunction Unique pointer to the WaveFunction object.
+     */
     System(
         std::unique_ptr<class Hamiltonian> hamiltonian,
         std::unique_ptr<class WaveFunction> waveFunction
@@ -51,7 +56,11 @@ public:
      * @brief Executes the Metropolis simulation to sample the system's energy.
      * @param stepParameter Step length (\f$\Delta t\f$).
      * @param numberOfMetropolisSteps Total number of steps to execute.
-     * @return An EnergySampler containing final statistics (mean energy, variance).
+     * @param energiesOut Vector where to store the sampled local energy at each step.
+     * @param log_grads Toggles the logging of gradients.
+     * @param request_Ekin Toggles the logging of the different local energy estimators (only LJGaussian).
+     * @param enSamplerFactory Selects the type of EnergySampler.
+     * @return An EnergySampler containing final statistics.
      */
     std::unique_ptr<class EnergySampler> runMetropolisSteps(
         double stepParameter,
@@ -62,49 +71,61 @@ public:
         EnSamplerFactory* enSamplerFactory = nullptr
     );
 
-    // std::unique_ptr<class NNsampler> runMetropolisSteps_NN(double stepParameter,
-    //     unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);
-
+    /**
+     * @brief Executes the Metropolis simulation to train the system's wavefunction
+     * * to overlap the reference wf_train wavefunction.
+     * @param stepParameter Step length (\f$\Delta t\f$).
+     * @param numberOfMetropolisSteps Total number of steps to execute.
+     * @param wf_train Pointer to the reference wavefunction to try to mimic.
+     * @return An NNsampler containing final statistics.
+     */
     std::unique_ptr<class NNsampler> runMetropolisSteps_NN_pretrain(double stepParameter,
         unsigned int numberOfMetropolisSteps, WaveFunction& wf_train);
 
     /**
-     * @brief Executes a Metropolis simulation dedicated to density sampling.
+     * @brief Executes a Metropolis simulation dedicated to sampling density distributions.
      * @param stepParameter Step length (\f$\Delta t\f$).
      * @param numberOfMetropolisSteps Total number of steps to execute.
      * @param rMax Maximum spatial radius covered by the histogram.
      * @param nBins Number of bins for the radial histogram.
-     * @return A DensitySampler containing the radial density histogram.
+     * @param normalize_by_nParticles Toggles whether to normalize the bin count wrt
+     * * the number of particles or number of interactions, respective of histogram.
+     * @param numberOfParticleLogs Number snapshots of the particle positions to log.
+     * @param particlesOut Logging file for particle positions.
+     * @return A DensitySampler containing the radial density histograms and distributions.
      */
     std::unique_ptr<class DensitySampler> runMetropolisStepsSpatial(
         double stepParameter, unsigned int numberOfMetropolisSteps,
         double rMax, unsigned int nBins, bool normalize_by_nParticles, unsigned int numberOfParticleLogs, std::ofstream* particlesOut);
 
     /**
-     * @brief Evaluates the local energy \f$E_L = \frac{1}{\Psi} \hat{H} \Psi\f$ for the current configuration.
-     * @return The local energy in natural units.
+     * @brief Helper to call the hamiltonian's computeLocalEnergy method.
+     * @return The local energy.
      */
     double inline computeLocalEnergy() {
         return m_hamiltonian->computeLocalEnergy(
             *m_waveFunction, m_particles);
     }
 
+    /**
+     * @brief Helper to call the hamiltonian's computeLocalEnergies method.
+     * @return The local energies.
+     */
     std::vector<double> inline computeLocalEnergies() {
         return m_hamiltonian->computeLocalEnergies(
             *m_waveFunction, m_particles);
     }
 
     /**
-     * @brief Calculates the logarithmic derivative of the wave function with respect to a parameter.
-     * * Essential for computing the energy gradient during variational optimization.
-     * @param param_idx The index of the variational parameter (e.g., 0 for alpha, 1 for beta).
-     * @return Value of the logarithmic derivative evaluated at the current position.
+     * @brief Gets the system's wavefunction.
+     * @return The system's wavefunction.
      */
-     // double computeParamDerivativeLn(unsigned int param_idx);
-
-     // std::vector<double> computeLogParDer_vect();
-
     class WaveFunction& getWaveFunction();
+
+    /**
+     * @brief Gets the system's Hamiltonian.
+     * @return The system's Hamiltonian.
+     */
     class Hamiltonian& getHamiltonian();
 
     /**
@@ -119,9 +140,24 @@ public:
      */
     std::vector<std::unique_ptr<class Particle>>& getParticles() { return m_particles; }
 
+    /**
+     * @brief Sets new vector of particles for the system.
+     */
     void setParticles(std::vector<std::unique_ptr<class Particle>> new_particles);
+
+    /**
+     * @brief Sets the Solver to employ for MonteCarlo simultations.
+     */
     void setSolver(std::unique_ptr<class MonteCarlo> new_solver);
+
+    /**
+     * @brief Sets a new Hamiltonian for the system.
+     */
     void setHamiltonian(std::unique_ptr<class Hamiltonian> new_hamiltonian);
+
+    /**
+     * @brief Sets a new WaveFunction for the system.
+     */
     std::unique_ptr<WaveFunction> setWaveFunction(std::unique_ptr<WaveFunction> new_waveFunction);
 
 private:

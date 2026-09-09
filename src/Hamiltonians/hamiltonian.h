@@ -21,11 +21,16 @@ public:
         return -1;
     }
 
+    /**
+     * @brief Base class fallback to the only implemented computeLocalEnergy method.
+     * @param wf Wavefunction.
+     * @param particles Particles.
+     * @return std::vector<double> containing only the output of computeLocalEnergy(wf, particles)
+     */
     virtual std::vector<double> computeLocalEnergies(
         class WaveFunction& wf,
         std::vector<std::unique_ptr<class Particle>>& particles
     ) {
-        // throw std::invalid_argument("computeLocalEnergies called on base class hamiltonian");
         return {computeLocalEnergy(wf, particles)};
     }
 

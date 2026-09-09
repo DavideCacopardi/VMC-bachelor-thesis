@@ -6,9 +6,13 @@
 #include "sampler.h"
 
 /**
- * @brief Sampler dedicated to computing the radial one-body density of the system.
- * * Uses a histogram approach to track particle positions as a function of 
+ * @brief Sampler dedicated to computing the spatial distribution functions of the system.
+ * Uses a histogram approach to track particle positions as a function of 
  * their distance from the center of the trap, yielding the spatial density \f$\rho(r)\f$.
+ * A similar histogram approach is employed for computing (correlated) two-body densities.
+ * The Inverse Sampling Theorem is used for computing uncorrelated two-body densities.
+ * Finally the Pair Correlation Function is computed by normalizing the correlated two-body
+ * density against the uncorrelated one.
  */
 class DensitySampler : Sampler {
 public:

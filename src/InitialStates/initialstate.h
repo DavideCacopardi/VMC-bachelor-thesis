@@ -9,9 +9,8 @@
 /**
  * @brief Sets up the initial random configuration of particles in the system.
  * * This function generates a starting state for the Variational Monte Carlo simulation.
- * It places particles randomly within a defined bounding box using a uniform distribution.
- * If a repulsive hard-core diameter (rep_a) is provided, it enforces that no two particles 
- * are initialized closer than this distance (rejection sampling).
+ * It places particles randomly within a defined bounding sphere using a uniform distribution
+ * and at a distance greater than min_dist from each other.
  *
  * @param numberOfDimensions The spatial dimensions of the system (e.g., 1, 2, or 3).
  * @param numberOfParticles The total number of particles to place in the trap.

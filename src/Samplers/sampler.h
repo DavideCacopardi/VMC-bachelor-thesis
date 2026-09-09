@@ -5,7 +5,7 @@
 
 /**
  * @brief Abstract base class for all Monte Carlo samplers.
- * * Defines the interface for collecting data during a VMC run.
+ * * Defines the interface for collecting data during a MC run.
  * Derived classes (like EnergySampler or DensitySampler) will implement
  * specific measurements (e.g., local energy, radial density).
  */
@@ -26,6 +26,12 @@ public:
         unsigned int numberOfMetropolisSteps);
     virtual ~Sampler() = default;
 
+    /**
+     * @brief Samples the quantities after a Metropolis step was accepted or rejected.
+     * @param acceptedStep true if the Metropolis step was accepted; false if it was rejected.
+     * @param system Pointer to the physical system.
+     * @param outputRaw Vector where to log the main sampled quantity.
+     */
     virtual void sample(bool acceptedStep, class System* system, std::vector<double>* outputRaw = nullptr) = 0;
 
     /**

@@ -4,6 +4,11 @@
 
 #include "wavefunction.h"
 
+/**
+ * @brief ψ = exp( -R^2/(2alpha) - (beta_{m,n}/r_{i,j})^5 )
+ * Gaussian wavefunction provided with additional short-range Jastrow term to cancel
+ * leading-order divergences in Lennard-Jones local energies.
+ */
 class LJGaussian : public WaveFunction {
 public:
     LJGaussian(double alpha, double beta1, double beta2);
@@ -11,10 +16,20 @@ public:
     double eval(std::vector<std::unique_ptr<class Particle>>& particles);
     double evalLn(std::vector<std::unique_ptr<class Particle>>& particles);
     
-    // special:
-    // ∇ᵢ²ln(ψ)
+    // SPECIALS
+    /**
+     * @brief Evaluates the particle-wise laplacian of the natural logarithm of the wavefunction.
+     * @param particles Particles
+     * @param particle_idx Index of the particle with respect to which the laplacian should be evaluated.
+     * @return double ∇ᵢ²ln(ψ)
+     */
     double analyticalParticleLaplacian2_lnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
-    // ||∇ᵢln(ψ)||²
+    /**
+     * @brief Evaluates the squared norm of the particle-wise gradient of the wavefunction.
+     * @param particles Particles
+     * @param particle_idx Index of the particle with respect to which the gradient should be evaluated.
+     * @return double ||∇ᵢln(ψ)||²
+     */
     double analyticalSqNorm_ParticleGradlnPsi(std::vector<std::unique_ptr<Particle>>& particles, unsigned int particle_idx);
 
     std::vector<double> lowerBounds() const override { return { 1, 0, 0 }; }

@@ -1,4 +1,5 @@
 // Edited implementation of the automated blocking algorithm by Marius Jonsson (Phys. Rev. E 98, 043304).
+// The edit implements additional logging methods to externally check the correct behavior of the algorithm.
 // Cloned from : [www.github.com / computative / block]
 
 #pragma once
